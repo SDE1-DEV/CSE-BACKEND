@@ -17,6 +17,27 @@ enum Role {
   STUDENT
   MENTOR
   ADMIN
+  MANAGER
+  SUPER_ADMIN
+}
+
+// ── PRD-07: Permission Module ──────────────────────────────────────────────────
+enum PermissionModule {
+  LEARNING
+  CODING
+  PROJECTS
+  PLACEMENTS
+  EVENTS
+  NOTIFICATIONS
+  REPORTS
+}
+
+// ── PRD-07: Manager Invitation Status ─────────────────────────────────────────
+enum InvitationTokenStatus {
+  PENDING
+  ACCEPTED
+  EXPIRED
+  REVOKED
 }
 
 enum Difficulty {
@@ -120,7 +141,14 @@ model User {
   notifications      Notification[]
   analytics          UserAnalytics?
 
+  // PRD-07 relations
+  managerPermissions    ManagerPermission[]    @relation("ManagerPermissions")
+  auditLogsPerformed    AuditLog[]             @relation("AuditLogPerformer")
+  roleHistories         RoleHistory[]          @relation("RoleHistoryUser")
+  managerInvitationsSent ManagerInvitation[]   @relation("ManagerInvitationInviter")
+
   @@index([email])
+  @@index([role])
   @@map("users")
 }
 
@@ -1043,4 +1071,131 @@ model PlatformSetting {
 
   @@index([key])
   @@map("platform_settings")
+}
+
+// ── PRD-07: Manager Permissions ───────────────────────────────────────────────
+
+model ManagerPermission {
+  id        String           @id @default(uuid())
+  managerId String
+  module    PermissionModule
+  canCreate Boolean          @default(false)
+  canRead   Boolean          @default(true)
+  canUpdate Boolean          @default(false)
+  canDelete Boolean          @default(false)
+  canPublish Boolean         @default(false)
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+
+  manager User @relation("ManagerPermissions", fields: [managerId], references: [id], onDelete: Cascade)
+
+  @@unique([managerId, module])
+  @@index([managerId])
+  @@index([module])
+  @@map("manager_permissions")
+}
+
+// ── PRD-07: Audit Log ─────────────────────────────────────────────────────────
+
+model AuditLog {
+  id          String   @id @default(uuid())
+  performedBy String
+  targetUser  String?
+  role        String
+  action      String
+  module      String?
+  entity      String?
+  entityId    String?
+  oldValue    Json?
+  newValue    Json?
+  ipAddress   String?
+  userAgent   String?
+  createdAt   DateTime @default(now())
+
+  performer User  @relation("AuditLogPerformer", fields: [performedBy], references: [id], onDelete: Cascade)
+
+  @@index([performedBy])
+  @@index([targetUser])
+  @@index([action])
+  @@index([module])
+  @@index([createdAt])
+  @@index([role])
+  @@map("audit_logs")
+}
+
+// ── PRD-07: Role History ───────────────────────────────────────────────────────
+
+model RoleHistory {
+  id         String   @id @default(uuid())
+  userId     String
+  oldRole    String
+  newRole    String
+  reason     String?
+  changedBy  String
+  createdAt  DateTime @default(now())
+
+  user User @relation("RoleHistoryUser", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([changedBy])
+  @@index([createdAt])
+  @@map("role_history")
+}
+
+// ── PRD-07: Manager Invitation ────────────────────────────────────────────────
+
+model ManagerInvitation {
+  id         String               @id @default(uuid())
+  email      String
+  token      String               @unique
+  status     InvitationTokenStatus @default(PENDING)
+  invitedBy  String
+  expiresAt  DateTime
+  acceptedAt DateTime?
+  createdAt  DateTime             @default(now())
+
+  inviter User @relation("ManagerInvitationInviter", fields: [invitedBy], references: [id], onDelete: Cascade)
+
+  @@index([email])
+  @@index([token])
+  @@index([status])
+  @@map("manager_invitations")
+}
+
+// ── PRD-07: Platform Metrics (Daily Snapshots) ────────────────────────────────
+
+model PlatformMetric {
+  id                  String   @id @default(uuid())
+  date                DateTime @unique @db.Date
+  totalUsers          Int      @default(0)
+  activeUsers         Int      @default(0)
+  newUsers            Int      @default(0)
+  learningHours       Float    @default(0)
+  codingSubmissions   Int      @default(0)
+  projectsCreated     Int      @default(0)
+  applications        Int      @default(0)
+  eventsRegistered    Int      @default(0)
+  avgSessionTime      Float    @default(0)
+  storageUsed         Float    @default(0)
+  apiRequests         Int      @default(0)
+  createdAt           DateTime @default(now())
+
+  @@index([date])
+  @@map("platform_metrics")
+}
+
+// ── PRD-07: System Log ────────────────────────────────────────────────────────
+
+model SystemLog {
+  id        String   @id @default(uuid())
+  level     String
+  module    String
+  message   String
+  metadata  Json?
+  createdAt DateTime @default(now())
+
+  @@index([level])
+  @@index([module])
+  @@index([createdAt])
+  @@map("system_logs")
 }

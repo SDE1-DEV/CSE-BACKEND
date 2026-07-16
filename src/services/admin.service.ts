@@ -97,6 +97,11 @@ export class AdminService {
   }
 
   async updateUserRole(id: string, role: string) {
+    // PRD-07: Guard against modifying SUPER_ADMIN
+    const existing = await prisma.user.findUnique({ where: { id } });
+    if (existing?.role === 'SUPER_ADMIN') {
+      throw new Error('Cannot modify the Super Admin account');
+    }
     const user = await prisma.user.update({
       where: { id },
       data: { role: role.toUpperCase() as any },

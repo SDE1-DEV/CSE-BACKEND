@@ -9,6 +9,7 @@ export interface JwtPayload {
   userId: string;
   email: string;
   role: Role;
+  permissions?: string[]; // PRD-07: module-level permissions for MANAGER
   iat?: number;
   exp?: number;
 }

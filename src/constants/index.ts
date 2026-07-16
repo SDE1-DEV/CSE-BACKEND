@@ -57,6 +57,61 @@ export const ROLES = {
   STUDENT: 'STUDENT',
   MENTOR: 'MENTOR',
   ADMIN: 'ADMIN',
+  MANAGER: 'MANAGER',
+  SUPER_ADMIN: 'SUPER_ADMIN',
+} as const;
+
+// ── PRD-07: Role Management Messages ─────────────────────────────────────────
+export const ROLE_MESSAGES = {
+  // Manager permissions
+  PERMISSION_UPDATED: 'Manager permissions updated successfully',
+  PERMISSION_FETCHED: 'Manager permissions fetched successfully',
+  PERMISSION_NOT_FOUND: 'Manager permissions not found',
+
+  // User role changes
+  USER_PROMOTED: 'User promoted to Manager successfully',
+  USER_DEMOTED: 'Manager demoted to Student successfully',
+  CANNOT_PROMOTE_SUPER_ADMIN: 'Cannot promote/demote the Super Admin account',
+  USER_ALREADY_MANAGER: 'User is already a Manager',
+  USER_NOT_MANAGER: 'User is not a Manager',
+  USER_STATUS_UPDATED: 'User status updated successfully',
+
+  // Audit logs
+  AUDIT_LOGS_FETCHED: 'Audit logs fetched successfully',
+
+  // Role history
+  ROLE_HISTORY_FETCHED: 'Role history fetched successfully',
+
+  // Manager invitation
+  INVITATION_SENT: 'Manager invitation sent successfully',
+  INVITATION_INVALID: 'Invalid or expired invitation token',
+  INVITATION_ACCEPTED: 'Invitation accepted. Account upgraded to Manager.',
+  INVITATION_ALREADY_ACCEPTED: 'This invitation has already been accepted',
+
+  // Manager dashboard
+  MANAGER_DASHBOARD_FETCHED: 'Manager dashboard fetched successfully',
+
+  // Admin dashboard
+  SUPER_ADMIN_DASHBOARD_FETCHED: 'Super Admin dashboard fetched successfully',
+
+  // Analytics
+  PLATFORM_ANALYTICS_FETCHED: 'Platform analytics fetched successfully',
+
+  // Platform metrics
+  METRICS_FETCHED: 'Platform metrics fetched successfully',
+  METRIC_SNAPSHOT_CREATED: 'Daily metric snapshot created successfully',
+
+  // System logs
+  SYSTEM_LOGS_FETCHED: 'System logs fetched successfully',
+
+  // Reports
+  REPORTS_EXPORTED: 'Report exported successfully',
+
+  // Manager content
+  CONTENT_PUBLISHED: 'Content published successfully',
+  CONTENT_ARCHIVED: 'Content archived successfully',
+  CONTENT_UNPUBLISHED: 'Content unpublished successfully',
+  CONTENT_FORBIDDEN: 'You do not have permission to manage this content module',
 } as const;
 
 // ── Learning Ecosystem Messages ───────────────────────────────────────────────

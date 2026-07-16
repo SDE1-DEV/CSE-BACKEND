@@ -20,6 +20,21 @@ export const requireRole = (...roles: Role[]) => {
   };
 };
 
-export const requireAdmin = requireRole(Role.ADMIN);
-export const requireMentor = requireRole(Role.MENTOR, Role.ADMIN);
-export const requireStudent = requireRole(Role.STUDENT, Role.MENTOR, Role.ADMIN);
+// ── Legacy roles (backward compat) ────────────────────────────────────────────
+export const requireAdmin = requireRole(Role.ADMIN, Role.SUPER_ADMIN);
+export const requireMentor = requireRole(Role.MENTOR, Role.ADMIN, Role.SUPER_ADMIN);
+export const requireStudent = requireRole(
+  Role.STUDENT,
+  Role.MENTOR,
+  Role.ADMIN,
+  Role.MANAGER,
+  Role.SUPER_ADMIN,
+);
+
+// ── PRD-07: New role guards ────────────────────────────────────────────────────
+
+/** Only SUPER_ADMIN can access */
+export const requireSuperAdmin = requireRole(Role.SUPER_ADMIN);
+
+/** MANAGER or SUPER_ADMIN can access manager routes */
+export const requireManager = requireRole(Role.MANAGER, Role.SUPER_ADMIN);

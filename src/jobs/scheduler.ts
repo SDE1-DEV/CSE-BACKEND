@@ -18,6 +18,7 @@ import { enqueueAnalytics } from '../queues/analytics.queue';
 import { generateDailyChallenge } from './daily-challenge.job';
 import { sendWeeklyReports } from './weekly-report.job';
 import { logger } from '../utils/logger';
+import { superAdminService } from '../services/admin/super-admin.service';
 
 type CronJobDef = {
   name: string;
@@ -65,6 +66,21 @@ const jobDefinitions: CronJobDef[] = [
     name: 'weekly-reports:send',
     schedule: '0 8 * * 0',
     handler: sendWeeklyReports,
+  },
+  // PRD-07: Daily platform metric snapshot at 11:55 PM UTC
+  {
+    name: 'metrics:daily-snapshot',
+    schedule: '55 23 * * *',
+    handler: async () => {
+      await superAdminService.createDailySnapshot();
+      logger.info('Daily platform metric snapshot created');
+    },
+  },
+  // PRD-07: Expire pending manager invitations hourly
+  {
+    name: 'invitations:expire-manager',
+    schedule: '0 * * * *',
+    handler: () => enqueueCleanup('cleanup:expired-manager-invitations'),
   },
 ];
 

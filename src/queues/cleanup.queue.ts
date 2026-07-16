@@ -14,7 +14,8 @@ export interface CleanupJobData {
     | 'cleanup:expired-invitations'
     | 'cleanup:expired-events'
     | 'cleanup:stale-notifications'
-    | 'cleanup:expired-tokens';
+    | 'cleanup:expired-tokens'
+    | 'cleanup:expired-manager-invitations'; // PRD-07
 }
 
 export const cleanupQueue = createQueue(QUEUE_NAMES.CLEANUP);
@@ -82,6 +83,16 @@ const processCleanupJob = async (job: Job<CleanupJobData>): Promise<void> => {
         where: { expiresAt: { lt: new Date() } },
       });
       logger.info('Cleaned expired refresh tokens', { count: result.count });
+      break;
+    }
+
+    // PRD-07: Expire pending manager invitations
+    case 'cleanup:expired-manager-invitations': {
+      const result = await prisma.managerInvitation.updateMany({
+        where: { status: 'PENDING', expiresAt: { lt: new Date() } },
+        data: { status: 'EXPIRED' },
+      });
+      logger.info('Expired manager invitations cleaned', { count: result.count });
       break;
     }
 

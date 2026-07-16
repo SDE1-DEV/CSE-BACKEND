@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { sendError } from '../utils/response';
 import { HTTP_STATUS, MESSAGES } from '../constants';
 import { logger } from '../utils/logger';
+import { SystemLogRepository } from '../repositories/admin/system-log.repository';
 
 export class AppError extends Error {
   constructor(
@@ -37,6 +38,13 @@ export const globalErrorHandler = (
     sendError(res, err.message, err.statusCode);
     return;
   }
+
+  // PRD-07: Write 5xx errors to SystemLog (fire-and-forget)
+  SystemLogRepository.writeAsync('error', 'GlobalErrorHandler', err.message, {
+    stack: err.stack,
+    url: req.originalUrl,
+    method: req.method,
+  });
 
   // Don't expose internal errors to the client
   sendError(res, MESSAGES.INTERNAL_ERROR, HTTP_STATUS.INTERNAL_SERVER_ERROR);

@@ -48,6 +48,10 @@ import analyticsRoutes from './analytics.routes';
 import adminRoutes from './admin.routes';
 import { getMyEvents } from '../controllers/event.controller';
 
+// ── PRD-07: Role Management, Manager Console & Super Admin ────────────────────
+import superAdminRoutes from './super-admin.routes';
+import managerRoutes from './manager.routes';
+
 import { authenticate } from '../middlewares/authenticate.middleware';
 import { requireStudent } from '../middlewares/role.middleware';
 
@@ -110,7 +114,16 @@ router.use('/resume-sections', resumeSectionRoutes);
 router.use('/events', eventRoutes);
 router.use('/notifications', notificationRoutes);
 router.use('/analytics', analyticsRoutes);
+
+// ── PRD-07: Super Admin routes FIRST (more specific) ─────────────────────────
+// These handle /admin/dashboard, /admin/users/:id/promote, /admin/managers, etc.
+router.use('/admin', superAdminRoutes);
+
+// Legacy admin routes (backward compat PRD-01 to PRD-06)
 router.use('/admin', adminRoutes);
+
+// Manager Console — /api/manager/* (MANAGER or SUPER_ADMIN role required)
+router.use('/manager', managerRoutes);
 
 // GET /api/my-events — top-level shortcut
 router.get('/my-events', authenticate, requireStudent, getMyEvents);

@@ -6,9 +6,9 @@ const options: swaggerJsdoc.Options = {
     openapi: '3.0.0',
     info: {
       title: 'CSE Student Platform API',
-      version: '5.0.0',
+      version: '7.0.0',
       description:
-        'Backend API for the CSE Student Platform — Authentication, User Management, Learning Ecosystem, Coding Practice Platform, Project Hub / Team Collaboration & Placement Ecosystem (PRD-05)',
+        'Backend API for the CSE Student Platform — Authentication, User Management, Learning Ecosystem, Coding Practice Platform, Project Hub / Team Collaboration, Placement Ecosystem (PRD-05), and Role Management / Manager Console / Super Admin Platform (PRD-07)',
       contact: {
         name: 'CSE Student Platform',
       },
@@ -17,6 +17,38 @@ const options: swaggerJsdoc.Options = {
       {
         url: `http://localhost:${env.PORT}`,
         description: 'Development Server',
+      },
+    ],
+    tags: [
+      { name: 'Auth', description: 'Authentication & token management' },
+      { name: 'Users', description: 'User profile & account management' },
+      { name: 'Categories', description: 'Learning roadmap categories' },
+      { name: 'Roadmaps', description: 'Learning roadmaps' },
+      { name: 'Sections', description: 'Roadmap sections' },
+      { name: 'Lessons', description: 'Individual lessons' },
+      { name: 'Resources', description: 'Lesson resources' },
+      { name: 'Problems', description: 'Coding problems' },
+      { name: 'Submissions', description: 'Code submissions' },
+      { name: 'Projects', description: 'Project hub' },
+      { name: 'Teams', description: 'Team collaboration' },
+      { name: 'Events', description: 'Platform events' },
+      { name: 'Jobs', description: 'Job postings' },
+      { name: 'Notifications', description: 'User notifications' },
+      { name: 'Analytics', description: 'Personal analytics' },
+      { name: 'Admin', description: 'Legacy admin (PRD-01 to PRD-06, ADMIN role)' },
+      // PRD-07
+      {
+        name: 'Super Admin',
+        description:
+          'PRD-07 — Super Admin platform control. **Requires SUPER_ADMIN role.** ' +
+          'Full platform access: users, managers, permissions, analytics, settings, audit logs, reports.',
+      },
+      {
+        name: 'Manager',
+        description:
+          'PRD-07 — Manager content console. **Requires MANAGER or SUPER_ADMIN role.** ' +
+          'Manages educational content per assigned module permissions. ' +
+          'Cannot access user management, platform settings, or admin APIs.',
       },
     ],
     components: {
@@ -845,11 +877,215 @@ const options: swaggerJsdoc.Options = {
             },
           },
         },
+        // ── PRD-07: Role Management Schemas ─────────────────────────────
+
+        // Manager Permission
+        ManagerPermission: {
+          type: 'object',
+          properties: {
+            id: { type: 'string', format: 'uuid' },
+            managerId: { type: 'string', format: 'uuid' },
+            module: {
+              type: 'string',
+              enum: ['LEARNING', 'CODING', 'PROJECTS', 'PLACEMENTS', 'EVENTS', 'NOTIFICATIONS', 'REPORTS'],
+            },
+            canCreate: { type: 'boolean', example: true },
+            canRead: { type: 'boolean', example: true },
+            canUpdate: { type: 'boolean', example: true },
+            canDelete: { type: 'boolean', example: false },
+            canPublish: { type: 'boolean', example: true },
+            createdAt: { type: 'string', format: 'date-time' },
+            updatedAt: { type: 'string', format: 'date-time' },
+          },
+        },
+
+        // Update Manager Permissions Request
+        UpdateManagerPermissionsRequest: {
+          type: 'object',
+          properties: {
+            learning: { type: 'boolean', example: true },
+            coding: { type: 'boolean', example: true },
+            projects: { type: 'boolean', example: false },
+            placements: { type: 'boolean', example: true },
+            events: { type: 'boolean', example: false },
+            notifications: { type: 'boolean', example: true },
+            reports: { type: 'boolean', example: true },
+          },
+          example: {
+            learning: true,
+            coding: true,
+            projects: false,
+            placements: true,
+            events: false,
+            notifications: true,
+          },
+        },
+
+        // Promote User Request
+        PromoteUserRequest: {
+          type: 'object',
+          properties: {
+            reason: { type: 'string', example: 'Promoted for outstanding content contributions' },
+            modules: {
+              type: 'object',
+              properties: {
+                learning: { type: 'boolean' },
+                coding: { type: 'boolean' },
+                projects: { type: 'boolean' },
+                placements: { type: 'boolean' },
+                events: { type: 'boolean' },
+                notifications: { type: 'boolean' },
+                reports: { type: 'boolean' },
+              },
+            },
+          },
+        },
+
+        // Demote User Request
+        DemoteUserRequest: {
+          type: 'object',
+          properties: {
+            reason: { type: 'string', example: 'Role no longer required' },
+          },
+        },
+
+        // Audit Log
+        AuditLog: {
+          type: 'object',
+          properties: {
+            id: { type: 'string', format: 'uuid' },
+            performedBy: { type: 'string', format: 'uuid' },
+            targetUser: { type: 'string', format: 'uuid', nullable: true },
+            role: { type: 'string', example: 'SUPER_ADMIN' },
+            action: { type: 'string', example: 'USER_PROMOTED' },
+            module: { type: 'string', nullable: true, example: 'LEARNING' },
+            entity: { type: 'string', nullable: true, example: 'User' },
+            entityId: { type: 'string', nullable: true },
+            oldValue: { type: 'object', nullable: true },
+            newValue: { type: 'object', nullable: true },
+            ipAddress: { type: 'string', nullable: true },
+            userAgent: { type: 'string', nullable: true },
+            createdAt: { type: 'string', format: 'date-time' },
+          },
+        },
+
+        // Role History
+        RoleHistory: {
+          type: 'object',
+          properties: {
+            id: { type: 'string', format: 'uuid' },
+            userId: { type: 'string', format: 'uuid' },
+            oldRole: { type: 'string', example: 'STUDENT' },
+            newRole: { type: 'string', example: 'MANAGER' },
+            reason: { type: 'string', nullable: true },
+            changedBy: { type: 'string', format: 'uuid' },
+            createdAt: { type: 'string', format: 'date-time' },
+          },
+        },
+
+        // Super Admin Dashboard
+        SuperAdminDashboardResponse: {
+          type: 'object',
+          properties: {
+            users: {
+              type: 'object',
+              properties: {
+                total: { type: 'integer', example: 2500 },
+                managers: { type: 'integer', example: 5 },
+                students: { type: 'integer', example: 2494 },
+                activeSessions: { type: 'integer', example: 120 },
+                newToday: { type: 'integer', example: 18 },
+                newThisMonth: { type: 'integer', example: 350 },
+              },
+            },
+            content: {
+              type: 'object',
+              properties: {
+                roadmaps: { type: 'integer', example: 25 },
+                problems: { type: 'integer', example: 200 },
+                projects: { type: 'integer', example: 50 },
+                jobs: { type: 'integer', example: 30 },
+                events: { type: 'integer', example: 10 },
+              },
+            },
+            recentActivity: { type: 'array', items: { type: 'object' } },
+          },
+        },
+
+        // Platform Analytics
+        PlatformAnalyticsResponse: {
+          type: 'object',
+          properties: {
+            learning: { type: 'object' },
+            coding: { type: 'object' },
+            projects: { type: 'object' },
+            users: { type: 'object' },
+            placements: { type: 'object' },
+            metrics: { type: 'array', items: { type: 'object' } },
+          },
+        },
+
+        // Manager Dashboard
+        ManagerDashboardResponse: {
+          type: 'object',
+          properties: {
+            publishedRoadmaps: { type: 'integer', example: 12 },
+            drafts: { type: 'integer', example: 3 },
+            problems: {
+              type: 'object',
+              properties: {
+                published: { type: 'integer', example: 85 },
+                draft: { type: 'integer', example: 10 },
+              },
+            },
+            projects: { type: 'integer', example: 25 },
+            events: { type: 'integer', example: 8 },
+            jobs: { type: 'integer', example: 15 },
+          },
+        },
+
+        // Broadcast Notification Request
+        BroadcastNotificationRequest: {
+          type: 'object',
+          required: ['title', 'message'],
+          properties: {
+            title: { type: 'string', example: 'System Update' },
+            message: { type: 'string', example: 'The platform will undergo maintenance tonight.' },
+            type: {
+              type: 'string',
+              enum: ['PLACEMENT', 'PROJECT', 'CODING', 'LEARNING', 'EVENT', 'SYSTEM'],
+              default: 'SYSTEM',
+            },
+            targetRole: {
+              type: 'string',
+              enum: ['STUDENT', 'MANAGER'],
+              description: 'If omitted, sends to all users',
+              nullable: true,
+            },
+          },
+        },
+
+        // Bulk Action Request
+        BulkActionRequest: {
+          type: 'object',
+          required: ['entity', 'ids'],
+          properties: {
+            entity: {
+              type: 'string',
+              enum: ['roadmaps', 'problems', 'projects', 'jobs', 'events'],
+            },
+            ids: {
+              type: 'array',
+              items: { type: 'string', format: 'uuid' },
+              minItems: 1,
+            },
+          },
+        },
       },
     },
-    security: [],
+    security: [{ BearerAuth: [] }],
   },
-  apis: ['./src/routes/*.ts', './src/controllers/*.ts'],
+  apis: ['./src/routes/*.ts', './src/controllers/*.ts', './src/controllers/**/*.ts'],
 };
 
 export const swaggerSpec = swaggerJsdoc(options);

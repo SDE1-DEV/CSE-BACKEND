@@ -3,13 +3,20 @@ import { env } from '../config/env';
 import { JwtPayload } from '../types';
 import { Role } from '@prisma/client';
 
-export const generateAccessToken = (payload: { userId: string; email: string; role: Role }): string => {
+interface TokenPayload {
+  userId: string;
+  email: string;
+  role: Role;
+  permissions?: string[]; // PRD-07: module permissions for MANAGER
+}
+
+export const generateAccessToken = (payload: TokenPayload): string => {
   return jwt.sign(payload, env.JWT_SECRET, {
     expiresIn: env.JWT_EXPIRY as jwt.SignOptions['expiresIn'],
   });
 };
 
-export const generateRefreshToken = (payload: { userId: string; email: string; role: Role }): string => {
+export const generateRefreshToken = (payload: TokenPayload): string => {
   return jwt.sign(payload, env.JWT_REFRESH_SECRET, {
     expiresIn: env.REFRESH_EXPIRY as jwt.SignOptions['expiresIn'],
   });

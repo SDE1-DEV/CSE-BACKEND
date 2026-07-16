@@ -1,4 +1,4 @@
-import { User } from '@prisma/client';
+import { User, Role } from '@prisma/client';
 import { userRepository } from '../repositories/user.repository';
 import { authRepository } from '../repositories/auth.repository';
 import { hashPassword, comparePassword } from '../utils/hash';
@@ -9,6 +9,7 @@ import { AppError } from '../middlewares/error.middleware';
 import { HTTP_STATUS, MESSAGES } from '../constants';
 import { TokenPair } from '../types';
 import { env } from '../config/env';
+import { managerPermissionRepository } from '../repositories/admin/manager-permission.repository';
 
 const REFRESH_EXPIRY_MS = 7 * 24 * 60 * 60 * 1000; // 7 days default
 
@@ -17,6 +18,20 @@ const parseExpiry = (_expiry: string): Date => {
 };
 
 export class AuthService {
+  /**
+   * Build the JWT payload, including permissions for MANAGER role.
+   */
+  private async buildTokenPayload(user: User) {
+    const base = { userId: user.id, email: user.email, role: user.role };
+
+    if (user.role === Role.MANAGER) {
+      const permissions = await managerPermissionRepository.getModuleNames(user.id);
+      return { ...base, permissions };
+    }
+
+    return base;
+  }
+
   async register(
     fullName: string,
     email: string,
@@ -41,8 +56,8 @@ export class AuthService {
       isVerified: true,
     });
 
-    // Generate tokens
-    const tokenPayload = { userId: user.id, email: user.email, role: user.role };
+    // Generate tokens — include permissions for MANAGER role (PRD-07)
+    const tokenPayload = await this.buildTokenPayload(user);
     const accessToken = generateAccessToken(tokenPayload);
     const refreshToken = generateRefreshToken(tokenPayload);
 
@@ -95,8 +110,8 @@ export class AuthService {
       throw new AppError(HTTP_STATUS.UNAUTHORIZED, MESSAGES.INVALID_CREDENTIALS);
     }
 
-    // Generate tokens
-    const tokenPayload = { userId: user.id, email: user.email, role: user.role };
+    // Generate tokens — include permissions for MANAGER role (PRD-07)
+    const tokenPayload = await this.buildTokenPayload(user);
     const accessToken = generateAccessToken(tokenPayload);
     const refreshToken = generateRefreshToken(tokenPayload);
 
@@ -149,7 +164,8 @@ export class AuthService {
       throw new AppError(HTTP_STATUS.UNAUTHORIZED, MESSAGES.TOKEN_INVALID);
     }
 
-    const tokenPayload = { userId: user.id, email: user.email, role: user.role };
+    // Include permissions for MANAGER role (PRD-07)
+    const tokenPayload = await this.buildTokenPayload(user);
 
     // Rotate: delete old token, issue new pair
     await authRepository.deleteRefreshToken(refreshToken);
