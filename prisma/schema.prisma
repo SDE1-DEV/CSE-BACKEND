@@ -1,0 +1,1046 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ── Enums ─────────────────────────────────────────────────────────────────────
+
+enum Role {
+  STUDENT
+  MENTOR
+  ADMIN
+}
+
+enum Difficulty {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+}
+
+enum ContentType {
+  NOTE
+  VIDEO
+  ARTICLE
+  QUIZ
+  ASSIGNMENT
+  PROJECT
+  CODING_PROBLEM
+}
+
+enum ResourceType {
+  PDF
+  VIDEO
+  ARTICLE
+  GITHUB
+  DOCUMENTATION
+  PRACTICE_LINK
+}
+
+// ── PRD-03 Enums ──────────────────────────────────────────────────────────────
+
+enum ProblemDifficulty {
+  EASY
+  MEDIUM
+  HARD
+}
+
+enum ProgrammingLanguage {
+  C
+  CPP
+  JAVA
+  PYTHON
+  JAVASCRIPT
+}
+
+enum SubmissionStatus {
+  PENDING
+  ACCEPTED
+  WRONG_ANSWER
+  TIME_LIMIT_EXCEEDED
+  MEMORY_LIMIT_EXCEEDED
+  RUNTIME_ERROR
+  COMPILE_ERROR
+}
+
+// ── Auth Models ───────────────────────────────────────────────────────────────
+
+model User {
+  id                String    @id @default(uuid())
+  fullName          String
+  email             String    @unique
+  passwordHash      String
+  phoneNumber       String?
+  profileImage      String?
+  collegeName       String?
+  university        String?
+  branch            String?
+  currentYear       Int?
+  semester          Int?
+  githubUrl         String?
+  linkedinUrl       String?
+  portfolioUrl      String?
+  bio               String?
+  role              Role      @default(STUDENT)
+  isVerified        Boolean   @default(false)
+  profileCompletion Int       @default(0)
+  lastLoginAt       DateTime?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  refreshTokens      RefreshToken[]
+  lessonProgress     LessonProgress[]
+  bookmarks          Bookmark[]
+  recentlyViewed     RecentlyViewed[]
+  submissions        Submission[]
+  favoriteProblems   FavoriteProblem[]
+  problemDiscussions ProblemDiscussion[]
+
+  // PRD-04 relations
+  ownedTeams            Team[]             @relation("TeamOwner")
+  teamMemberships       TeamMember[]       @relation("TeamMemberships")
+  sentInvitations       TeamInvitation[]   @relation("InvitationSender")
+  receivedInvitations   TeamInvitation[]   @relation("InvitationReceiver")
+  assignedTasks         Task[]             @relation("TaskAssignee")
+  uploadedProjectFiles  ProjectFile[]      @relation("ProjectFileUploader")
+  teamComments          TeamComment[]      @relation("TeamCommentAuthor")
+  activityLogs          ActivityLog[]      @relation("ActivityLogUser")
+
+  // PRD-05 relations
+  jobApplications    JobApplication[]
+  resumes            Resume[]
+  eventRegistrations EventRegistration[]
+  notifications      Notification[]
+  analytics          UserAnalytics?
+
+  @@index([email])
+  @@map("users")
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("refresh_tokens")
+}
+
+model EmailVerification {
+  id        String   @id @default(uuid())
+  email     String
+  otp       String
+  expiresAt DateTime
+  verified  Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@map("email_verifications")
+}
+
+model PasswordReset {
+  id        String   @id @default(uuid())
+  email     String
+  otp       String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@map("password_resets")
+}
+
+// ── Learning Ecosystem Models ─────────────────────────────────────────────────
+
+model Category {
+  id           String    @id @default(uuid())
+  title        String
+  slug         String    @unique
+  description  String?
+  icon         String?
+  displayOrder Int       @default(0)
+  isActive     Boolean   @default(true)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  roadmaps Roadmap[]
+
+  @@index([slug])
+  @@index([isActive])
+  @@index([displayOrder])
+  @@map("categories")
+}
+
+model Roadmap {
+  id             String     @id @default(uuid())
+  categoryId     String
+  title          String
+  slug           String     @unique
+  description    String?
+  thumbnail      String?
+  difficulty     Difficulty @default(BEGINNER)
+  estimatedHours Int?
+  prerequisites  String?
+  displayOrder   Int        @default(0)
+  isPublished    Boolean    @default(false)
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  category Category          @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  sections RoadmapSection[]
+
+  @@index([slug])
+  @@index([categoryId])
+  @@index([isPublished])
+  @@index([difficulty])
+  @@index([displayOrder])
+  @@map("roadmaps")
+}
+
+model RoadmapSection {
+  id          String  @id @default(uuid())
+  roadmapId   String
+  title       String
+  description String?
+  order       Int     @default(0)
+
+  roadmap Roadmap  @relation(fields: [roadmapId], references: [id], onDelete: Cascade)
+  lessons Lesson[]
+
+  @@index([roadmapId])
+  @@index([order])
+  @@map("roadmap_sections")
+}
+
+model Lesson {
+  id               String      @id @default(uuid())
+  sectionId        String
+  title            String
+  slug             String      @unique
+  description      String?
+  contentType      ContentType @default(NOTE)
+  estimatedMinutes Int?
+  order            Int         @default(0)
+  isPublished      Boolean     @default(false)
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+
+  section        RoadmapSection   @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  resources      LearningResource[]
+  progress       LessonProgress[]
+  bookmarks      Bookmark[]
+  recentlyViewed RecentlyViewed[]
+
+  @@index([slug])
+  @@index([sectionId])
+  @@index([isPublished])
+  @@index([order])
+  @@map("lessons")
+}
+
+model LearningResource {
+  id        String       @id @default(uuid())
+  lessonId  String
+  type      ResourceType
+  title     String
+  url       String
+  duration  Int?
+  author    String?
+  thumbnail String?
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@index([lessonId])
+  @@map("learning_resources")
+}
+
+model LessonProgress {
+  id              String    @id @default(uuid())
+  userId          String
+  lessonId        String
+  completed       Boolean   @default(false)
+  completedAt     DateTime?
+  watchPercentage Float     @default(0)
+  timeSpent       Int       @default(0)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, lessonId])
+  @@index([userId])
+  @@index([lessonId])
+  @@map("lesson_progress")
+}
+
+model Bookmark {
+  id        String   @id @default(uuid())
+  userId    String
+  lessonId  String
+  createdAt DateTime @default(now())
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, lessonId])
+  @@index([userId])
+  @@index([lessonId])
+  @@map("bookmarks")
+}
+
+model RecentlyViewed {
+  id       String   @id @default(uuid())
+  userId   String
+  lessonId String
+  viewedAt DateTime @default(now())
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, lessonId])
+  @@index([userId])
+  @@index([lessonId])
+  @@map("recently_viewed")
+}
+
+// ── PRD-03: Coding Practice Platform ──────────────────────────────────────────
+
+model ProblemCategory {
+  id           String    @id @default(uuid())
+  name         String
+  slug         String    @unique
+  description  String?
+  displayOrder Int       @default(0)
+  isActive     Boolean   @default(true)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  problems CodingProblem[]
+
+  @@index([slug])
+  @@index([isActive])
+  @@index([displayOrder])
+  @@map("problem_categories")
+}
+
+model CodingProblem {
+  id               String            @id @default(uuid())
+  categoryId       String
+  title            String
+  slug             String            @unique
+  description      String?
+  problemStatement String
+  inputFormat      String?
+  outputFormat     String?
+  constraints      String?
+  sampleInput      String?
+  sampleOutput     String?
+  explanation      String?
+  difficulty       ProblemDifficulty @default(EASY)
+  timeLimit        Int               @default(1000)   // milliseconds
+  memoryLimit      Int               @default(256)    // MB
+  acceptanceRate   Float             @default(0)
+  points           Int               @default(0)
+  isPublished      Boolean           @default(false)
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+
+  category     ProblemCategory     @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  testCases    TestCase[]
+  templates    CodeTemplate[]
+  submissions  Submission[]
+  favorites    FavoriteProblem[]
+  discussions  ProblemDiscussion[]
+  tags         ProblemTagRelation[]
+  companies    ProblemCompany[]
+  dailyChallenges DailyChallenge[]
+
+  @@index([categoryId])
+  @@index([difficulty])
+  @@index([slug])
+  @@index([isPublished])
+  @@map("coding_problems")
+}
+
+model ProblemTag {
+  id   String @id @default(uuid())
+  name String @unique
+  slug String @unique
+
+  problems ProblemTagRelation[]
+
+  @@index([slug])
+  @@map("problem_tags")
+}
+
+model ProblemTagRelation {
+  id        String @id @default(uuid())
+  problemId String
+  tagId     String
+
+  problem CodingProblem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  tag     ProblemTag    @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@unique([problemId, tagId])
+  @@index([problemId])
+  @@index([tagId])
+  @@map("problem_tag_relations")
+}
+
+model Company {
+  id           String  @id @default(uuid())
+  name         String  @unique
+  slug         String  @unique
+  logo         String?
+  website      String?
+  // PRD-05 extensions
+  description  String?
+  industry     String?
+  headquarters String?
+  careersUrl   String?
+  verified     Boolean @default(false)
+
+  problems    ProblemCompany[]
+  jobPostings JobPosting[]
+
+  @@index([slug])
+  @@map("companies")
+}
+
+model ProblemCompany {
+  id        String @id @default(uuid())
+  problemId String
+  companyId String
+
+  problem CodingProblem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  company Company       @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@unique([problemId, companyId])
+  @@index([problemId])
+  @@index([companyId])
+  @@map("problem_companies")
+}
+
+model TestCase {
+  id             String  @id @default(uuid())
+  problemId      String
+  input          String
+  expectedOutput String
+  isSample       Boolean @default(false)
+  isHidden       Boolean @default(false)
+  weight         Int     @default(1)
+
+  problem CodingProblem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+
+  @@index([problemId])
+  @@map("test_cases")
+}
+
+model CodeTemplate {
+  id        String              @id @default(uuid())
+  problemId String
+  language  ProgrammingLanguage
+  template  String
+
+  problem CodingProblem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+
+  @@unique([problemId, language])
+  @@index([problemId])
+  @@map("code_templates")
+}
+
+model Submission {
+  id              String            @id @default(uuid())
+  userId          String
+  problemId       String
+  language        ProgrammingLanguage
+  sourceCode      String
+  status          SubmissionStatus  @default(PENDING)
+  runtime         Int?              // milliseconds
+  memoryUsed      Int?              // MB
+  score           Int               @default(0)
+  passedTestCases Int               @default(0)
+  totalTestCases  Int               @default(0)
+  submittedAt     DateTime          @default(now())
+
+  user    User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  problem CodingProblem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([problemId])
+  @@index([submittedAt])
+  @@index([status])
+  @@map("submissions")
+}
+
+model FavoriteProblem {
+  id        String   @id @default(uuid())
+  userId    String
+  problemId String
+  createdAt DateTime @default(now())
+
+  user    User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  problem CodingProblem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, problemId])
+  @@index([userId])
+  @@index([problemId])
+  @@map("favorite_problems")
+}
+
+model DailyChallenge {
+  id            String   @id @default(uuid())
+  problemId     String
+  challengeDate DateTime @unique @db.Date
+  bonusXP       Int      @default(50)
+
+  problem CodingProblem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+
+  @@index([challengeDate])
+  @@index([problemId])
+  @@map("daily_challenges")
+}
+
+model ProblemDiscussion {
+  id        String   @id @default(uuid())
+  userId    String
+  problemId String
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user    User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  problem CodingProblem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([problemId])
+  @@map("problem_discussions")
+}
+
+// ── PRD-04: Project Hub & Team Collaboration ───────────────────────────────────
+
+enum ProjectDifficulty {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+  EXPERT
+}
+
+enum TeamStatus {
+  OPEN
+  FULL
+  CLOSED
+  COMPLETED
+}
+
+enum TeamMemberRole {
+  OWNER
+  LEADER
+  DEVELOPER
+  DESIGNER
+  RESEARCHER
+  TESTER
+}
+
+enum InvitationStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  EXPIRED
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  REVIEW
+  COMPLETED
+}
+
+enum TaskPriority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum MilestoneStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+}
+
+enum ActivityAction {
+  TEAM_CREATED
+  MEMBER_JOINED
+  TASK_ASSIGNED
+  TASK_COMPLETED
+  MILESTONE_COMPLETED
+  FILE_UPLOADED
+  COMMENT_ADDED
+  TASK_UPDATED
+  MEMBER_REMOVED
+  INVITATION_SENT
+  INVITATION_ACCEPTED
+}
+
+model ProjectCategory {
+  id           String   @id @default(uuid())
+  name         String
+  slug         String   @unique
+  description  String?
+  icon         String?
+  displayOrder Int      @default(0)
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  projects Project[]
+
+  @@index([slug])
+  @@index([isActive])
+  @@index([displayOrder])
+  @@map("project_categories")
+}
+
+model Project {
+  id               String            @id @default(uuid())
+  categoryId       String
+  title            String
+  slug             String            @unique
+  description      String?
+  overview         String?
+  difficulty       ProjectDifficulty @default(BEGINNER)
+  estimatedDuration String?
+  thumbnail        String?
+  githubRepository String?
+  liveDemo         String?
+  documentationUrl String?
+  requirements     String?
+  learningOutcomes String?
+  isPublished      Boolean           @default(false)
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+
+  category     ProjectCategory           @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  technologies ProjectTechnologyRelation[]
+  teams        Team[]
+  milestones   Milestone[]
+  files        ProjectFile[]
+
+  @@index([categoryId])
+  @@index([slug])
+  @@index([isPublished])
+  @@index([difficulty])
+  @@map("projects")
+}
+
+model ProjectTechnology {
+  id   String @id @default(uuid())
+  name String @unique
+  slug String @unique
+  icon String?
+
+  projects ProjectTechnologyRelation[]
+
+  @@index([slug])
+  @@map("project_technologies")
+}
+
+model ProjectTechnologyRelation {
+  id           String @id @default(uuid())
+  projectId    String
+  technologyId String
+
+  project    Project           @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  technology ProjectTechnology @relation(fields: [technologyId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, technologyId])
+  @@index([projectId])
+  @@index([technologyId])
+  @@map("project_technology_relations")
+}
+
+model Team {
+  id         String     @id @default(uuid())
+  projectId  String
+  name       String
+  ownerId    String
+  maxMembers Int        @default(5)
+  status     TeamStatus @default(OPEN)
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+
+  project     Project          @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  owner       User             @relation("TeamOwner", fields: [ownerId], references: [id])
+  members     TeamMember[]
+  invitations TeamInvitation[]
+  tasks       Task[]
+  activityLogs ActivityLog[]
+
+  @@index([projectId])
+  @@index([ownerId])
+  @@index([status])
+  @@map("teams")
+}
+
+model TeamMember {
+  id       String         @id @default(uuid())
+  teamId   String
+  userId   String
+  role     TeamMemberRole @default(DEVELOPER)
+  joinedAt DateTime       @default(now())
+
+  team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  user User @relation("TeamMemberships", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([teamId, userId])
+  @@index([teamId])
+  @@index([userId])
+  @@map("team_members")
+}
+
+model TeamInvitation {
+  id         String           @id @default(uuid())
+  teamId     String
+  senderId   String
+  receiverId String
+  status     InvitationStatus @default(PENDING)
+  expiresAt  DateTime
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+
+  team     Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  sender   User @relation("InvitationSender", fields: [senderId], references: [id], onDelete: Cascade)
+  receiver User @relation("InvitationReceiver", fields: [receiverId], references: [id], onDelete: Cascade)
+
+  @@index([teamId])
+  @@index([senderId])
+  @@index([receiverId])
+  @@index([status])
+  @@map("team_invitations")
+}
+
+model Task {
+  id             String       @id @default(uuid())
+  teamId         String
+  assignedTo     String?
+  title          String
+  description    String?
+  priority       TaskPriority @default(MEDIUM)
+  status         TaskStatus   @default(TODO)
+  dueDate        DateTime?
+  estimatedHours Float?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  team       Team          @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  assignee   User?         @relation("TaskAssignee", fields: [assignedTo], references: [id], onDelete: SetNull)
+  comments   TeamComment[]
+
+  @@index([teamId])
+  @@index([assignedTo])
+  @@index([status])
+  @@index([dueDate])
+  @@map("tasks")
+}
+
+model Milestone {
+  id                   String          @id @default(uuid())
+  projectId            String
+  title                String
+  description          String?
+  dueDate              DateTime?
+  status               MilestoneStatus @default(PENDING)
+  completionPercentage Float           @default(0)
+  createdAt            DateTime        @default(now())
+  updatedAt            DateTime        @updatedAt
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+  @@index([status])
+  @@index([dueDate])
+  @@map("milestones")
+}
+
+model ProjectFile {
+  id         String   @id @default(uuid())
+  projectId  String
+  uploadedBy String
+  title      String
+  fileUrl    String
+  fileType   String
+  uploadedAt DateTime @default(now())
+
+  project  Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  uploader User    @relation("ProjectFileUploader", fields: [uploadedBy], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+  @@index([uploadedBy])
+  @@map("project_files")
+}
+
+model TeamComment {
+  id        String   @id @default(uuid())
+  taskId    String
+  userId    String
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  task Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  user User @relation("TeamCommentAuthor", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([taskId])
+  @@index([userId])
+  @@map("team_comments")
+}
+
+model ActivityLog {
+  id        String         @id @default(uuid())
+  teamId    String
+  userId    String
+  action    ActivityAction
+  metadata  Json?
+  createdAt DateTime       @default(now())
+
+  team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  user User @relation("ActivityLogUser", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([teamId])
+  @@index([userId])
+  @@index([createdAt])
+  @@map("activity_logs")
+}
+
+// ── PRD-05: Placement Ecosystem ────────────────────────────────────────────────
+
+enum JobType {
+  INTERNSHIP
+  FULL_TIME
+  PART_TIME
+}
+
+enum WorkMode {
+  REMOTE
+  HYBRID
+  ONSITE
+}
+
+enum ApplicationStatus {
+  SAVED
+  APPLIED
+  OA_SCHEDULED
+  INTERVIEW
+  HR_ROUND
+  OFFERED
+  REJECTED
+  WITHDRAWN
+}
+
+// ── PRD-05: Events ─────────────────────────────────────────────────────────────
+
+enum EventType {
+  HACKATHON
+  WEBINAR
+  WORKSHOP
+  CONTEST
+  BOOTCAMP
+  MEETUP
+}
+
+// ── PRD-05: Notifications ──────────────────────────────────────────────────────
+
+enum NotificationType {
+  PLACEMENT
+  PROJECT
+  CODING
+  LEARNING
+  EVENT
+  SYSTEM
+}
+
+// ── PRD-05: Job Postings ───────────────────────────────────────────────────────
+
+model JobPosting {
+  id                  String    @id @default(uuid())
+  companyId           String
+  title               String
+  type                JobType   @default(FULL_TIME)
+  location            String?
+  workMode            WorkMode  @default(ONSITE)
+  description         String
+  requirements        String?
+  salaryRange         String?
+  applicationUrl      String?
+  applicationDeadline DateTime?
+  experienceRequired  String?
+  isPublished         Boolean   @default(false)
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  company      Company          @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  applications JobApplication[]
+
+  @@index([companyId])
+  @@index([isPublished])
+  @@index([applicationDeadline])
+  @@index([type])
+  @@index([workMode])
+  @@map("job_postings")
+}
+
+model JobApplication {
+  id       String            @id @default(uuid())
+  userId   String
+  jobId    String
+  status   ApplicationStatus @default(SAVED)
+  notes    String?
+  appliedAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+
+  user User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  job  JobPosting @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, jobId])
+  @@index([userId])
+  @@index([jobId])
+  @@map("job_applications")
+}
+
+// ── PRD-05: Resume Builder ─────────────────────────────────────────────────────
+
+model Resume {
+  id        String   @id @default(uuid())
+  userId    String
+  title     String
+  template  String   @default("default")
+  resumeUrl String?
+  atsScore  Int?
+  isDefault Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user     User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sections ResumeSection[]
+
+  @@index([userId])
+  @@map("resumes")
+}
+
+model ResumeSection {
+  id          String   @id @default(uuid())
+  resumeId    String
+  sectionType String
+  content     Json
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  resume Resume @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+
+  @@index([resumeId])
+  @@map("resume_sections")
+}
+
+// ── PRD-05: Events ─────────────────────────────────────────────────────────────
+
+model Event {
+  id              String    @id @default(uuid())
+  title           String
+  description     String?
+  type            EventType @default(WEBINAR)
+  organizer       String?
+  location        String?
+  startTime       DateTime
+  endTime         DateTime
+  registrationUrl String?
+  maxParticipants Int?
+  isPublished     Boolean   @default(false)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  registrations EventRegistration[]
+
+  @@index([isPublished])
+  @@index([startTime])
+  @@index([type])
+  @@map("events")
+}
+
+model EventRegistration {
+  id           String   @id @default(uuid())
+  eventId      String
+  userId       String
+  registeredAt DateTime @default(now())
+
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([eventId, userId])
+  @@index([eventId])
+  @@index([userId])
+  @@map("event_registrations")
+}
+
+// ── PRD-05: Notifications ──────────────────────────────────────────────────────
+
+model Notification {
+  id        String           @id @default(uuid())
+  userId    String
+  title     String
+  message   String
+  type      NotificationType @default(SYSTEM)
+  isRead    Boolean          @default(false)
+  metadata  Json?
+  createdAt DateTime         @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([isRead])
+  @@index([type])
+  @@map("notifications")
+}
+
+// ── PRD-05: User Analytics ─────────────────────────────────────────────────────
+
+model UserAnalytics {
+  id                    String    @id @default(uuid())
+  userId                String    @unique
+  lastLogin             DateTime?
+  totalStudyMinutes     Int       @default(0)
+  currentLearningStreak Int       @default(0)
+  longestLearningStreak Int       @default(0)
+  updatedAt             DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("user_analytics")
+}
+
+// ── PRD-05: Platform Settings ──────────────────────────────────────────────────
+
+model PlatformSetting {
+  id          String   @id @default(uuid())
+  key         String   @unique
+  value       String
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([key])
+  @@map("platform_settings")
+}

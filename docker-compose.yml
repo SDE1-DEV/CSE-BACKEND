@@ -1,0 +1,105 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# CSE Student Platform — Docker Compose
+# PRD-06: Section 10 — One-command local startup
+#
+# Usage:
+#   docker compose up -d          # start all services
+#   docker compose logs -f api    # tail API logs
+#   docker compose down           # stop all
+# ─────────────────────────────────────────────────────────────────────────────
+
+version: '3.9'
+
+services:
+  # ── PostgreSQL (development only) ──────────────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    container_name: cse_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: cse_user
+      POSTGRES_PASSWORD: cse_password
+      POSTGRES_DB: cse_platform
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U cse_user -d cse_platform']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── Redis ─────────────────────────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: cse_redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── API Server ─────────────────────────────────────────────────────────────
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    container_name: cse_api
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: production
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+    ports:
+      - '3000:3000'
+    volumes:
+      - ./logs:/app/logs
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -qO- http://localhost:3000/api/v1/health || exit 1']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # ── Queue Worker (separate process) ───────────────────────────────────────
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    container_name: cse_worker
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: production
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      WORKER_ONLY: 'true'
+    volumes:
+      - ./logs:/app/logs
+    command: node dist/server.js
+
+volumes:
+  postgres_data:
+  redis_data:

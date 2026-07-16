@@ -1,0 +1,126 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# CSE Student Platform — CI/CD Pipeline
+# PRD-06: Section 11 — GitHub Actions
+#
+# Triggers: push/PR to main and develop branches
+# Pipeline: install → lint → type-check → test → build → prisma → artifacts
+# ─────────────────────────────────────────────────────────────────────────────
+
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  ci:
+    name: CI Pipeline
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: test_user
+          POSTGRES_PASSWORD: test_password
+          POSTGRES_DB: test_db
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+      redis:
+        image: redis:7-alpine
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+
+    env:
+      NODE_ENV: test
+      DATABASE_URL: postgresql://test_user:test_password@localhost:5432/test_db
+      DIRECT_URL: postgresql://test_user:test_password@localhost:5432/test_db
+      JWT_SECRET: ci-jwt-secret-for-testing-only-do-not-use
+      JWT_REFRESH_SECRET: ci-refresh-secret-for-testing-only-do-not-use
+      JWT_EXPIRY: 15m
+      REFRESH_EXPIRY: 7d
+      REDIS_HOST: localhost
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ""
+      SMTP_HOST: smtp.gmail.com
+      SMTP_PORT: 587
+      SMTP_USER: ""
+      SMTP_PASSWORD: ""
+      SMTP_FROM_NAME: "CSE Platform CI"
+      CLIENT_URL: http://localhost:5173
+      SUPABASE_URL: https://placeholder.supabase.co
+      SUPABASE_ANON_KEY: placeholder
+      SUPABASE_SERVICE_ROLE_KEY: placeholder
+      CACHE_TTL_SHORT: 300
+      CACHE_TTL_MEDIUM: 1800
+      CACHE_TTL_LONG: 86400
+
+    steps:
+      # ── Checkout ──────────────────────────────────────────────────────────
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # ── Node.js Setup ─────────────────────────────────────────────────────
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      # ── Install Dependencies ──────────────────────────────────────────────
+      - name: Install dependencies
+        run: npm ci
+
+      # ── Dependency Vulnerability Scan ─────────────────────────────────────
+      - name: Audit dependencies
+        run: npm audit --audit-level=moderate
+        continue-on-error: true   # warn but don't block CI on transitive deps
+
+      # ── Generate Prisma Client ────────────────────────────────────────────
+      - name: Generate Prisma client
+        run: npx prisma generate
+
+      # ── Lint ──────────────────────────────────────────────────────────────
+      - name: Lint
+        run: npm run lint
+
+      # ── Type Check ───────────────────────────────────────────────────────
+      - name: Type check
+        run: npx tsc --noEmit
+
+      # ── Run Tests ────────────────────────────────────────────────────────
+      - name: Run tests
+        run: npm run test:ci
+
+      # ── Build ────────────────────────────────────────────────────────────
+      - name: Build
+        run: npm run build
+
+      # ── Verify Migrations ─────────────────────────────────────────────────
+      - name: Verify Prisma migrations
+        run: npx prisma migrate deploy
+        env:
+          DATABASE_URL: postgresql://test_user:test_password@localhost:5432/test_db
+
+      # ── Upload Build Artifact ────────────────────────────────────────────
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        if: github.ref == 'refs/heads/main'
+        with:
+          name: dist
+          path: dist/
+          retention-days: 7
