@@ -22,7 +22,7 @@ export class AuthService {
     email: string,
     password: string,
     phoneNumber?: string,
-  ): Promise<{ message: string }> {
+  ): Promise<{ user: Omit<User, 'passwordHash'>; tokens: TokenPair }> {
     // Check if email already exists
     const exists = await userRepository.existsByEmail(email);
     if (exists) {
@@ -32,35 +32,30 @@ export class AuthService {
     // Hash password
     const passwordHash = await hashPassword(password);
 
-    // Create user
-    await userRepository.create({
+    // Create user — pre-verified, no email confirmation required
+    const user = await userRepository.create({
       fullName,
       email,
       passwordHash,
       phoneNumber: phoneNumber ?? null,
+      isVerified: true,
     });
 
-    // Generate & store OTP
-    const otp = generateOtp();
-    const expiresAt = getOtpExpiry();
-    await authRepository.upsertEmailVerification(email, otp, expiresAt);
+    // Generate tokens
+    const tokenPayload = { userId: user.id, email: user.email, role: user.role };
+    const accessToken = generateAccessToken(tokenPayload);
+    const refreshToken = generateRefreshToken(tokenPayload);
 
-    // Send verification email via background queue (non-blocking)
-    try {
-      await enqueueEmail({
-        type: 'email:verification',
-        to: email,
-        payload: { otp },
-      });
-    } catch {
-      // In development, log OTP to console if queue fails
-      if (env.isDevelopment()) {
-        // eslint-disable-next-line no-console
-        console.log(`[DEV] Verification OTP for ${email}: ${otp}`);
-      }
-    }
+    // Store refresh token
+    const expiresAt = parseExpiry(env.REFRESH_EXPIRY);
+    await authRepository.createRefreshToken(user.id, refreshToken, expiresAt);
 
-    return { message: MESSAGES.REGISTER_SUCCESS };
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { passwordHash: _pw, ...userWithoutPassword } = user;
+    return {
+      user: userWithoutPassword,
+      tokens: { accessToken, refreshToken },
+    };
   }
 
   async verifyEmail(email: string, otp: string): Promise<{ message: string }> {
@@ -98,10 +93,6 @@ export class AuthService {
     const passwordMatch = await comparePassword(password, user.passwordHash);
     if (!passwordMatch) {
       throw new AppError(HTTP_STATUS.UNAUTHORIZED, MESSAGES.INVALID_CREDENTIALS);
-    }
-
-    if (!user.isVerified) {
-      throw new AppError(HTTP_STATUS.UNAUTHORIZED, MESSAGES.EMAIL_NOT_VERIFIED);
     }
 
     // Generate tokens

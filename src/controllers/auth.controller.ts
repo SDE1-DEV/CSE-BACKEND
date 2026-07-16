@@ -41,7 +41,20 @@ export const register = async (
   try {
     const { fullName, email, password, phoneNumber } = req.body;
     const result = await authService.register(fullName, email, password, phoneNumber);
-    sendCreated(res, result.message, null);
+
+    // Set refresh token as httpOnly cookie
+    res.cookie('refreshToken', result.tokens.refreshToken, {
+      httpOnly: true,
+      secure: process.env['NODE_ENV'] === 'production',
+      sameSite: 'strict',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
+    sendCreated(res, MESSAGES.REGISTER_SUCCESS, {
+      user: result.user,
+      accessToken: result.tokens.accessToken,
+      refreshToken: result.tokens.refreshToken,
+    });
   } catch (error) {
     next(error);
   }
