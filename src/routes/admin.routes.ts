@@ -1,5 +1,16 @@
 import { Router } from 'express';
 import {
+  getAdminStats,
+  getAdminUsers,
+  updateUserRole,
+  deleteUser,
+  getReports,
+  generateReport,
+  getAdminResource,
+  createAdminResource,
+  updateAdminResource,
+  deleteAdminResource,
+  bulkDeleteAdminResource,
   getAdminDashboard,
   getAdminReports,
   getPlatformSettings,
@@ -7,8 +18,6 @@ import {
 } from '../controllers/admin.controller';
 import { authenticate } from '../middlewares/authenticate.middleware';
 import { requireAdmin } from '../middlewares/role.middleware';
-import { validate } from '../middlewares/validate.middleware';
-import { updateSettingsSchema, adminReportQuerySchema } from '../validators/admin.validator';
 
 const router = Router();
 
@@ -19,9 +28,28 @@ const router = Router();
  *   description: Admin Dashboard, Reports and Platform Settings
  */
 
+// Stats
+router.get('/stats', authenticate, requireAdmin, getAdminStats);
+
+// Users
+router.get('/users', authenticate, requireAdmin, getAdminUsers);
+router.patch('/users/:id/role', authenticate, requireAdmin, updateUserRole);
+router.delete('/users/:id', authenticate, requireAdmin, deleteUser);
+
+// Reports
+router.get('/reports', authenticate, requireAdmin, getReports);
+router.post('/reports', authenticate, requireAdmin, generateReport);
+
+// Generic resource management
+router.get('/:resource', authenticate, requireAdmin, getAdminResource);
+router.post('/:resource', authenticate, requireAdmin, createAdminResource);
+router.put('/:resource/:id', authenticate, requireAdmin, updateAdminResource);
+router.delete('/:resource/:id', authenticate, requireAdmin, deleteAdminResource);
+router.post('/:resource/bulk-delete', authenticate, requireAdmin, bulkDeleteAdminResource);
+
+// Backward compatibility
 router.get('/dashboard', authenticate, requireAdmin, getAdminDashboard);
-router.get('/reports', authenticate, requireAdmin, validate(adminReportQuerySchema), getAdminReports);
 router.get('/settings', authenticate, requireAdmin, getPlatformSettings);
-router.put('/settings', authenticate, requireAdmin, validate(updateSettingsSchema), updatePlatformSettings);
+router.put('/settings', authenticate, requireAdmin, updatePlatformSettings);
 
 export default router;
