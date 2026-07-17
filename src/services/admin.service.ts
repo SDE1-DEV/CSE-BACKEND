@@ -115,6 +115,11 @@ export class AdminService {
   }
 
   async deleteUser(id: string) {
+    // PRD-08.1: Guard against deleting SUPER_ADMIN
+    const existing = await prisma.user.findUnique({ where: { id } });
+    if (existing?.role === 'SUPER_ADMIN') {
+      throw new Error('Cannot delete the Super Admin account');
+    }
     await prisma.user.delete({ where: { id } });
   }
 

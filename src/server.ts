@@ -17,6 +17,7 @@ import { env, validateEnv } from './config/env';
 import { connectDatabase, disconnectDatabase } from './config/database';
 import { getRedisClient, disconnectRedis } from './config/redis';
 import { logger } from './utils/logger';
+import { runBootstrap } from './bootstrap';
 import { registerActivityListeners } from './events/activity-listener';
 import { registerNotificationListeners } from './events/notification-listener';
 import { wsGateway } from './websocket/gateway';
@@ -36,7 +37,10 @@ const startServer = async (): Promise<void> => {
     // 2. Connect to database
     await connectDatabase();
 
-    // 3. Connect to Redis (non-blocking — graceful fallback if unavailable)
+    // 3. Run bootstrap (creates SUPER_ADMIN if none exists)
+    await runBootstrap();
+
+    // 4. Connect to Redis (non-blocking — graceful fallback if unavailable)
     const redis = getRedisClient();
     if (redis) {
       try {
@@ -49,7 +53,7 @@ const startServer = async (): Promise<void> => {
       logger.warn('Redis not configured — caching and queues will operate in fallback mode');
     }
 
-    // 4. Register domain event listeners
+    // 5. Register domain event listeners
     registerActivityListeners();
     registerNotificationListeners();
     logger.info('Event listeners registered');

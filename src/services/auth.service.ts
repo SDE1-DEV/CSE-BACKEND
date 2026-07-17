@@ -25,6 +25,11 @@ export class AuthService {
   private async buildTokenPayload(user: User) {
     const base = { userId: user.id, email: user.email, role: user.role };
 
+    if (user.role === Role.SUPER_ADMIN) {
+      // SUPER_ADMIN has full access — include wildcard sentinel in JWT
+      return { ...base, permissions: ['*'] };
+    }
+
     if (user.role === Role.MANAGER) {
       const permissions = await managerPermissionRepository.getModuleNames(user.id);
       return { ...base, permissions };
@@ -48,14 +53,37 @@ export class AuthService {
     // Hash password
     const passwordHash = await hashPassword(password);
 
-    // Create user — pre-verified, no email confirmation required
+    // Create user
+    // When ENABLE_EMAIL_VERIFICATION=false (development), auto-verify on creation.
+    // When true (production), set isVerified=false and send OTP.
+    const autoVerify = !env.isEmailVerificationEnabled();
+
     const user = await userRepository.create({
       fullName,
       email,
       passwordHash,
       phoneNumber: phoneNumber ?? null,
-      isVerified: true,
+      isVerified: autoVerify,
     });
+
+    // Send OTP only if email verification is enabled
+    if (env.isEmailVerificationEnabled()) {
+      const otp = generateOtp();
+      const expiresAt = getOtpExpiry();
+      await authRepository.upsertEmailVerification(email, otp, expiresAt);
+      try {
+        await enqueueEmail({
+          type: 'email:verification',
+          to: email,
+          payload: { otp },
+        });
+      } catch {
+        if (env.isDevelopment()) {
+          // eslint-disable-next-line no-console
+          console.log(`[DEV] Email verification OTP for ${email}: ${otp}`);
+        }
+      }
+    }
 
     // Generate tokens — include permissions for MANAGER role (PRD-07)
     const tokenPayload = await this.buildTokenPayload(user);
@@ -109,6 +137,11 @@ export class AuthService {
     const passwordMatch = await comparePassword(password, user.passwordHash);
     if (!passwordMatch) {
       throw new AppError(HTTP_STATUS.UNAUTHORIZED, MESSAGES.INVALID_CREDENTIALS);
+    }
+
+    // When email verification is enabled, require the user to be verified before login
+    if (env.isEmailVerificationEnabled() && !user.isVerified) {
+      throw new AppError(HTTP_STATUS.UNAUTHORIZED, MESSAGES.EMAIL_NOT_VERIFIED);
     }
 
     // Generate tokens — include permissions for MANAGER role (PRD-07)
@@ -250,6 +283,10 @@ export class AuthService {
     let permissions: string[] = [];
     if (user.role === Role.MANAGER) {
       permissions = await managerPermissionRepository.getModuleNames(user.id);
+    }
+    // SUPER_ADMIN has full access — return a sentinel so frontend can reflect this
+    if (user.role === Role.SUPER_ADMIN) {
+      permissions = ['*'];
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars

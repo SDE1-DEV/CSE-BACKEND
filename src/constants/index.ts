@@ -40,6 +40,7 @@ export const MESSAGES = {
   VALIDATION_FAILED: 'Validation failed',
   INTERNAL_ERROR: 'An internal server error occurred',
   HEALTH_OK: 'Server is running',
+  SUPER_ADMIN_PROTECTED: 'The Super Admin account cannot be modified or deleted',
 
   // Upload
   FILE_UPLOAD_FAILED: 'File upload failed',

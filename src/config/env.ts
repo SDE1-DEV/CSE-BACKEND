@@ -90,4 +90,8 @@ export const env = {
   isProduction: () => process.env['NODE_ENV'] === 'production',
   isDevelopment: () => process.env['NODE_ENV'] === 'development',
   isTest: () => process.env['NODE_ENV'] === 'test',
+
+  // PRD-08.1: Email verification toggle
+  // Set ENABLE_EMAIL_VERIFICATION=false in development to skip OTP verification
+  isEmailVerificationEnabled: () => process.env['ENABLE_EMAIL_VERIFICATION'] !== 'false',
 };
