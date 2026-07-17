@@ -31,6 +31,17 @@ import {
   getUserRoleHistory,
 } from '../controllers/admin/super-admin.controller';
 import {
+  getDashboardOverview,
+  getUserAnalytics,
+  getChartsData,
+  getUsageAnalytics,
+  getApiAnalytics,
+  getDatabaseAnalytics,
+  getSystemHealth,
+  getManagerAnalytics,
+  getLiveActivity,
+} from '../controllers/admin/analytics.controller';
+import {
   promoteUserSchema,
   demoteUserSchema,
   updatePermissionsSchema,
@@ -70,8 +81,19 @@ router.get('/managers', getManagers);
 router.get('/managers/:id', getManagerById);
 router.put('/managers/:id/permissions', validate(updatePermissionsSchema), updateManagerPermissions);
 
-// ── Analytics ─────────────────────────────────────────────────────────────────
+// ── Analytics (legacy) ────────────────────────────────────────────────────────
 router.get('/analytics', getPlatformAnalytics);
+
+// ── FPRD-09: Enterprise Analytics ────────────────────────────────────────────
+router.get('/analytics/dashboard', getDashboardOverview);
+router.get('/analytics/users', getUserAnalytics);
+router.get('/analytics/charts', getChartsData);
+router.get('/analytics/usage', getUsageAnalytics);
+router.get('/analytics/api', getApiAnalytics);
+router.get('/analytics/database', getDatabaseAnalytics);
+router.get('/analytics/system', getSystemHealth);
+router.get('/analytics/managers', getManagerAnalytics);
+router.get('/analytics/live', getLiveActivity);
 
 // ── Settings ──────────────────────────────────────────────────────────────────
 router.get('/settings', getPlatformSettings);
