@@ -249,10 +249,36 @@ export class ManagerService {
     const where: Record<string, unknown> = {};
     if (search) where['OR'] = [{ name: { contains: search, mode: 'insensitive' } }];
     const [data, total] = await Promise.all([
-      prisma.problemCategory.findMany({ where, skip: (page - 1) * limit, take: limit, orderBy: [{ displayOrder: 'asc' }, { name: 'asc' }] }),
+      prisma.problemCategory.findMany({ where, skip: (page - 1) * limit, take: limit, include: { _count: { select: { problems: true } } }, orderBy: [{ displayOrder: 'asc' }, { name: 'asc' }] }),
       prisma.problemCategory.count({ where }),
     ]);
     return { data, total, page, limit };
+  }
+
+  async createProblemCategory(data: { name: string; slug: string; description?: string; displayOrder?: number }, managerId: string) {
+    const existing = await prisma.problemCategory.findUnique({ where: { slug: data.slug } });
+    if (existing) throw new Error(`A category with slug "${data.slug}" already exists`);
+    const cat = await prisma.problemCategory.create({ data });
+    await auditLogRepository.create({ performedBy: managerId, role: Role.MANAGER, action: 'PROBLEM_CATEGORY_CREATED', module: 'CODING', entity: 'ProblemCategory', entityId: cat.id, newValue: data as object });
+    return cat;
+  }
+
+  async updateProblemCategory(id: string, data: Partial<{ name: string; slug: string; description: string; isActive: boolean; displayOrder: number }>, managerId: string) {
+    const cat = await prisma.problemCategory.findUnique({ where: { id } });
+    if (!cat) throw new Error('Problem category not found');
+    const updated = await prisma.problemCategory.update({ where: { id }, data });
+    await auditLogRepository.create({ performedBy: managerId, role: Role.MANAGER, action: 'PROBLEM_CATEGORY_UPDATED', module: 'CODING', entity: 'ProblemCategory', entityId: id });
+    return updated;
+  }
+
+  async deleteProblemCategory(id: string, managerId: string) {
+    const cat = await prisma.problemCategory.findUnique({ where: { id }, include: { _count: { select: { problems: true } } } });
+    if (!cat) throw new Error('Problem category not found');
+    if ((cat as { _count: { problems: number } })._count.problems > 0) {
+      throw new Error(`Cannot delete: ${(cat as { _count: { problems: number } })._count.problems} problem(s) depend on this category. Reassign or delete them first.`);
+    }
+    await prisma.problemCategory.delete({ where: { id } });
+    await auditLogRepository.create({ performedBy: managerId, role: Role.MANAGER, action: 'PROBLEM_CATEGORY_DELETED', module: 'CODING', entity: 'ProblemCategory', entityId: id });
   }
 
   async getProjects(params: { search?: string; status?: string; difficulty?: string; categoryId?: string; page?: number; limit?: number }) {
@@ -281,10 +307,36 @@ export class ManagerService {
     const where: Record<string, unknown> = {};
     if (search) where['OR'] = [{ name: { contains: search, mode: 'insensitive' } }];
     const [data, total] = await Promise.all([
-      prisma.projectCategory.findMany({ where, skip: (page - 1) * limit, take: limit, orderBy: [{ displayOrder: 'asc' }, { name: 'asc' }] }),
+      prisma.projectCategory.findMany({ where, skip: (page - 1) * limit, take: limit, include: { _count: { select: { projects: true } } }, orderBy: [{ displayOrder: 'asc' }, { name: 'asc' }] }),
       prisma.projectCategory.count({ where }),
     ]);
     return { data, total, page, limit };
+  }
+
+  async createProjectCategory(data: { name: string; slug: string; description?: string; icon?: string; displayOrder?: number }, managerId: string) {
+    const existing = await prisma.projectCategory.findUnique({ where: { slug: data.slug } });
+    if (existing) throw new Error(`A category with slug "${data.slug}" already exists`);
+    const cat = await prisma.projectCategory.create({ data });
+    await auditLogRepository.create({ performedBy: managerId, role: Role.MANAGER, action: 'PROJECT_CATEGORY_CREATED', module: 'PROJECTS', entity: 'ProjectCategory', entityId: cat.id, newValue: data as object });
+    return cat;
+  }
+
+  async updateProjectCategory(id: string, data: Partial<{ name: string; slug: string; description: string; isActive: boolean; displayOrder: number }>, managerId: string) {
+    const cat = await prisma.projectCategory.findUnique({ where: { id } });
+    if (!cat) throw new Error('Project category not found');
+    const updated = await prisma.projectCategory.update({ where: { id }, data });
+    await auditLogRepository.create({ performedBy: managerId, role: Role.MANAGER, action: 'PROJECT_CATEGORY_UPDATED', module: 'PROJECTS', entity: 'ProjectCategory', entityId: id });
+    return updated;
+  }
+
+  async deleteProjectCategory(id: string, managerId: string) {
+    const cat = await prisma.projectCategory.findUnique({ where: { id }, include: { _count: { select: { projects: true } } } });
+    if (!cat) throw new Error('Project category not found');
+    if ((cat as { _count: { projects: number } })._count.projects > 0) {
+      throw new Error(`Cannot delete: ${(cat as { _count: { projects: number } })._count.projects} project(s) depend on this category.`);
+    }
+    await prisma.projectCategory.delete({ where: { id } });
+    await auditLogRepository.create({ performedBy: managerId, role: Role.MANAGER, action: 'PROJECT_CATEGORY_DELETED', module: 'PROJECTS', entity: 'ProjectCategory', entityId: id });
   }
 
   async getCompanies(params: { search?: string; page?: number; limit?: number }) {

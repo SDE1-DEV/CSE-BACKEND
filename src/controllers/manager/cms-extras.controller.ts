@@ -172,3 +172,26 @@ export const globalCMSSearch = async (req: AuthenticatedRequest, res: Response, 
     sendSuccess(res, 'Search results', data);
   } catch (e) { next(e); }
 };
+
+// ── FAQ Categories CRUD ────────────────────────────────────────────────────────
+
+export const createFaqCategory = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const data = await cmsExtrasService.createFaqCategory(req.body, req.user!.userId);
+    sendCreated(res, 'FAQ category created', data);
+  } catch (e) { next(e); }
+};
+
+export const updateFaqCategory = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const data = await cmsExtrasService.updateFaqCategory(req.params['id'], req.body, req.user!.userId);
+    sendSuccess(res, 'FAQ category updated', data);
+  } catch (e) { next(e); }
+};
+
+export const deleteFaqCategory = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    await cmsExtrasService.deleteFaqCategory(req.params['id'], req.user!.userId);
+    sendSuccess(res, 'FAQ category deleted', null);
+  } catch (e) { next(e); }
+};

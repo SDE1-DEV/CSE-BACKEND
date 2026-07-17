@@ -59,7 +59,33 @@ export class CMSExtrasService {
   // ── FAQ ────────────────────────────────────────────────────────────────────
 
   async getFaqCategories() {
-    return prisma.faqCategory.findMany({ where: { isActive: true }, orderBy: { displayOrder: 'asc' } });
+    return prisma.faqCategory.findMany({ orderBy: { displayOrder: 'asc' }, include: { _count: { select: { faqs: true } } } });
+  }
+
+  async createFaqCategory(data: { name: string; slug: string; displayOrder?: number }, managerId: string) {
+    const existing = await prisma.faqCategory.findUnique({ where: { slug: data.slug } });
+    if (existing) throw new Error(`FAQ category with slug "${data.slug}" already exists`);
+    const cat = await prisma.faqCategory.create({ data });
+    await auditLogRepository.create({ performedBy: managerId, role: Role.MANAGER, action: 'FAQ_CATEGORY_CREATED', entity: 'FaqCategory', entityId: cat.id });
+    return cat;
+  }
+
+  async updateFaqCategory(id: string, data: Partial<{ name: string; slug: string; displayOrder: number; isActive: boolean }>, managerId: string) {
+    const cat = await prisma.faqCategory.findUnique({ where: { id } });
+    if (!cat) throw new Error('FAQ category not found');
+    const updated = await prisma.faqCategory.update({ where: { id }, data });
+    await auditLogRepository.create({ performedBy: managerId, role: Role.MANAGER, action: 'FAQ_CATEGORY_UPDATED', entity: 'FaqCategory', entityId: id });
+    return updated;
+  }
+
+  async deleteFaqCategory(id: string, managerId: string) {
+    const cat = await prisma.faqCategory.findUnique({ where: { id }, include: { _count: { select: { faqs: true } } } });
+    if (!cat) throw new Error('FAQ category not found');
+    if ((cat as { _count: { faqs: number } })._count.faqs > 0) {
+      throw new Error(`Cannot delete: ${(cat as { _count: { faqs: number } })._count.faqs} FAQ(s) are in this category.`);
+    }
+    await prisma.faqCategory.delete({ where: { id } });
+    await auditLogRepository.create({ performedBy: managerId, role: Role.MANAGER, action: 'FAQ_CATEGORY_DELETED', entity: 'FaqCategory', entityId: id });
   }
 
   async getFaqs(params: { search?: string; categoryId?: string; isPublished?: boolean; page?: number; limit?: number }) {

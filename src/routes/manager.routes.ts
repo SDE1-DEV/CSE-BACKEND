@@ -11,6 +11,7 @@ import { validate } from '../middlewares/validate.middleware';
 import {
   getBanners, createBanner, updateBanner, deleteBanner,
   getFaqCategories, getFaqs, createFaq, updateFaq, deleteFaq,
+  createFaqCategory, updateFaqCategory, deleteFaqCategory,
   getTestimonials, createTestimonial, updateTestimonial, deleteTestimonial,
   getMediaFiles, createMediaFile, updateMediaFile, deleteMediaFile, getMediaFolders,
   getVersionHistory, restoreVersion,
@@ -62,6 +63,9 @@ import {
   publishProblem,
   archiveProblem,
   duplicateProblem,
+  createProblemCategory,
+  updateProblemCategory,
+  deleteProblemCategory,
 
   // Projects — GET
   getProjects,
@@ -74,7 +78,9 @@ import {
   deleteProject,
   publishProject,
   archiveProject,
-
+  createProjectCategory,
+  updateProjectCategory,
+  deleteProjectCategory,
   // Placements — GET
   getCompanies,
   getJobs,
@@ -184,6 +190,9 @@ router.delete('/resources/:id', requirePermission('LEARNING'), deleteResource);
 
 // ── Coding: Problem Categories ────────────────────────────────────────────────
 router.get('/problem-categories', requirePermission('CODING', 'read'), getProblemCategories);
+router.post('/problem-categories', requirePermission('CODING'), createProblemCategory);
+router.patch('/problem-categories/:id', requirePermission('CODING'), updateProblemCategory);
+router.delete('/problem-categories/:id', requirePermission('CODING'), deleteProblemCategory);
 
 // ── Coding: Problems ──────────────────────────────────────────────────────────
 router.get('/problems', requirePermission('CODING', 'read'), getProblems);
@@ -197,6 +206,9 @@ router.post('/problems/:id/duplicate', requirePermission('CODING'), duplicatePro
 
 // ── Projects: Categories ──────────────────────────────────────────────────────
 router.get('/project-categories', requirePermission('PROJECTS', 'read'), getProjectCategories);
+router.post('/project-categories', requirePermission('PROJECTS'), createProjectCategory);
+router.patch('/project-categories/:id', requirePermission('PROJECTS'), updateProjectCategory);
+router.delete('/project-categories/:id', requirePermission('PROJECTS'), deleteProjectCategory);
 
 // ── Projects ──────────────────────────────────────────────────────────────────
 router.get('/projects', requirePermission('PROJECTS', 'read'), getProjects);
@@ -271,6 +283,9 @@ router.delete('/banners/:id', deleteBanner);
 
 // ── FAQ ───────────────────────────────────────────────────────────────────────
 router.get('/faq/categories', getFaqCategories);
+router.post('/faq/categories', createFaqCategory);
+router.patch('/faq/categories/:id', updateFaqCategory);
+router.delete('/faq/categories/:id', deleteFaqCategory);
 router.get('/faq', getFaqs);
 router.post('/faq', createFaq);
 router.patch('/faq/:id', updateFaq);

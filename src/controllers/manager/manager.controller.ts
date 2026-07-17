@@ -631,3 +631,49 @@ export const bulkDelete = async (req: AuthenticatedRequest, res: Response, next:
     sendSuccess(res, 'Content deleted successfully', data);
   } catch (error) { next(error); }
 };
+
+// ── Coding: Problem Category CRUD ─────────────────────────────────────────────
+
+export const createProblemCategory = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const data = await managerService.createProblemCategory(req.body, req.user!.userId);
+    sendCreated(res, 'Problem category created', data);
+  } catch (error) { next(error); }
+};
+
+export const updateProblemCategory = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const data = await managerService.updateProblemCategory(req.params['id'], req.body, req.user!.userId);
+    sendSuccess(res, 'Problem category updated', data);
+  } catch (error) { next(error); }
+};
+
+export const deleteProblemCategory = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    await managerService.deleteProblemCategory(req.params['id'], req.user!.userId);
+    sendSuccess(res, 'Problem category deleted', null);
+  } catch (error) { next(error); }
+};
+
+// ── Projects: Project Category CRUD ──────────────────────────────────────────
+
+export const createProjectCategory = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const data = await managerService.createProjectCategory(req.body, req.user!.userId);
+    sendCreated(res, 'Project category created', data);
+  } catch (error) { next(error); }
+};
+
+export const updateProjectCategory = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const data = await managerService.updateProjectCategory(req.params['id'], req.body, req.user!.userId);
+    sendSuccess(res, 'Project category updated', data);
+  } catch (error) { next(error); }
+};
+
+export const deleteProjectCategory = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    await managerService.deleteProjectCategory(req.params['id'], req.user!.userId);
+    sendSuccess(res, 'Project category deleted', null);
+  } catch (error) { next(error); }
+};
