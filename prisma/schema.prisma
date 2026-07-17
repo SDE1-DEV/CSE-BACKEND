@@ -147,6 +147,13 @@ model User {
   roleHistories         RoleHistory[]          @relation("RoleHistoryUser")
   managerInvitationsSent ManagerInvitation[]   @relation("ManagerInvitationInviter")
 
+  // FPRD-10 relations
+  bannersCreated        Banner[]               @relation("BannerCreator")
+  faqsCreated           Faq[]                  @relation("FaqCreator")
+  testimonialsCreated   Testimonial[]          @relation("TestimonialCreator")
+  mediaFilesUploaded    MediaFile[]            @relation("MediaFileUploader")
+  contentVersions       ContentVersion[]       @relation("ContentVersionEditor")
+
   @@index([email])
   @@index([role])
   @@map("users")
@@ -217,6 +224,12 @@ model Roadmap {
   difficulty     Difficulty @default(BEGINNER)
   estimatedHours Int?
   prerequisites  String?
+  tags           String?    // FPRD-10: comma-separated tags
+  learningOutcomes String?  // FPRD-10: what students will learn
+  seoTitle       String?    // FPRD-10: SEO title
+  seoDescription String?    // FPRD-10: SEO description
+  banner         String?    // FPRD-10: banner image URL
+  visibility     String?    @default("PUBLIC") // FPRD-10: PUBLIC | PRIVATE | INVITE_ONLY
   displayOrder   Int        @default(0)
   isPublished    Boolean    @default(false)
   createdAt      DateTime   @default(now())
@@ -254,6 +267,7 @@ model Lesson {
   title            String
   slug             String      @unique
   description      String?
+  content          String?     // FPRD-10: rich text / markdown body (Module 1)
   contentType      ContentType @default(NOTE)
   estimatedMinutes Int?
   order            Int         @default(0)
@@ -1198,4 +1212,163 @@ model SystemLog {
   @@index([module])
   @@index([createdAt])
   @@map("system_logs")
+}
+
+// ── FPRD-10: Banner Management ────────────────────────────────────────────────
+
+enum BannerPlacement {
+  HOMEPAGE
+  LEARNING
+  CODING
+  PLACEMENT
+  EVENTS
+  ANNOUNCEMENT
+}
+
+enum BannerType {
+  IMAGE
+  VIDEO
+}
+
+model Banner {
+  id          String          @id @default(uuid())
+  title       String
+  placement   BannerPlacement @default(HOMEPAGE)
+  type        BannerType      @default(IMAGE)
+  mediaUrl    String
+  ctaText     String?
+  ctaLink     String?
+  priority    Int             @default(0)
+  isActive    Boolean         @default(true)
+  scheduledAt DateTime?
+  expiresAt   DateTime?
+  createdBy   String
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  creator User @relation("BannerCreator", fields: [createdBy], references: [id], onDelete: Cascade)
+
+  @@index([placement])
+  @@index([isActive])
+  @@index([priority])
+  @@map("banners")
+}
+
+// ── FPRD-10: FAQ CMS ──────────────────────────────────────────────────────────
+
+model FaqCategory {
+  id           String   @id @default(uuid())
+  name         String
+  slug         String   @unique
+  displayOrder Int      @default(0)
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  faqs Faq[]
+
+  @@index([slug])
+  @@map("faq_categories")
+}
+
+model Faq {
+  id           String      @id @default(uuid())
+  categoryId   String?
+  question     String
+  answer       String
+  searchKeywords String?
+  isPublished  Boolean     @default(false)
+  displayOrder Int         @default(0)
+  createdBy    String
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  category  FaqCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  creator   User         @relation("FaqCreator", fields: [createdBy], references: [id], onDelete: Cascade)
+
+  @@index([categoryId])
+  @@index([isPublished])
+  @@map("faqs")
+}
+
+// ── FPRD-10: Testimonials ────────────────────────────────────────────────────
+
+model Testimonial {
+  id          String   @id @default(uuid())
+  studentName String
+  studentId   String?
+  role        String?
+  company     String?
+  content     String
+  rating      Int      @default(5)
+  avatarUrl   String?
+  isFeatured  Boolean  @default(false)
+  isPublished Boolean  @default(false)
+  createdBy   String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  creator User @relation("TestimonialCreator", fields: [createdBy], references: [id], onDelete: Cascade)
+
+  @@index([isFeatured])
+  @@index([isPublished])
+  @@map("testimonials")
+}
+
+// ── FPRD-10: Media Library ────────────────────────────────────────────────────
+
+enum MediaFileType {
+  IMAGE
+  VIDEO
+  PDF
+  ZIP
+  DOCX
+  PPT
+  ICON
+  OTHER
+}
+
+model MediaFile {
+  id          String        @id @default(uuid())
+  filename    String
+  originalName String
+  mimeType    String
+  fileType    MediaFileType @default(OTHER)
+  fileUrl     String
+  fileSize    Int           @default(0)
+  folder      String?
+  altText     String?
+  uploadedBy  String
+  usageCount  Int           @default(0)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  uploader User @relation("MediaFileUploader", fields: [uploadedBy], references: [id], onDelete: Cascade)
+
+  @@index([uploadedBy])
+  @@index([folder])
+  @@index([fileType])
+  @@map("media_files")
+}
+
+// ── FPRD-10: Content Version History ────────────────────────────────────────
+
+model ContentVersion {
+  id         String   @id @default(uuid())
+  entity     String
+  entityId   String
+  version    Int      @default(1)
+  editedBy   String
+  fieldName  String?
+  oldValue   Json?
+  newValue   Json?
+  changeNote String?
+  createdAt  DateTime @default(now())
+
+  editor User @relation("ContentVersionEditor", fields: [editedBy], references: [id], onDelete: Cascade)
+
+  @@index([entity, entityId])
+  @@index([editedBy])
+  @@index([createdAt])
+  @@map("content_versions")
 }
