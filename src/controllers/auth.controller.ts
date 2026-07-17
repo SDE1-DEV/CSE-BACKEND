@@ -1,8 +1,10 @@
 import { Request, Response, NextFunction } from 'express';
 import { authService } from '../services/auth.service';
 import { sendSuccess, sendCreated } from '../utils/response';
-import { MESSAGES } from '../constants';
-import { RegisterInput, LoginInput, VerifyEmailInput, ForgotPasswordInput, ResetPasswordInput, RefreshTokenInput } from '../validators/auth.validator';
+import { MESSAGES, HTTP_STATUS } from '../constants';
+import { RegisterInput, LoginInput, VerifyEmailInput, ForgotPasswordInput, ResetPasswordInput, RefreshTokenInput, ChangePasswordInput, UpdateProfileInput } from '../validators/auth.validator';
+import { AuthenticatedRequest } from '../types';
+import { AppError } from '../middlewares/error.middleware';
 
 /**
  * @swagger
@@ -284,6 +286,98 @@ export const resetPassword = async (
     const { email, otp, newPassword } = req.body;
     const result = await authService.resetPassword(email, otp, newPassword);
     sendSuccess(res, result.message, null);
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * @swagger
+ * /api/auth/me:
+ *   get:
+ *     tags: [Authentication]
+ *     summary: Get current authenticated user (always fresh from DB)
+ *     security:
+ *       - BearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Current user data with latest role
+ *       401:
+ *         description: Unauthorized
+ */
+export const getMe = async (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  try {
+    if (!req.user) {
+      throw new AppError(HTTP_STATUS.UNAUTHORIZED, MESSAGES.UNAUTHORIZED);
+    }
+    // Always fetch fresh from DB — never return stale role from JWT
+    const result = await authService.getMe(req.user.userId);
+    sendSuccess(res, MESSAGES.PROFILE_FETCHED, result);
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * @swagger
+ * /api/auth/change-password:
+ *   patch:
+ *     tags: [Authentication]
+ *     summary: Change password for authenticated user
+ *     security:
+ *       - BearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Password changed successfully
+ *       401:
+ *         description: Unauthorized or wrong current password
+ */
+export const changePassword = async (
+  req: AuthenticatedRequest & Request<object, object, ChangePasswordInput>,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  try {
+    if (!req.user) {
+      throw new AppError(HTTP_STATUS.UNAUTHORIZED, MESSAGES.UNAUTHORIZED);
+    }
+    const { currentPassword, newPassword } = req.body;
+    const result = await authService.changePassword(req.user.userId, currentPassword, newPassword);
+    sendSuccess(res, result.message, null);
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * @swagger
+ * /api/auth/update-profile:
+ *   patch:
+ *     tags: [Authentication]
+ *     summary: Update profile fields for authenticated user
+ *     security:
+ *       - BearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Profile updated successfully
+ *       401:
+ *         description: Unauthorized
+ */
+export const updateAuthProfile = async (
+  req: AuthenticatedRequest & Request<object, object, UpdateProfileInput>,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  try {
+    if (!req.user) {
+      throw new AppError(HTTP_STATUS.UNAUTHORIZED, MESSAGES.UNAUTHORIZED);
+    }
+    const result = await authService.updateProfile(req.user.userId, req.body);
+    sendSuccess(res, MESSAGES.PROFILE_UPDATED, result);
   } catch (error) {
     next(error);
   }

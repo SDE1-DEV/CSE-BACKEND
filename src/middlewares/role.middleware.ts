@@ -20,21 +20,25 @@ export const requireRole = (...roles: Role[]) => {
   };
 };
 
-// ── Legacy roles (backward compat) ────────────────────────────────────────────
-export const requireAdmin = requireRole(Role.ADMIN, Role.SUPER_ADMIN);
-export const requireMentor = requireRole(Role.MENTOR, Role.ADMIN, Role.SUPER_ADMIN);
-export const requireStudent = requireRole(
-  Role.STUDENT,
-  Role.MENTOR,
-  Role.ADMIN,
-  Role.MANAGER,
-  Role.SUPER_ADMIN,
-);
+// ── PRD-08: Final role guards ─────────────────────────────────────────────────
 
-// ── PRD-07: New role guards ────────────────────────────────────────────────────
-
-/** Only SUPER_ADMIN can access */
+/** Only SUPER_ADMIN can access — ADMIN role is removed per PRD-08 */
 export const requireSuperAdmin = requireRole(Role.SUPER_ADMIN);
 
 /** MANAGER or SUPER_ADMIN can access manager routes */
 export const requireManager = requireRole(Role.MANAGER, Role.SUPER_ADMIN);
+
+/** Any authenticated user (STUDENT, MENTOR, MANAGER, SUPER_ADMIN) */
+export const requireStudent = requireRole(
+  Role.STUDENT,
+  Role.MENTOR,
+  Role.MANAGER,
+  Role.SUPER_ADMIN,
+);
+
+/** MENTOR or above */
+export const requireMentor = requireRole(Role.MENTOR, Role.MANAGER, Role.SUPER_ADMIN);
+
+// ── Legacy aliases (backward compat) ──────────────────────────────────────────
+/** @deprecated Use requireSuperAdmin instead. ADMIN role is removed per PRD-08. */
+export const requireAdmin = requireRole(Role.SUPER_ADMIN);

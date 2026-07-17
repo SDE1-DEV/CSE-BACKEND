@@ -10,6 +10,7 @@ import { HTTP_STATUS, MESSAGES } from '../constants';
 import { TokenPair } from '../types';
 import { env } from '../config/env';
 import { managerPermissionRepository } from '../repositories/admin/manager-permission.repository';
+import { IUpdateProfileDto } from '../interfaces/user.interface';
 
 const REFRESH_EXPIRY_MS = 7 * 24 * 60 * 60 * 1000; // 7 days default
 
@@ -232,6 +233,72 @@ export class AuthService {
     await authRepository.deleteAllUserRefreshTokens(user.id);
 
     return { message: MESSAGES.PASSWORD_RESET_SUCCESS };
+  }
+
+  /**
+   * PRD-08: GET /api/auth/me
+   * Always fetches latest user data from DB — never returns stale role.
+   * This is the single source of truth the frontend calls on every reload.
+   */
+  async getMe(userId: string): Promise<object> {
+    const user = await userRepository.findById(userId);
+    if (!user) {
+      throw new AppError(HTTP_STATUS.UNAUTHORIZED, MESSAGES.USER_NOT_FOUND);
+    }
+
+    // Build fresh permissions for MANAGER role
+    let permissions: string[] = [];
+    if (user.role === Role.MANAGER) {
+      permissions = await managerPermissionRepository.getModuleNames(user.id);
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { passwordHash: _pw, ...userWithoutPassword } = user;
+    return { ...userWithoutPassword, permissions };
+  }
+
+  /**
+   * PRD-08: PATCH /api/auth/change-password
+   * Verifies current password, then sets new one and rotates all sessions.
+   */
+  async changePassword(
+    userId: string,
+    currentPassword: string,
+    newPassword: string,
+  ): Promise<{ message: string }> {
+    const user = await userRepository.findById(userId);
+    if (!user) {
+      throw new AppError(HTTP_STATUS.UNAUTHORIZED, MESSAGES.USER_NOT_FOUND);
+    }
+
+    const passwordMatch = await comparePassword(currentPassword, user.passwordHash);
+    if (!passwordMatch) {
+      throw new AppError(HTTP_STATUS.UNAUTHORIZED, 'Current password is incorrect');
+    }
+
+    const passwordHash = await hashPassword(newPassword);
+    await userRepository.updatePassword(userId, passwordHash);
+
+    // Invalidate all refresh tokens — forces re-login everywhere
+    await authRepository.deleteAllUserRefreshTokens(userId);
+
+    return { message: MESSAGES.PASSWORD_RESET_SUCCESS };
+  }
+
+  /**
+   * PRD-08: PATCH /api/auth/update-profile
+   * Updates basic profile fields for the authenticated user.
+   */
+  async updateProfile(userId: string, data: IUpdateProfileDto): Promise<object> {
+    const user = await userRepository.findById(userId);
+    if (!user) {
+      throw new AppError(HTTP_STATUS.UNAUTHORIZED, MESSAGES.USER_NOT_FOUND);
+    }
+
+    const updated = await userRepository.updateProfile(userId, data);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { passwordHash: _pw, ...userWithoutPassword } = updated;
+    return userWithoutPassword;
   }
 }
 
