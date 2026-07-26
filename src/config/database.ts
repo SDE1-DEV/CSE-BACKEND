@@ -41,6 +41,38 @@ export const prisma =
   logger.warn('Prisma warning', { message: e.message });
 });
 
+// ── FPRD-11: Global soft-delete filter ─────────────────────────────────────────
+// Models carrying a `deletedAt` column. All top-level read operations transparently
+// exclude soft-deleted rows so student-facing and manager list/detail endpoints never
+// surface trashed content. Callers that set `deletedAt` explicitly in their `where`
+// (e.g. the trash/restore views) opt out of the filter.
+const SOFT_DELETE_MODELS = new Set<string>([
+  'Category', 'Roadmap', 'RoadmapSection', 'Lesson', 'LearningResource',
+  'ProblemCategory', 'CodingProblem', 'ProjectCategory', 'Project',
+  'Company', 'JobPosting', 'Event', 'Banner', 'Faq', 'Testimonial', 'MediaFile',
+]);
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+(prisma as any).$use(async (params: any, next: (p: any) => Promise<unknown>) => {
+  if (params.model && SOFT_DELETE_MODELS.has(params.model)) {
+    const action: string = params.action;
+    if (action === 'findUnique' || action === 'findUniqueOrThrow') {
+      params.action = action === 'findUnique' ? 'findFirst' : 'findFirstOrThrow';
+      params.args = params.args ?? {};
+      params.args.where = params.args.where ?? {};
+      if (params.args.where.deletedAt === undefined) params.args.where.deletedAt = null;
+    } else if (
+      action === 'findFirst' || action === 'findFirstOrThrow' || action === 'findMany' ||
+      action === 'count' || action === 'aggregate' || action === 'groupBy'
+    ) {
+      params.args = params.args ?? {};
+      params.args.where = params.args.where ?? {};
+      if (params.args.where.deletedAt === undefined) params.args.where.deletedAt = null;
+    }
+  }
+  return next(params);
+});
+
 if (process.env['NODE_ENV'] !== 'production') globalForPrisma.prisma = prisma;
 
 export const connectDatabase = async (): Promise<void> => {

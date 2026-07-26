@@ -9,3 +9,6 @@ export const supabase = createClient(env.SUPABASE_URL, env.SUPABASE_SERVICE_ROLE
 });
 
 export const STORAGE_BUCKET = 'profile-images';
+
+// Bucket for the manager CMS media library (images, video, docs).
+export const MEDIA_BUCKET = 'cms-media';

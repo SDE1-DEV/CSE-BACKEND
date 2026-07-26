@@ -280,21 +280,21 @@ export const archiveEvent = async (req: AuthenticatedRequest, res: Response, nex
 
 export const createCategory = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const data = await managerService.createCategory(req.body);
+    const data = await managerService.createCategory(req.body, req.user!.userId);
     sendCreated(res, 'Category created successfully', data);
   } catch (error) { next(error); }
 };
 
 export const updateCategory = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const data = await managerService.updateCategory(req.params['id'], req.body);
+    const data = await managerService.updateCategory(req.params['id'], req.body, req.user!.userId);
     sendSuccess(res, 'Category updated successfully', data);
   } catch (error) { next(error); }
 };
 
 export const deleteCategory = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
-    await managerService.deleteCategory(req.params['id']);
+    await managerService.deleteCategory(req.params['id'], req.user!.userId);
     sendSuccess(res, 'Category deleted successfully', null);
   } catch (error) { next(error); }
 };
@@ -340,21 +340,21 @@ export const archiveRoadmap = async (req: AuthenticatedRequest, res: Response, n
 
 export const createSection = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const data = await managerService.createSection(req.body);
+    const data = await managerService.createSection(req.body, req.user!.userId);
     sendCreated(res, 'Section created successfully', data);
   } catch (error) { next(error); }
 };
 
 export const updateSection = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const data = await managerService.updateSection(req.params['id'], req.body);
+    const data = await managerService.updateSection(req.params['id'], req.body, req.user!.userId);
     sendSuccess(res, 'Section updated successfully', data);
   } catch (error) { next(error); }
 };
 
 export const deleteSection = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
-    await managerService.deleteSection(req.params['id']);
+    await managerService.deleteSection(req.params['id'], req.user!.userId);
     sendSuccess(res, 'Section deleted successfully', null);
   } catch (error) { next(error); }
 };
@@ -377,7 +377,7 @@ export const updateLesson = async (req: AuthenticatedRequest, res: Response, nex
 
 export const deleteLesson = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
-    await managerService.deleteLesson(req.params['id']);
+    await managerService.deleteLesson(req.params['id'], req.user!.userId);
     sendSuccess(res, 'Lesson deleted successfully', null);
   } catch (error) { next(error); }
 };
@@ -386,21 +386,21 @@ export const deleteLesson = async (req: AuthenticatedRequest, res: Response, nex
 
 export const createResource = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const data = await managerService.createResource(req.body);
+    const data = await managerService.createResource(req.body, req.user!.userId);
     sendCreated(res, 'Resource created successfully', data);
   } catch (error) { next(error); }
 };
 
 export const updateResource = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const data = await managerService.updateResource(req.params['id'], req.body);
+    const data = await managerService.updateResource(req.params['id'], req.body, req.user!.userId);
     sendSuccess(res, 'Resource updated successfully', data);
   } catch (error) { next(error); }
 };
 
 export const deleteResource = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
-    await managerService.deleteResource(req.params['id']);
+    await managerService.deleteResource(req.params['id'], req.user!.userId);
     sendSuccess(res, 'Resource deleted successfully', null);
   } catch (error) { next(error); }
 };
@@ -476,14 +476,14 @@ export const createCompany = async (req: AuthenticatedRequest, res: Response, ne
 
 export const updateCompany = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const data = await managerService.updateCompany(req.params['id'], req.body);
+    const data = await managerService.updateCompany(req.params['id'], req.body, req.user!.userId);
     sendSuccess(res, 'Company updated successfully', data);
   } catch (error) { next(error); }
 };
 
 export const deleteCompany = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
-    await managerService.deleteCompany(req.params['id']);
+    await managerService.deleteCompany(req.params['id'], req.user!.userId);
     sendSuccess(res, 'Company deleted successfully', null);
   } catch (error) { next(error); }
 };
@@ -497,14 +497,14 @@ export const createJob = async (req: AuthenticatedRequest, res: Response, next: 
 
 export const updateJob = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const data = await managerService.updateJob(req.params['id'], req.body);
+    const data = await managerService.updateJob(req.params['id'], req.body, req.user!.userId);
     sendSuccess(res, 'Job updated successfully', data);
   } catch (error) { next(error); }
 };
 
 export const deleteJob = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
-    await managerService.deleteJob(req.params['id']);
+    await managerService.deleteJob(req.params['id'], req.user!.userId);
     sendSuccess(res, 'Job deleted successfully', null);
   } catch (error) { next(error); }
 };
@@ -520,14 +520,14 @@ export const createEvent = async (req: AuthenticatedRequest, res: Response, next
 
 export const updateEvent = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const data = await managerService.updateEvent(req.params['id'], req.body);
+    const data = await managerService.updateEvent(req.params['id'], req.body, req.user!.userId);
     sendSuccess(res, 'Event updated successfully', data);
   } catch (error) { next(error); }
 };
 
 export const deleteEvent = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
-    await managerService.deleteEvent(req.params['id']);
+    await managerService.deleteEvent(req.params['id'], req.user!.userId);
     sendSuccess(res, 'Event deleted successfully', null);
   } catch (error) { next(error); }
 };
@@ -558,14 +558,14 @@ export const broadcastNotification = async (req: AuthenticatedRequest, res: Resp
 
 export const updateNotification = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const data = await managerService.updateNotification(req.params['id'], req.body);
+    const data = await managerService.updateNotification(req.params['id'], req.body, req.user!.userId);
     sendSuccess(res, 'Notification updated successfully', data);
   } catch (error) { next(error); }
 };
 
 export const deleteNotification = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
-    await managerService.deleteNotification(req.params['id']);
+    await managerService.deleteNotification(req.params['id'], req.user!.userId);
     sendSuccess(res, 'Notification deleted successfully', null);
   } catch (error) { next(error); }
 };
@@ -596,13 +596,32 @@ export const exportContent = async (req: AuthenticatedRequest, res: Response, ne
   } catch (error) { next(error); }
 };
 
-// ── Bulk Restore ───────────────────────────────────────────────────────────────
+// ── Import ─────────────────────────────────────────────────────────────────────
 
+export const importContent = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const { entity, records } = req.body as { entity?: string; records?: Record<string, unknown>[] };
+    if (!entity) { res.status(400).json({ success: false, message: 'entity is required' }); return; }
+    const data = await managerService.importContent(entity, records ?? [], req.user!.userId);
+    sendSuccess(res, 'Import complete', data);
+  } catch (error) { next(error); }
+};
+
+// ── Bulk Restore ───────────────────────────────────────────────────────────────
 export const bulkRestore = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { entity, ids } = req.body;
     const data = await managerService.bulkRestore(entity, ids, req.user!.userId);
     sendSuccess(res, 'Content restored', data);
+  } catch (error) { next(error); }
+};
+
+// ── Trash (soft-deleted content) ────────────────────────────────────────────────
+
+export const getTrash = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const data = await managerService.getDeletedContent(req.params['entity'] as string);
+    sendSuccess(res, 'Trash fetched', data);
   } catch (error) { next(error); }
 };
 

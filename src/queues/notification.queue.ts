@@ -20,9 +20,12 @@ export interface NotificationJobData {
 
 export const notificationQueue = createQueue(QUEUE_NAMES.NOTIFICATION);
 
-export const enqueueNotification = async (data: NotificationJobData): Promise<void> => {
+export const enqueueNotification = async (
+  data: NotificationJobData,
+  opts?: { delay?: number },
+): Promise<void> => {
   try {
-    await notificationQueue.add('notification:create', data);
+    await notificationQueue.add('notification:create', data, opts?.delay ? { delay: opts.delay } : undefined);
   } catch (err) {
     logger.error('Failed to enqueue notification', { error: (err as Error).message });
   }

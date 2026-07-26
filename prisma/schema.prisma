@@ -205,12 +205,14 @@ model Category {
   isActive     Boolean   @default(true)
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
+  deletedAt    DateTime?
 
   roadmaps Roadmap[]
 
   @@index([slug])
   @@index([isActive])
   @@index([displayOrder])
+  @@index([deletedAt])
   @@map("categories")
 }
 
@@ -234,6 +236,7 @@ model Roadmap {
   isPublished    Boolean    @default(false)
   createdAt      DateTime   @default(now())
   updatedAt      DateTime   @updatedAt
+  deletedAt      DateTime?
 
   category Category          @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   sections RoadmapSection[]
@@ -243,6 +246,7 @@ model Roadmap {
   @@index([isPublished])
   @@index([difficulty])
   @@index([displayOrder])
+  @@index([deletedAt])
   @@map("roadmaps")
 }
 
@@ -252,12 +256,14 @@ model RoadmapSection {
   title       String
   description String?
   order       Int     @default(0)
+  deletedAt   DateTime?
 
   roadmap Roadmap  @relation(fields: [roadmapId], references: [id], onDelete: Cascade)
   lessons Lesson[]
 
   @@index([roadmapId])
   @@index([order])
+  @@index([deletedAt])
   @@map("roadmap_sections")
 }
 
@@ -274,6 +280,7 @@ model Lesson {
   isPublished      Boolean     @default(false)
   createdAt        DateTime    @default(now())
   updatedAt        DateTime    @updatedAt
+  deletedAt        DateTime?
 
   section        RoadmapSection   @relation(fields: [sectionId], references: [id], onDelete: Cascade)
   resources      LearningResource[]
@@ -285,6 +292,7 @@ model Lesson {
   @@index([sectionId])
   @@index([isPublished])
   @@index([order])
+  @@index([deletedAt])
   @@map("lessons")
 }
 
@@ -299,10 +307,12 @@ model LearningResource {
   thumbnail String?
   createdAt DateTime     @default(now())
   updatedAt DateTime     @updatedAt
+  deletedAt DateTime?
 
   lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
 
   @@index([lessonId])
+  @@index([deletedAt])
   @@map("learning_resources")
 }
 
@@ -367,12 +377,14 @@ model ProblemCategory {
   isActive     Boolean   @default(true)
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
+  deletedAt    DateTime?
 
   problems CodingProblem[]
 
   @@index([slug])
   @@index([isActive])
   @@index([displayOrder])
+  @@index([deletedAt])
   @@map("problem_categories")
 }
 
@@ -397,6 +409,7 @@ model CodingProblem {
   isPublished      Boolean           @default(false)
   createdAt        DateTime          @default(now())
   updatedAt        DateTime          @updatedAt
+  deletedAt        DateTime?
 
   category     ProblemCategory     @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   testCases    TestCase[]
@@ -412,6 +425,7 @@ model CodingProblem {
   @@index([difficulty])
   @@index([slug])
   @@index([isPublished])
+  @@index([deletedAt])
   @@map("coding_problems")
 }
 
@@ -452,11 +466,13 @@ model Company {
   headquarters String?
   careersUrl   String?
   verified     Boolean @default(false)
+  deletedAt    DateTime?
 
   problems    ProblemCompany[]
   jobPostings JobPosting[]
 
   @@index([slug])
+  @@index([deletedAt])
   @@map("companies")
 }
 
@@ -646,12 +662,14 @@ model ProjectCategory {
   isActive     Boolean  @default(true)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+  deletedAt    DateTime?
 
   projects Project[]
 
   @@index([slug])
   @@index([isActive])
   @@index([displayOrder])
+  @@index([deletedAt])
   @@map("project_categories")
 }
 
@@ -673,6 +691,7 @@ model Project {
   isPublished      Boolean           @default(false)
   createdAt        DateTime          @default(now())
   updatedAt        DateTime          @updatedAt
+  deletedAt        DateTime?
 
   category     ProjectCategory           @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   technologies ProjectTechnologyRelation[]
@@ -684,6 +703,7 @@ model Project {
   @@index([slug])
   @@index([isPublished])
   @@index([difficulty])
+  @@index([deletedAt])
   @@map("projects")
 }
 
@@ -931,6 +951,7 @@ model JobPosting {
   isPublished         Boolean   @default(false)
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @updatedAt
+  deletedAt           DateTime?
 
   company      Company          @relation(fields: [companyId], references: [id], onDelete: Cascade)
   applications JobApplication[]
@@ -940,6 +961,7 @@ model JobPosting {
   @@index([applicationDeadline])
   @@index([type])
   @@index([workMode])
+  @@index([deletedAt])
   @@map("job_postings")
 }
 
@@ -1012,12 +1034,14 @@ model Event {
   isPublished     Boolean   @default(false)
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
+  deletedAt       DateTime?
 
   registrations EventRegistration[]
 
   @@index([isPublished])
   @@index([startTime])
   @@index([type])
+  @@index([deletedAt])
   @@map("events")
 }
 
@@ -1245,12 +1269,14 @@ model Banner {
   createdBy   String
   createdAt   DateTime        @default(now())
   updatedAt   DateTime        @updatedAt
+  deletedAt   DateTime?
 
   creator User @relation("BannerCreator", fields: [createdBy], references: [id], onDelete: Cascade)
 
   @@index([placement])
   @@index([isActive])
   @@index([priority])
+  @@index([deletedAt])
   @@map("banners")
 }
 
@@ -1282,12 +1308,14 @@ model Faq {
   createdBy    String
   createdAt    DateTime    @default(now())
   updatedAt    DateTime    @updatedAt
+  deletedAt    DateTime?
 
   category  FaqCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
   creator   User         @relation("FaqCreator", fields: [createdBy], references: [id], onDelete: Cascade)
 
   @@index([categoryId])
   @@index([isPublished])
+  @@index([deletedAt])
   @@map("faqs")
 }
 
@@ -1307,11 +1335,13 @@ model Testimonial {
   createdBy   String
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  deletedAt   DateTime?
 
   creator User @relation("TestimonialCreator", fields: [createdBy], references: [id], onDelete: Cascade)
 
   @@index([isFeatured])
   @@index([isPublished])
+  @@index([deletedAt])
   @@map("testimonials")
 }
 
@@ -1342,12 +1372,14 @@ model MediaFile {
   usageCount  Int           @default(0)
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
+  deletedAt   DateTime?
 
   uploader User @relation("MediaFileUploader", fields: [uploadedBy], references: [id], onDelete: Cascade)
 
   @@index([uploadedBy])
   @@index([folder])
   @@index([fileType])
+  @@index([deletedAt])
   @@map("media_files")
 }
 
