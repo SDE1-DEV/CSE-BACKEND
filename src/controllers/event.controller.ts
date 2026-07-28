@@ -14,7 +14,7 @@ import { CreateEventInput, UpdateEventInput } from '../validators/event.validato
 
 export const getEvents = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const isAdmin = req.user?.role === 'ADMIN';
+    const isAdmin = (req.user?.role === 'SUPER_ADMIN' || req.user?.role === 'MANAGER');
     const { type, search, page, limit } = req.query as Record<string, string>;
     const result = await eventService.getAll(
       {

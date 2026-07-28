@@ -16,8 +16,9 @@
  *   npx prisma db seed
  */
 
-import { PrismaClient, Role } from '@prisma/client'
+import { PrismaClient, Role, ContentType } from '@prisma/client'
 import * as bcrypt from 'bcryptjs'
+import { getLessons } from './python-seed-data'
 
 // Seeding is a one-off script: connect via the DIRECT (non-pooled) connection.
 // The runtime DATABASE_URL points at the Supabase transaction pooler (PgBouncer,
@@ -85,7 +86,7 @@ async function main() {
     email: 'admin@cse.dev',
     password: 'Admin@123',
     fullName: 'Platform Admin',
-    role: Role.ADMIN,
+    role: Role.SUPER_ADMIN,
   })
   console.log(`✅ Admin:   admin@cse.dev / Admin@123`)
 
@@ -110,54 +111,33 @@ async function main() {
   const createdBy = manager.id
 
   // ── Learning: Categories → Roadmaps → Sections → Lessons → Resources ─────────
+  // NOTE: We explicitly UNPUBLISH all legacy sample roadmaps. Only the Python
+  // roadmap (seeded below) is isPublished=true — per the PRD requirement that
+  // GET /roadmaps with no filters returns ONLY Python.
+
   const learningData = [
     {
-      category: { title: 'Web Development', slug: 'web-development', icon: '🌐', description: 'Frontend and backend web technologies', displayOrder: 1 },
+      category: { title: 'Web Development', slug: 'web-development', icon: '🌐', description: 'Frontend and backend web technologies', displayOrder: 2 },
       roadmap: {
         title: 'Full-Stack Web Developer', slug: 'full-stack-web-developer',
         description: 'Become a full-stack developer from scratch', difficulty: 'BEGINNER' as const,
-        estimatedHours: 120, isPublished: true,
-        sections: [
-          {
-            title: 'HTML & CSS Foundations', order: 1,
-            lessons: [
-              { title: 'Introduction to HTML', slug: 'intro-to-html', contentType: 'ARTICLE' as const, estimatedMinutes: 30, order: 1, isPublished: true, content: '# HTML Basics\n\nHTML structures web content.', resources: [{ type: 'ARTICLE' as const, title: 'MDN HTML Guide', url: 'https://developer.mozilla.org/en-US/docs/Web/HTML' }] },
-              { title: 'CSS Fundamentals', slug: 'css-fundamentals', contentType: 'ARTICLE' as const, estimatedMinutes: 45, order: 2, isPublished: true, content: '# CSS\n\nStyling with CSS.', resources: [] },
-            ],
-          },
-          {
-            title: 'JavaScript Essentials', order: 2,
-            lessons: [
-              { title: 'JavaScript Variables & Types', slug: 'js-variables-types', contentType: 'NOTE' as const, estimatedMinutes: 40, order: 1, isPublished: true, content: '# JS Variables', resources: [{ type: 'VIDEO' as const, title: 'JS Crash Course', url: 'https://youtu.be/example', duration: 3600 }] },
-              { title: 'Functions & Scope', slug: 'js-functions-scope', contentType: 'NOTE' as const, estimatedMinutes: 50, order: 2, isPublished: false, content: '# Functions', resources: [] },
-            ],
-          },
-        ],
+        estimatedHours: 120, isPublished: false,
       },
     },
     {
-      category: { title: 'Data Structures & Algorithms', slug: 'dsa', icon: '🧮', description: 'Core CS problem solving', displayOrder: 2 },
+      category: { title: 'Data Structures & Algorithms', slug: 'dsa', icon: '🧮', description: 'Core CS problem solving', displayOrder: 3 },
       roadmap: {
         title: 'DSA Mastery', slug: 'dsa-mastery',
         description: 'Master data structures and algorithms', difficulty: 'INTERMEDIATE' as const,
-        estimatedHours: 200, isPublished: true,
-        sections: [
-          {
-            title: 'Arrays & Strings', order: 1,
-            lessons: [
-              { title: 'Array Basics', slug: 'array-basics', contentType: 'ARTICLE' as const, estimatedMinutes: 35, order: 1, isPublished: true, content: '# Arrays', resources: [] },
-            ],
-          },
-        ],
+        estimatedHours: 200, isPublished: false,
       },
     },
     {
-      category: { title: 'System Design', slug: 'system-design', icon: '🏗️', description: 'Design scalable systems', displayOrder: 3 },
+      category: { title: 'System Design', slug: 'system-design', icon: '🏗️', description: 'Design scalable systems', displayOrder: 4 },
       roadmap: {
         title: 'System Design Interview Prep', slug: 'system-design-prep',
         description: 'Prepare for system design interviews', difficulty: 'ADVANCED' as const,
         estimatedHours: 80, isPublished: false,
-        sections: [],
       },
     },
   ]
@@ -165,35 +145,145 @@ async function main() {
   for (const { category, roadmap } of learningData) {
     const cat = await prisma.category.upsert({
       where: { slug: category.slug },
-      update: {},
+      update: category,
       create: category,
     })
-    const { sections, ...roadmapFields } = roadmap
-    const rm = await prisma.roadmap.upsert({
-      where: { slug: roadmapFields.slug },
-      update: {},
-      create: { ...roadmapFields, categoryId: cat.id },
+    await prisma.roadmap.upsert({
+      where: { slug: roadmap.slug },
+      update: { ...roadmap, isPublished: false, categoryId: cat.id },
+      create: { ...roadmap, categoryId: cat.id },
     })
-    const existingSections = await prisma.roadmapSection.count({ where: { roadmapId: rm.id } })
-    if (existingSections === 0 && sections.length > 0) {
-      for (const section of sections) {
-        const { lessons, ...sectionFields } = section
-        await prisma.roadmapSection.create({
-          data: {
-            ...sectionFields,
-            roadmapId: rm.id,
-            lessons: {
-              create: lessons.map(({ resources, ...lesson }) => ({
-                ...lesson,
-                resources: { create: resources },
-              })),
-            },
-          },
-        })
-      }
+  }
+
+  // ──────────────────────────────────────────────────────────────────────────
+  // Programming Category + Python Programming Roadmap (PUBLISHED, idempotent)
+  // ──────────────────────────────────────────────────────────────────────────
+  const programmingCat = await prisma.category.upsert({
+    where: { slug: 'programming' },
+    update: {
+      title: 'Programming',
+      slug: 'programming',
+      description: 'Core programming languages and fundamentals',
+      icon: '💻',
+      displayOrder: 1,
+      isActive: true,
+    },
+    create: {
+      title: 'Programming',
+      slug: 'programming',
+      description: 'Core programming languages and fundamentals',
+      icon: '💻',
+      displayOrder: 1,
+      isActive: true,
+    },
+  })
+
+  const pythonRoadmap = await prisma.roadmap.upsert({
+    where: { slug: 'python' },
+    update: {
+      title: 'Python Programming',
+      slug: 'python',
+      categoryId: programmingCat.id,
+      difficulty: 'BEGINNER',
+      description: 'Learn Python from scratch - the complete beginner\'s roadmap covering fundamentals to advanced concepts.',
+      prerequisites: 'No prior programming experience required. A computer with internet access.',
+      learningOutcomes: 'Master Python syntax, write real programs, build projects, prepare for jobs',
+      estimatedHours: 120,
+      tags: 'Python,Programming,Beginner,Backend',
+      banner: null,
+      thumbnail: null,
+      visibility: 'PUBLIC',
+      isPublished: true,
+    },
+    create: {
+      title: 'Python Programming',
+      slug: 'python',
+      categoryId: programmingCat.id,
+      difficulty: 'BEGINNER',
+      description: 'Learn Python from scratch - the complete beginner\'s roadmap covering fundamentals to advanced concepts.',
+      prerequisites: 'No prior programming experience required. A computer with internet access.',
+      learningOutcomes: 'Master Python syntax, write real programs, build projects, prepare for jobs',
+      estimatedHours: 120,
+      tags: 'Python,Programming,Beginner,Backend',
+      banner: null,
+      thumbnail: null,
+      visibility: 'PUBLIC',
+      isPublished: true,
+    },
+  })
+
+  // ── All 16 Roadmap Sections (upsert by roadmapId + title combo) ──────────
+  const sectionDefs: { title: string; order: number }[] = [
+    { title: 'Introduction', order: 0 },
+    { title: 'Programming Basics', order: 1 },
+    { title: 'Variables & Data Types', order: 2 },
+    { title: 'Operators', order: 3 },
+    { title: 'Input & Output', order: 4 },
+    { title: 'Conditional Statements', order: 5 },
+    { title: 'Loops', order: 6 },
+    { title: 'Functions', order: 7 },
+    { title: 'Collections (List, Tuple, Set, Dict)', order: 8 },
+    { title: 'Strings', order: 9 },
+    { title: 'File Handling', order: 10 },
+    { title: 'Modules & Packages', order: 11 },
+    { title: 'Object Oriented Programming', order: 12 },
+    { title: 'Exception Handling', order: 13 },
+    { title: 'Advanced Python Concepts', order: 14 },
+    { title: 'Python Projects', order: 15 },
+  ]
+
+  const sectionMap: Record<string, string> = {}
+  for (const s of sectionDefs) {
+    const existing = await prisma.roadmapSection.findFirst({
+      where: { roadmapId: pythonRoadmap.id, title: s.title, deletedAt: null },
+    })
+    if (existing) {
+      const updated = await prisma.roadmapSection.update({
+        where: { id: existing.id },
+        data: { order: s.order, description: null },
+      })
+      sectionMap[s.title] = updated.id
+    } else {
+      const created = await prisma.roadmapSection.create({
+        data: { roadmapId: pythonRoadmap.id, title: s.title, order: s.order, description: null },
+      })
+      sectionMap[s.title] = created.id
     }
   }
-  console.log(`✅ Learning: ${learningData.length} categories + roadmaps + sections/lessons`)
+
+  // ── Lessons (upsert by slug; all are NOTE + published) ───────────────────
+  const pythonLessons = getLessons()
+  for (const l of pythonLessons) {
+    const sectionId = sectionMap[l.sectionTitle]
+    if (!sectionId) continue
+    await prisma.lesson.upsert({
+      where: { slug: l.lessonSlug },
+      update: {
+        sectionId,
+        title: l.lessonTitle,
+        contentType: 'NOTE' as ContentType,
+        estimatedMinutes: l.estimatedMinutes,
+        order: l.lessonOrder,
+        isPublished: true,
+        content: l.content,
+      },
+      create: {
+        sectionId,
+        title: l.lessonTitle,
+        slug: l.lessonSlug,
+        contentType: 'NOTE' as ContentType,
+        estimatedMinutes: l.estimatedMinutes,
+        order: l.lessonOrder,
+        isPublished: true,
+        content: l.content,
+        description: null,
+      },
+    })
+  }
+
+  console.log(
+    `✅ Learning: Programming category + Python roadmap (${sectionDefs.length} sections, ${pythonLessons.length} lessons)`
+  )
 
   // ── Coding: Categories, Tags, Companies, Problems ────────────────────────────
   const problemCategories = [

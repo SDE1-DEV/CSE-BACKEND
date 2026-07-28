@@ -11,6 +11,7 @@ import { TokenPair } from '../types';
 import { env } from '../config/env';
 import { managerPermissionRepository } from '../repositories/admin/manager-permission.repository';
 import { IUpdateProfileDto } from '../interfaces/user.interface';
+import { prisma } from '../config/database';
 
 const REFRESH_EXPIRY_MS = 7 * 24 * 60 * 60 * 1000; // 7 days default
 
@@ -44,53 +45,27 @@ export class AuthService {
     password: string,
     phoneNumber?: string,
   ): Promise<{ user: Omit<User, 'passwordHash'>; tokens: TokenPair }> {
-    // Check if email already exists
     const exists = await userRepository.existsByEmail(email);
     if (exists) {
       throw new AppError(HTTP_STATUS.CONFLICT, MESSAGES.EMAIL_ALREADY_EXISTS);
     }
 
-    // Hash password
     const passwordHash = await hashPassword(password);
-
-    // Create user
-    // When ENABLE_EMAIL_VERIFICATION=false (development), auto-verify on creation.
-    // When true (production), set isVerified=false and send OTP.
-    const autoVerify = !env.isEmailVerificationEnabled();
 
     const user = await userRepository.create({
       fullName,
       email,
       passwordHash,
       phoneNumber: phoneNumber ?? null,
-      isVerified: autoVerify,
+      isVerified: true,
+      status: 'ACTIVE',
+      role: Role.STUDENT,
     });
 
-    // Send OTP only if email verification is enabled
-    if (env.isEmailVerificationEnabled()) {
-      const otp = generateOtp();
-      const expiresAt = getOtpExpiry();
-      await authRepository.upsertEmailVerification(email, otp, expiresAt);
-      try {
-        await enqueueEmail({
-          type: 'email:verification',
-          to: email,
-          payload: { otp },
-        });
-      } catch {
-        if (env.isDevelopment()) {
-          // eslint-disable-next-line no-console
-          console.log(`[DEV] Email verification OTP for ${email}: ${otp}`);
-        }
-      }
-    }
-
-    // Generate tokens — include permissions for MANAGER role (PRD-07)
     const tokenPayload = await this.buildTokenPayload(user);
     const accessToken = generateAccessToken(tokenPayload);
     const refreshToken = generateRefreshToken(tokenPayload);
 
-    // Store refresh token
     const expiresAt = parseExpiry(env.REFRESH_EXPIRY);
     await authRepository.createRefreshToken(user.id, refreshToken, expiresAt);
 
@@ -100,28 +75,6 @@ export class AuthService {
       user: userWithoutPassword,
       tokens: { accessToken, refreshToken },
     };
-  }
-
-  async verifyEmail(email: string, otp: string): Promise<{ message: string }> {
-    const verification = await authRepository.findEmailVerification(email, otp);
-
-    if (!verification) {
-      throw new AppError(HTTP_STATUS.BAD_REQUEST, MESSAGES.INVALID_OTP);
-    }
-
-    // Mark OTP verified
-    await authRepository.markEmailVerified(verification.id);
-
-    // Find user and activate account
-    const user = await userRepository.findByEmail(email);
-    if (user) {
-      await userRepository.setVerified(user.id);
-    }
-
-    // Cleanup expired OTPs
-    await authRepository.deleteExpiredEmailVerifications();
-
-    return { message: MESSAGES.EMAIL_VERIFIED };
   }
 
   async login(
@@ -139,21 +92,13 @@ export class AuthService {
       throw new AppError(HTTP_STATUS.UNAUTHORIZED, MESSAGES.INVALID_CREDENTIALS);
     }
 
-    // When email verification is enabled, require the user to be verified before login
-    if (env.isEmailVerificationEnabled() && !user.isVerified) {
-      throw new AppError(HTTP_STATUS.UNAUTHORIZED, MESSAGES.EMAIL_NOT_VERIFIED);
-    }
-
-    // Generate tokens — include permissions for MANAGER role (PRD-07)
     const tokenPayload = await this.buildTokenPayload(user);
     const accessToken = generateAccessToken(tokenPayload);
     const refreshToken = generateRefreshToken(tokenPayload);
 
-    // Store refresh token
     const expiresAt = parseExpiry(env.REFRESH_EXPIRY);
     await authRepository.createRefreshToken(user.id, refreshToken, expiresAt);
 
-    // Record login time
     await userRepository.updateLastLogin(user.id);
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -279,19 +224,60 @@ export class AuthService {
       throw new AppError(HTTP_STATUS.UNAUTHORIZED, MESSAGES.USER_NOT_FOUND);
     }
 
-    // Build fresh permissions for MANAGER role
     let permissions: string[] = [];
     if (user.role === Role.MANAGER) {
       permissions = await managerPermissionRepository.getModuleNames(user.id);
     }
-    // SUPER_ADMIN has full access — return a sentinel so frontend can reflect this
     if (user.role === Role.SUPER_ADMIN) {
       permissions = ['*'];
     }
 
+    const progress = await prisma.userProgress.findMany({
+      where: { userId },
+    });
+
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { passwordHash: _pw, ...userWithoutPassword } = user;
-    return { ...userWithoutPassword, permissions };
+    const { passwordHash: _pw, fullName, ...rest } = user;
+    const profile = {
+      profileImage: rest.profileImage,
+      collegeName: rest.collegeName,
+      university: rest.university,
+      branch: rest.branch,
+      currentYear: rest.currentYear,
+      semester: rest.semester,
+      githubUrl: rest.githubUrl,
+      linkedinUrl: rest.linkedinUrl,
+      portfolioUrl: rest.portfolioUrl,
+      bio: rest.bio,
+      phoneNumber: rest.phoneNumber,
+    };
+    return {
+      id: rest.id,
+      fullName,
+      name: fullName,
+      email: rest.email,
+      role: rest.role,
+      permissions,
+      profile,
+      progress,
+      status: rest.status,
+      isVerified: rest.isVerified,
+      profileCompletion: rest.profileCompletion,
+      lastLoginAt: rest.lastLoginAt,
+      profileImage: rest.profileImage,
+      collegeName: rest.collegeName,
+      university: rest.university,
+      branch: rest.branch,
+      currentYear: rest.currentYear,
+      semester: rest.semester,
+      githubUrl: rest.githubUrl,
+      linkedinUrl: rest.linkedinUrl,
+      portfolioUrl: rest.portfolioUrl,
+      bio: rest.bio,
+      phoneNumber: rest.phoneNumber,
+      createdAt: rest.createdAt,
+      updatedAt: rest.updatedAt,
+    };
   }
 
   /**

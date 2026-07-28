@@ -41,7 +41,7 @@ export const getProjectCategories = async (
   next: NextFunction,
 ): Promise<void> => {
   try {
-    const isAdmin = req.user?.role === Role.ADMIN;
+    const isAdmin = (req.user?.role === Role.SUPER_ADMIN || req.user?.role === Role.MANAGER);
     const result = await projectCategoryService.getCategories(req.query as Record<string, unknown>, isAdmin);
     sendSuccess(res, PROJECT_MESSAGES.PROJECT_CATEGORIES_FETCHED, result);
   } catch (error) {

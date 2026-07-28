@@ -40,7 +40,7 @@ const studentToken = generateAccessToken({
 const adminToken = generateAccessToken({
   userId: 'admin-1',
   email: 'admin@test.com',
-  role: Role.ADMIN,
+  role: Role.SUPER_ADMIN,
 });
 
 describe('Learning API', () => {

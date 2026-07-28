@@ -6,7 +6,7 @@ import {
   deleteSection,
 } from '../controllers/section.controller';
 import { authenticate } from '../middlewares/authenticate.middleware';
-import { requireAdmin } from '../middlewares/role.middleware';
+import { requireManager } from '../middlewares/role.middleware';
 import { validate } from '../middlewares/validate.middleware';
 import {
   createSectionSchema,
@@ -28,8 +28,8 @@ const router = Router();
 router.get('/:roadmapId', validate(sectionByRoadmapSchema), getSectionsByRoadmap);
 
 // Admin protected
-router.post('/', authenticate, requireAdmin, validate(createSectionSchema), createSection);
-router.put('/:id', authenticate, requireAdmin, validate(updateSectionSchema), updateSection);
-router.delete('/:id', authenticate, requireAdmin, validate(sectionParamsSchema), deleteSection);
+router.post('/', authenticate, requireManager, validate(createSectionSchema), createSection);
+router.put('/:id', authenticate, requireManager, validate(updateSectionSchema), updateSection);
+router.delete('/:id', authenticate, requireManager, validate(sectionParamsSchema), deleteSection);
 
 export default router;

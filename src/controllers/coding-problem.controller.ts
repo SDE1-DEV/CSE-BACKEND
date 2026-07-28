@@ -66,7 +66,7 @@ export const getProblems = async (
   try {
     const query = req.query as GetProblemsQuery;
     const userId = req.user?.userId;
-    const isAdmin = req.user?.role === Role.ADMIN;
+    const isAdmin = (req.user?.role === Role.SUPER_ADMIN || req.user?.role === Role.MANAGER);
 
     // Non-admins only see published problems
     if (!isAdmin) {

@@ -37,20 +37,6 @@ export const loginSchema = z.object({
   }),
 });
 
-export const verifyEmailSchema = z.object({
-  body: z.object({
-    email: z
-      .string({ required_error: 'Email is required' })
-      .email('Invalid email format')
-      .toLowerCase()
-      .trim(),
-    otp: z
-      .string({ required_error: 'OTP is required' })
-      .length(6, 'OTP must be exactly 6 digits')
-      .regex(/^\d{6}$/, 'OTP must contain only digits'),
-  }),
-});
-
 export const forgotPasswordSchema = z.object({
   body: z.object({
     email: z
@@ -121,7 +107,6 @@ export const updateAuthProfileSchema = z.object({
 
 export type RegisterInput = z.infer<typeof registerSchema>['body'];
 export type LoginInput = z.infer<typeof loginSchema>['body'];
-export type VerifyEmailInput = z.infer<typeof verifyEmailSchema>['body'];
 export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>['body'];
 export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>['body'];
 export type RefreshTokenInput = z.infer<typeof refreshTokenSchema>['body'];

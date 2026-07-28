@@ -11,7 +11,7 @@ export interface SearchResults {
 
 export class SearchService {
   async globalSearch(query: string, role?: Role): Promise<SearchResults> {
-    const isAdmin = role === Role.ADMIN;
+    const isAdmin = (role === Role.SUPER_ADMIN || role === Role.MANAGER);
 
     const [categories, roadmaps, lessons] = await Promise.all([
       categoryRepository.searchByTitle(query),

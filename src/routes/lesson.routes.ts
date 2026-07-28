@@ -14,7 +14,7 @@ import {
   getContinueLearning,
 } from '../controllers/lesson.controller';
 import { authenticate } from '../middlewares/authenticate.middleware';
-import { requireAdmin } from '../middlewares/role.middleware';
+import { requireManager } from '../middlewares/role.middleware';
 import { validate } from '../middlewares/validate.middleware';
 import {
   createLessonSchema,
@@ -42,9 +42,9 @@ router.get('/lessons/:sectionId', validate(lessonsBySectionSchema), getLessonsBy
 router.get('/lesson/:id', validate(lessonParamsSchema), getLessonById);
 
 // Admin: create / update / delete
-router.post('/lesson', authenticate, requireAdmin, validate(createLessonSchema), createLesson);
-router.put('/lesson/:id', authenticate, requireAdmin, validate(updateLessonSchema), updateLesson);
-router.delete('/lesson/:id', authenticate, requireAdmin, validate(lessonParamsSchema), deleteLesson);
+router.post('/lesson', authenticate, requireManager, validate(createLessonSchema), createLesson);
+router.put('/lesson/:id', authenticate, requireManager, validate(updateLessonSchema), updateLesson);
+router.delete('/lesson/:id', authenticate, requireManager, validate(lessonParamsSchema), deleteLesson);
 
 // ── Student Progress ─────────────────────────────────────────────────────────
 

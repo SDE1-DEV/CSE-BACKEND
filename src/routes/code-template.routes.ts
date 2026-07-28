@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { createTemplate, updateTemplate, deleteTemplate } from '../controllers/code-template.controller';
 import { authenticate } from '../middlewares/authenticate.middleware';
-import { requireAdmin } from '../middlewares/role.middleware';
+import { requireManager } from '../middlewares/role.middleware';
 import { validate } from '../middlewares/validate.middleware';
 import {
   createCodeTemplateSchema,
@@ -11,8 +11,8 @@ import {
 
 const router = Router();
 
-router.post('/', authenticate, requireAdmin, validate(createCodeTemplateSchema), createTemplate);
-router.put('/:id', authenticate, requireAdmin, validate(updateCodeTemplateSchema), updateTemplate);
-router.delete('/:id', authenticate, requireAdmin, validate(codeTemplateParamsSchema), deleteTemplate);
+router.post('/', authenticate, requireManager, validate(createCodeTemplateSchema), createTemplate);
+router.put('/:id', authenticate, requireManager, validate(updateCodeTemplateSchema), updateTemplate);
+router.delete('/:id', authenticate, requireManager, validate(codeTemplateParamsSchema), deleteTemplate);
 
 export default router;

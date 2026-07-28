@@ -6,7 +6,7 @@ import {
   deleteDailyChallenge,
 } from '../controllers/daily-challenge.controller';
 import { authenticate } from '../middlewares/authenticate.middleware';
-import { requireAdmin } from '../middlewares/role.middleware';
+import { requireManager } from '../middlewares/role.middleware';
 import { validate } from '../middlewares/validate.middleware';
 import {
   createDailyChallengeSchema,
@@ -17,8 +17,8 @@ import {
 const router = Router();
 
 router.get('/', getToday);
-router.post('/', authenticate, requireAdmin, validate(createDailyChallengeSchema), createDailyChallenge);
-router.put('/:id', authenticate, requireAdmin, validate(updateDailyChallengeSchema), updateDailyChallenge);
-router.delete('/:id', authenticate, requireAdmin, validate(dailyChallengeParamsSchema), deleteDailyChallenge);
+router.post('/', authenticate, requireManager, validate(createDailyChallengeSchema), createDailyChallenge);
+router.put('/:id', authenticate, requireManager, validate(updateDailyChallengeSchema), updateDailyChallenge);
+router.delete('/:id', authenticate, requireManager, validate(dailyChallengeParamsSchema), deleteDailyChallenge);
 
 export default router;

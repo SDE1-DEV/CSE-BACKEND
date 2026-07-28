@@ -7,7 +7,7 @@ import {
   deleteJob,
 } from '../controllers/job-posting.controller';
 import { authenticate } from '../middlewares/authenticate.middleware';
-import { requireAdmin } from '../middlewares/role.middleware';
+import { requireManager } from '../middlewares/role.middleware';
 import { validate } from '../middlewares/validate.middleware';
 import {
   createJobSchema,
@@ -29,8 +29,8 @@ router.get('/', getJobs);
 router.get('/:id', validate(jobParamsSchema), getJobById);
 
 // Admin only
-router.post('/', authenticate, requireAdmin, validate(createJobSchema), createJob);
-router.put('/:id', authenticate, requireAdmin, validate(updateJobSchema), updateJob);
-router.delete('/:id', authenticate, requireAdmin, validate(jobParamsSchema), deleteJob);
+router.post('/', authenticate, requireManager, validate(createJobSchema), createJob);
+router.put('/:id', authenticate, requireManager, validate(updateJobSchema), updateJob);
+router.delete('/:id', authenticate, requireManager, validate(jobParamsSchema), deleteJob);
 
 export default router;

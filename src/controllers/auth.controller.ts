@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { authService } from '../services/auth.service';
 import { sendSuccess, sendCreated } from '../utils/response';
 import { MESSAGES, HTTP_STATUS } from '../constants';
-import { RegisterInput, LoginInput, VerifyEmailInput, ForgotPasswordInput, ResetPasswordInput, RefreshTokenInput, ChangePasswordInput, UpdateProfileInput } from '../validators/auth.validator';
+import { RegisterInput, LoginInput, ForgotPasswordInput, ResetPasswordInput, RefreshTokenInput, ChangePasswordInput, UpdateProfileInput } from '../validators/auth.validator';
 import { AuthenticatedRequest } from '../types';
 import { AppError } from '../middlewares/error.middleware';
 
@@ -57,38 +57,6 @@ export const register = async (
       accessToken: result.tokens.accessToken,
       refreshToken: result.tokens.refreshToken,
     });
-  } catch (error) {
-    next(error);
-  }
-};
-
-/**
- * @swagger
- * /api/auth/verify-email:
- *   post:
- *     tags: [Authentication]
- *     summary: Verify email with OTP
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/VerifyEmailRequest'
- *     responses:
- *       200:
- *         description: Email verified successfully
- *       400:
- *         description: Invalid or expired OTP
- */
-export const verifyEmail = async (
-  req: Request<object, object, VerifyEmailInput>,
-  res: Response,
-  next: NextFunction,
-): Promise<void> => {
-  try {
-    const { email, otp } = req.body;
-    const result = await authService.verifyEmail(email, otp);
-    sendSuccess(res, result.message, null);
   } catch (error) {
     next(error);
   }

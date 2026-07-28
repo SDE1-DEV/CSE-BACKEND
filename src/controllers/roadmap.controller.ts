@@ -59,7 +59,7 @@ export const getRoadmaps = async (
   next: NextFunction,
 ): Promise<void> => {
   try {
-    const isAdmin = req.user?.role === Role.ADMIN;
+    const isAdmin = (req.user?.role === Role.SUPER_ADMIN || req.user?.role === Role.MANAGER);
     const result = await roadmapService.getRoadmaps(req.query as GetRoadmapsQuery, isAdmin);
     sendSuccess(res, LEARNING_MESSAGES.ROADMAPS_FETCHED, result);
   } catch (error) {
@@ -90,7 +90,7 @@ export const getRoadmapById = async (
   next: NextFunction,
 ): Promise<void> => {
   try {
-    const isAdmin = req.user?.role === Role.ADMIN;
+    const isAdmin = (req.user?.role === Role.SUPER_ADMIN || req.user?.role === Role.MANAGER);
     const roadmap = await roadmapService.getRoadmapById(req.params.id, isAdmin);
     sendSuccess(res, LEARNING_MESSAGES.ROADMAP_FETCHED, roadmap);
   } catch (error) {

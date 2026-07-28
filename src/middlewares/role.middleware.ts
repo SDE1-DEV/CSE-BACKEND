@@ -20,25 +20,17 @@ export const requireRole = (...roles: Role[]) => {
   };
 };
 
-// ── PRD-08: Final role guards ─────────────────────────────────────────────────
+// ── V-01.2: Final role guards ─────────────────────────────────────────────────
 
-/** Only SUPER_ADMIN can access — ADMIN role is removed per PRD-08 */
+/** Only SUPER_ADMIN can access */
 export const requireSuperAdmin = requireRole(Role.SUPER_ADMIN);
 
 /** MANAGER or SUPER_ADMIN can access manager routes */
 export const requireManager = requireRole(Role.MANAGER, Role.SUPER_ADMIN);
 
-/** Any authenticated user (STUDENT, MENTOR, MANAGER, SUPER_ADMIN) */
+/** Any authenticated user (STUDENT, MANAGER, SUPER_ADMIN) */
 export const requireStudent = requireRole(
   Role.STUDENT,
-  Role.MENTOR,
   Role.MANAGER,
   Role.SUPER_ADMIN,
 );
-
-/** MENTOR or above */
-export const requireMentor = requireRole(Role.MENTOR, Role.MANAGER, Role.SUPER_ADMIN);
-
-// ── Legacy aliases (backward compat) ──────────────────────────────────────────
-/** @deprecated Use requireSuperAdmin instead. ADMIN role is removed per PRD-08. */
-export const requireAdmin = requireRole(Role.SUPER_ADMIN);

@@ -7,7 +7,7 @@ import {
   deleteProjectTechnology,
 } from '../controllers/project-technology.controller';
 import { authenticate } from '../middlewares/authenticate.middleware';
-import { requireAdmin } from '../middlewares/role.middleware';
+import { requireManager } from '../middlewares/role.middleware';
 import { validate } from '../middlewares/validate.middleware';
 import {
   createTechnologySchema,
@@ -21,8 +21,8 @@ const router = Router();
 router.get('/', validate(getTechnologiesQuerySchema), getProjectTechnologies);
 router.get('/:id', validate(technologyParamsSchema), getProjectTechnologyById);
 
-router.post('/', authenticate, requireAdmin, validate(createTechnologySchema), createProjectTechnology);
-router.put('/:id', authenticate, requireAdmin, validate(updateTechnologySchema), updateProjectTechnology);
-router.delete('/:id', authenticate, requireAdmin, validate(technologyParamsSchema), deleteProjectTechnology);
+router.post('/', authenticate, requireManager, validate(createTechnologySchema), createProjectTechnology);
+router.put('/:id', authenticate, requireManager, validate(updateTechnologySchema), updateProjectTechnology);
+router.delete('/:id', authenticate, requireManager, validate(technologyParamsSchema), deleteProjectTechnology);
 
 export default router;

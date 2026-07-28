@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { createTestCase, updateTestCase, deleteTestCase } from '../controllers/test-case.controller';
 import { authenticate } from '../middlewares/authenticate.middleware';
-import { requireAdmin } from '../middlewares/role.middleware';
+import { requireManager } from '../middlewares/role.middleware';
 import { validate } from '../middlewares/validate.middleware';
 import {
   createTestCaseSchema,
@@ -11,8 +11,8 @@ import {
 
 const router = Router();
 
-router.post('/', authenticate, requireAdmin, validate(createTestCaseSchema), createTestCase);
-router.put('/:id', authenticate, requireAdmin, validate(updateTestCaseSchema), updateTestCase);
-router.delete('/:id', authenticate, requireAdmin, validate(testCaseParamsSchema), deleteTestCase);
+router.post('/', authenticate, requireManager, validate(createTestCaseSchema), createTestCase);
+router.put('/:id', authenticate, requireManager, validate(updateTestCaseSchema), updateTestCase);
+router.delete('/:id', authenticate, requireManager, validate(testCaseParamsSchema), deleteTestCase);
 
 export default router;

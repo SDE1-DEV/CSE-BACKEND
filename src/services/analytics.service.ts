@@ -15,7 +15,7 @@ export class AnalyticsService {
       analyticsRepository.findByUserId(userId),
 
       // Learning progress
-      prisma.lessonProgress.aggregate({
+      prisma.userProgress.aggregate({
         where: { userId, completed: true },
         _count: { id: true },
       }),
@@ -53,8 +53,8 @@ export class AnalyticsService {
     ]);
 
     // Coding stats breakdown
-    const totalSubmissions = codingStats.reduce((acc, g) => acc + g._count.id, 0);
-    const acceptedSubmissions = codingStats.find((g) => g.status === 'ACCEPTED')?._count.id ?? 0;
+    const totalSubmissions = codingStats.reduce((acc: number, g: any) => acc + g._count.id, 0);
+    const acceptedSubmissions = codingStats.find((g: any) => g.status === 'ACCEPTED')?._count.id ?? 0;
 
     // Unique solved problems
     const solvedCount = await prisma.submission.findMany({
@@ -65,15 +65,15 @@ export class AnalyticsService {
 
     // Application breakdown
     const applicationsByStatus: Record<string, number> = {};
-    jobApplications.forEach((g) => {
+    jobApplications.forEach((g: any) => {
       applicationsByStatus[g.status] = g._count.id;
     });
-    const totalApplications = jobApplications.reduce((acc, g) => acc + g._count.id, 0);
+    const totalApplications = jobApplications.reduce((acc: number, g: any) => acc + g._count.id, 0);
 
     // Resume completion score (average based on sections count)
     const avgSections =
       resumes.length > 0
-        ? resumes.reduce((acc, r) => acc + r._count.sections, 0) / resumes.length
+        ? resumes.reduce((acc: number, r: any) => acc + r._count.sections, 0) / resumes.length
         : 0;
     const resumeCompletion = Math.min(Math.round((avgSections / 6) * 100), 100); // 6 standard sections
 

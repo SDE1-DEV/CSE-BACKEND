@@ -14,7 +14,7 @@ import { CreateJobInput, UpdateJobInput } from '../validators/job-posting.valida
 
 export const getJobs = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const isAdmin = req.user?.role === 'ADMIN';
+    const isAdmin = (req.user?.role === 'SUPER_ADMIN' || req.user?.role === 'MANAGER');
     const { companyId, location, type, workMode, experienceRequired, search, page, limit } = req.query as Record<string, string>;
     const result = await jobPostingService.getAll(
       {

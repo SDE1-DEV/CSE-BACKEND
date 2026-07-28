@@ -47,7 +47,7 @@ export const getCategories = async (
   next: NextFunction,
 ): Promise<void> => {
   try {
-    const isAdmin = req.user?.role === Role.ADMIN;
+    const isAdmin = (req.user?.role === Role.SUPER_ADMIN || req.user?.role === Role.MANAGER);
     const result = await categoryService.getCategories(req.query as GetCategoriesQuery, isAdmin);
     sendSuccess(res, LEARNING_MESSAGES.CATEGORIES_FETCHED, result);
   } catch (error) {

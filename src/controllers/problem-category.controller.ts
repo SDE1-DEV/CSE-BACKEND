@@ -46,7 +46,7 @@ export const getProblemCategories = async (
   next: NextFunction,
 ): Promise<void> => {
   try {
-    const isAdmin = req.user?.role === Role.ADMIN;
+    const isAdmin = (req.user?.role === Role.SUPER_ADMIN || req.user?.role === Role.MANAGER);
     const result = await problemCategoryService.getAll(req.query as GetProblemCategoriesQuery, isAdmin);
     sendSuccess(res, CODING_MESSAGES.PROBLEM_CATEGORIES_FETCHED, result);
   } catch (error) {

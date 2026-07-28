@@ -73,7 +73,7 @@ export const getSubmissions = async (
 ): Promise<void> => {
   try {
     if (!req.user) throw new AppError(HTTP_STATUS.UNAUTHORIZED, 'Unauthorized');
-    const isAdmin = req.user.role === Role.ADMIN;
+    const isAdmin = (req.user.role === Role.SUPER_ADMIN || req.user.role === Role.MANAGER);
     const result = await submissionService.getAll(
       req.query as GetSubmissionsQuery,
       req.user.userId,
@@ -109,7 +109,7 @@ export const getSubmissionById = async (
 ): Promise<void> => {
   try {
     if (!req.user) throw new AppError(HTTP_STATUS.UNAUTHORIZED, 'Unauthorized');
-    const isAdmin = req.user.role === Role.ADMIN;
+    const isAdmin = (req.user.role === Role.SUPER_ADMIN || req.user.role === Role.MANAGER);
     const submission = await submissionService.getById(req.params.id, req.user.userId, isAdmin);
     sendSuccess(res, CODING_MESSAGES.SUBMISSION_FETCHED, submission);
   } catch (error) {
@@ -141,7 +141,7 @@ export const getSubmissionsByProblem = async (
 ): Promise<void> => {
   try {
     if (!req.user) throw new AppError(HTTP_STATUS.UNAUTHORIZED, 'Unauthorized');
-    const isAdmin = req.user.role === Role.ADMIN;
+    const isAdmin = (req.user.role === Role.SUPER_ADMIN || req.user.role === Role.MANAGER);
     const result = await submissionService.getByProblemId(
       req.params.id,
       req.query as GetSubmissionsQuery,

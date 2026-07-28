@@ -7,7 +7,7 @@ import {
   deleteRoadmap,
 } from '../controllers/roadmap.controller';
 import { authenticate } from '../middlewares/authenticate.middleware';
-import { requireAdmin } from '../middlewares/role.middleware';
+import { requireManager } from '../middlewares/role.middleware';
 import { validate } from '../middlewares/validate.middleware';
 import {
   createRoadmapSchema,
@@ -30,8 +30,8 @@ router.get('/', validate(getRoadmapsQuerySchema), getRoadmaps);
 router.get('/:id', validate(roadmapParamsSchema), getRoadmapById);
 
 // Admin protected routes
-router.post('/', authenticate, requireAdmin, validate(createRoadmapSchema), createRoadmap);
-router.put('/:id', authenticate, requireAdmin, validate(updateRoadmapSchema), updateRoadmap);
-router.delete('/:id', authenticate, requireAdmin, validate(roadmapParamsSchema), deleteRoadmap);
+router.post('/', authenticate, requireManager, validate(createRoadmapSchema), createRoadmap);
+router.put('/:id', authenticate, requireManager, validate(updateRoadmapSchema), updateRoadmap);
+router.delete('/:id', authenticate, requireManager, validate(roadmapParamsSchema), deleteRoadmap);
 
 export default router;

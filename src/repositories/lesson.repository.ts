@@ -1,4 +1,4 @@
-import { Lesson, LessonProgress, Prisma } from '@prisma/client';
+import { Lesson, UserProgress, Prisma } from '@prisma/client';
 import { prisma } from '../config/database';
 
 export class LessonRepository {
@@ -85,16 +85,16 @@ export class LessonRepository {
     userId: string,
     lessonId: string,
     data: { watchPercentage?: number; timeSpent?: number; completed?: boolean; completedAt?: Date | null },
-  ): Promise<LessonProgress> {
-    return prisma.lessonProgress.upsert({
+  ): Promise<UserProgress> {
+    return prisma.userProgress.upsert({
       where: { userId_lessonId: { userId, lessonId } },
       update: { ...data, updatedAt: new Date() },
       create: { userId, lessonId, ...data },
     });
   }
 
-  async findProgress(userId: string, lessonId: string): Promise<LessonProgress | null> {
-    return prisma.lessonProgress.findUnique({
+  async findProgress(userId: string, lessonId: string): Promise<UserProgress | null> {
+    return prisma.userProgress.findUnique({
       where: { userId_lessonId: { userId, lessonId } },
     });
   }

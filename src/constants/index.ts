@@ -14,7 +14,7 @@ export const HTTP_STATUS = {
 
 export const MESSAGES = {
   // Auth
-  REGISTER_SUCCESS: 'Registration successful. Please verify your email.',
+  REGISTER_SUCCESS: 'Registration successful.',
   LOGIN_SUCCESS: 'Login successful',
   LOGOUT_SUCCESS: 'Logged out successfully',
   EMAIL_VERIFIED: 'Email verified successfully',
@@ -56,8 +56,6 @@ export const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'im
 
 export const ROLES = {
   STUDENT: 'STUDENT',
-  MENTOR: 'MENTOR',
-  ADMIN: 'ADMIN',
   MANAGER: 'MANAGER',
   SUPER_ADMIN: 'SUPER_ADMIN',
 } as const;
@@ -181,7 +179,7 @@ export const LEARNING_MESSAGES = {
 } as const;
 
 export const RATE_LIMITS = {
-  AUTH: { windowMs: 15 * 60 * 1000, max: 10 },            // 10 per 15 min
+  AUTH: { windowMs: 15 * 60 * 1000, max: 100 },            // 100 per 15 min
   GENERAL: { windowMs: 15 * 60 * 1000, max: 100 },         // 100 per 15 min
   UPLOAD: { windowMs: 60 * 60 * 1000, max: 20 },           // 20 per hour
   SEARCH: { windowMs: 60 * 1000, max: 30 },                // 30 per min

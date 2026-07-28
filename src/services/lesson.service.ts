@@ -41,7 +41,7 @@ export class LessonService {
       throw new AppError(HTTP_STATUS.NOT_FOUND, LEARNING_MESSAGES.LESSON_NOT_FOUND);
     }
 
-    const isAdmin = role === Role.ADMIN;
+    const isAdmin = (role === Role.SUPER_ADMIN || role === Role.MANAGER);
     if (!isAdmin && !lesson.isPublished) {
       throw new AppError(HTTP_STATUS.NOT_FOUND, LEARNING_MESSAGES.LESSON_NOT_FOUND);
     }
@@ -60,7 +60,7 @@ export class LessonService {
       throw new AppError(HTTP_STATUS.NOT_FOUND, LEARNING_MESSAGES.SECTION_NOT_FOUND);
     }
 
-    const publishedOnly = role !== Role.ADMIN;
+    const publishedOnly = !(role === Role.SUPER_ADMIN || role === Role.MANAGER);
     return lessonRepository.findBySectionId(sectionId, publishedOnly);
   }
 

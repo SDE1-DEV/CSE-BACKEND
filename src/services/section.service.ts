@@ -27,7 +27,7 @@ export class SectionService {
       throw new AppError(HTTP_STATUS.NOT_FOUND, LEARNING_MESSAGES.ROADMAP_NOT_FOUND);
     }
 
-    const isAdmin = role === Role.ADMIN;
+    const isAdmin = (role === Role.SUPER_ADMIN || role === Role.MANAGER);
 
     if (!isAdmin && !roadmap.isPublished) {
       throw new AppError(HTTP_STATUS.NOT_FOUND, LEARNING_MESSAGES.ROADMAP_NOT_FOUND);

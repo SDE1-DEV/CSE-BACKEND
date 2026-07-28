@@ -50,7 +50,7 @@ export const getProjects = async (
   next: NextFunction,
 ): Promise<void> => {
   try {
-    const isAdmin = req.user?.role === Role.ADMIN;
+    const isAdmin = (req.user?.role === Role.SUPER_ADMIN || req.user?.role === Role.MANAGER);
     const result = await projectService.getProjects(req.query as Record<string, unknown>, isAdmin);
     sendSuccess(res, PROJECT_MESSAGES.PROJECTS_FETCHED, result);
   } catch (error) {
@@ -81,7 +81,7 @@ export const getProjectById = async (
   next: NextFunction,
 ): Promise<void> => {
   try {
-    const isAdmin = req.user?.role === Role.ADMIN;
+    const isAdmin = (req.user?.role === Role.SUPER_ADMIN || req.user?.role === Role.MANAGER);
     const project = await projectService.getProjectById(req.params.id, isAdmin);
     sendSuccess(res, PROJECT_MESSAGES.PROJECT_FETCHED, project);
   } catch (error) {

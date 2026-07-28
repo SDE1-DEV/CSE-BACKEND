@@ -8,6 +8,8 @@ import sectionRoutes from './section.routes';
 import resourceRoutes from './resource.routes';
 import searchRoutes from './search.routes';
 import lessonRoutes from './lesson.routes';
+import noteRoutes from './note.routes';
+import learningRoutes from './learning.routes';
 
 // ── PRD-03: Coding Practice Platform ─────────────────────────────────────────
 import problemCategoryRoutes from './problem-category.routes';
@@ -64,6 +66,13 @@ router.use('/health', healthRoutes);
 
 // ── PRD-02: Learning Ecosystem ────────────────────────────────────────────────
 router.use('/categories', categoryRoutes);
+
+// Learning extras FIRST (before generic /roadmaps CRUD) so slug-based
+// lookups and nested /modules /lessons win over the generic UUID CRUD.
+// Handles: GET /roadmaps/:slug, GET /roadmaps/:slug/modules,
+// GET /roadmaps/:slug/lessons, POST/DELETE /bookmark, GET/PATCH /progress, GET /activity
+router.use('/', learningRoutes);
+
 router.use('/roadmaps', roadmapRoutes);
 router.use('/sections', sectionRoutes);
 router.use('/resources', resourceRoutes);
@@ -73,6 +82,9 @@ router.use('/search', searchRoutes);
 // from the PRD: /api/lessons/:sectionId, /api/lesson/:id, /api/bookmark/...
 // /api/bookmarks, /api/recent, /api/learning/continue
 router.use('/', lessonRoutes);
+
+// Per-lesson Notes CRUD: /api/lesson/:id/notes (also at /api root)
+router.use('/', noteRoutes);
 
 // ── PRD-03: Coding Practice Platform ─────────────────────────────────────────
 router.use('/problem-categories', problemCategoryRoutes);

@@ -107,7 +107,7 @@ export const updateDiscussion = async (
 ): Promise<void> => {
   try {
     if (!req.user) throw new AppError(HTTP_STATUS.UNAUTHORIZED, 'Unauthorized');
-    const isAdminOrMentor = req.user.role === Role.ADMIN || req.user.role === Role.MENTOR;
+    const isAdminOrMentor = (req.user.role === Role.SUPER_ADMIN || req.user.role === Role.MANAGER);
     const discussion = await discussionService.update(
       req.params.id,
       req.user.userId,
@@ -144,7 +144,7 @@ export const deleteDiscussion = async (
 ): Promise<void> => {
   try {
     if (!req.user) throw new AppError(HTTP_STATUS.UNAUTHORIZED, 'Unauthorized');
-    const isAdminOrMentor = req.user.role === Role.ADMIN || req.user.role === Role.MENTOR;
+    const isAdminOrMentor = (req.user.role === Role.SUPER_ADMIN || req.user.role === Role.MANAGER);
     await discussionService.delete(req.params.id, req.user.userId, isAdminOrMentor);
     sendSuccess(res, CODING_MESSAGES.DISCUSSION_DELETED, null);
   } catch (error) {

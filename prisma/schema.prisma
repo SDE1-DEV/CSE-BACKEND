@@ -15,8 +15,6 @@ datasource db {
 
 enum Role {
   STUDENT
-  MENTOR
-  ADMIN
   MANAGER
   SUPER_ADMIN
 }
@@ -110,6 +108,7 @@ model User {
   portfolioUrl      String?
   bio               String?
   role              Role      @default(STUDENT)
+  status            String?   @default("ACTIVE")
   isVerified        Boolean   @default(false)
   profileCompletion Int       @default(0)
   lastLoginAt       DateTime?
@@ -117,7 +116,8 @@ model User {
   updatedAt         DateTime  @updatedAt
 
   refreshTokens      RefreshToken[]
-  lessonProgress     LessonProgress[]
+  userProgress       UserProgress[]
+  notes              Note[]
   bookmarks          Bookmark[]
   recentlyViewed     RecentlyViewed[]
   submissions        Submission[]
@@ -284,7 +284,8 @@ model Lesson {
 
   section        RoadmapSection   @relation(fields: [sectionId], references: [id], onDelete: Cascade)
   resources      LearningResource[]
-  progress       LessonProgress[]
+  progress       UserProgress[]
+  notes          Note[]
   bookmarks      Bookmark[]
   recentlyViewed RecentlyViewed[]
 
@@ -316,16 +317,34 @@ model LearningResource {
   @@map("learning_resources")
 }
 
-model LessonProgress {
-  id              String    @id @default(uuid())
-  userId          String
-  lessonId        String
-  completed       Boolean   @default(false)
-  completedAt     DateTime?
-  watchPercentage Float     @default(0)
-  timeSpent       Int       @default(0)
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+model Note {
+  id        String   @id @default(uuid())
+  userId    String
+  lessonId  String
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, lessonId])
+  @@map("notes")
+}
+
+model UserProgress {
+  id          String    @id @default(uuid())
+  userId      String
+  lessonId    String
+  roadmapId   String?
+  moduleId    String?
+  completed   Boolean   @default(false)
+  completedAt DateTime?
+  percentage  Float     @default(0)
+  lastOpened  DateTime?
+  timeSpent   Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
@@ -333,7 +352,7 @@ model LessonProgress {
   @@unique([userId, lessonId])
   @@index([userId])
   @@index([lessonId])
-  @@map("lesson_progress")
+  @@map("user_progress")
 }
 
 model Bookmark {

@@ -6,7 +6,7 @@ import {
   deleteResource,
 } from '../controllers/resource.controller';
 import { authenticate } from '../middlewares/authenticate.middleware';
-import { requireAdmin } from '../middlewares/role.middleware';
+import { requireManager } from '../middlewares/role.middleware';
 import { validate } from '../middlewares/validate.middleware';
 import {
   createResourceSchema,
@@ -28,8 +28,8 @@ const router = Router();
 router.get('/:lessonId', validate(resourcesByLessonSchema), getResourcesByLesson);
 
 // Admin protected
-router.post('/', authenticate, requireAdmin, validate(createResourceSchema), createResource);
-router.put('/:id', authenticate, requireAdmin, validate(updateResourceSchema), updateResource);
-router.delete('/:id', authenticate, requireAdmin, validate(resourceParamsSchema), deleteResource);
+router.post('/', authenticate, requireManager, validate(createResourceSchema), createResource);
+router.put('/:id', authenticate, requireManager, validate(updateResourceSchema), updateResource);
+router.delete('/:id', authenticate, requireManager, validate(resourceParamsSchema), deleteResource);
 
 export default router;

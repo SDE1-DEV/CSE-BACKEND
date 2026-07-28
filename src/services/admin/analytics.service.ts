@@ -105,7 +105,7 @@ export class AnalyticsService {
       prisma.user.count({ where: { role: Role.MANAGER } }),
       prisma.user.count({ where: { role: Role.MANAGER, lastLoginAt: { gte: last7 } } }),
       prisma.managerInvitation.count({ where: { status: 'PENDING' } }),
-      prisma.user.count({ where: { role: Role.MENTOR } }),
+      prisma.user.count({ where: { role: Role.MANAGER } }),
 
       // Active users
       prisma.user.count({ where: { lastLoginAt: { gte: today } } }),
@@ -338,7 +338,7 @@ export class AnalyticsService {
       points.map(async ({ start, end }) => {
         const [lessons, completions] = await Promise.all([
           prisma.lesson.count({ where: { createdAt: { gte: start, lt: end } } }),
-          prisma.lessonProgress.count({ where: { completed: true, completedAt: { gte: start, lt: end } } }),
+          prisma.userProgress.count({ where: { completed: true, completedAt: { gte: start, lt: end } } }),
         ]);
         return { lessons, completions };
       }),

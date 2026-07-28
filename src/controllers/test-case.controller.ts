@@ -36,7 +36,7 @@ export const getTestCases = async (
   next: NextFunction,
 ): Promise<void> => {
   try {
-    const isAdmin = req.user?.role === Role.ADMIN;
+    const isAdmin = (req.user?.role === Role.SUPER_ADMIN || req.user?.role === Role.MANAGER);
     const testCases = await testCaseService.getByProblemId(req.params.id, isAdmin);
     sendSuccess(res, CODING_MESSAGES.TEST_CASES_FETCHED, testCases);
   } catch (error) {

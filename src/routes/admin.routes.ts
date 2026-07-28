@@ -17,7 +17,7 @@ import {
   updatePlatformSettings,
 } from '../controllers/admin.controller';
 import { authenticate } from '../middlewares/authenticate.middleware';
-import { requireAdmin } from '../middlewares/role.middleware';
+import { requireSuperAdmin } from '../middlewares/role.middleware';
 
 const router = Router();
 
@@ -29,27 +29,27 @@ const router = Router();
  */
 
 // Stats
-router.get('/stats', authenticate, requireAdmin, getAdminStats);
+router.get('/stats', authenticate, requireSuperAdmin, getAdminStats);
 
 // Users
-router.get('/users', authenticate, requireAdmin, getAdminUsers);
-router.patch('/users/:id/role', authenticate, requireAdmin, updateUserRole);
-router.delete('/users/:id', authenticate, requireAdmin, deleteUser);
+router.get('/users', authenticate, requireSuperAdmin, getAdminUsers);
+router.patch('/users/:id/role', authenticate, requireSuperAdmin, updateUserRole);
+router.delete('/users/:id', authenticate, requireSuperAdmin, deleteUser);
 
 // Reports
-router.get('/reports', authenticate, requireAdmin, getReports);
-router.post('/reports', authenticate, requireAdmin, generateReport);
+router.get('/reports', authenticate, requireSuperAdmin, getReports);
+router.post('/reports', authenticate, requireSuperAdmin, generateReport);
 
 // Generic resource management
-router.get('/:resource', authenticate, requireAdmin, getAdminResource);
-router.post('/:resource', authenticate, requireAdmin, createAdminResource);
-router.put('/:resource/:id', authenticate, requireAdmin, updateAdminResource);
-router.delete('/:resource/:id', authenticate, requireAdmin, deleteAdminResource);
-router.post('/:resource/bulk-delete', authenticate, requireAdmin, bulkDeleteAdminResource);
+router.get('/:resource', authenticate, requireSuperAdmin, getAdminResource);
+router.post('/:resource', authenticate, requireSuperAdmin, createAdminResource);
+router.put('/:resource/:id', authenticate, requireSuperAdmin, updateAdminResource);
+router.delete('/:resource/:id', authenticate, requireSuperAdmin, deleteAdminResource);
+router.post('/:resource/bulk-delete', authenticate, requireSuperAdmin, bulkDeleteAdminResource);
 
 // Backward compatibility
-router.get('/dashboard', authenticate, requireAdmin, getAdminDashboard);
-router.get('/settings', authenticate, requireAdmin, getPlatformSettings);
-router.put('/settings', authenticate, requireAdmin, updatePlatformSettings);
+router.get('/dashboard', authenticate, requireSuperAdmin, getAdminDashboard);
+router.get('/settings', authenticate, requireSuperAdmin, getPlatformSettings);
+router.put('/settings', authenticate, requireSuperAdmin, updatePlatformSettings);
 
 export default router;

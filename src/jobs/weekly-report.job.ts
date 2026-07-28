@@ -23,7 +23,7 @@ export const sendWeeklyReports = async (): Promise<void> => {
   for (const user of users) {
     try {
       // Get their progress for the past week
-      const progress = await prisma.lessonProgress.findMany({
+      const progress = await prisma.userProgress.findMany({
         where: {
           userId: user.id,
           updatedAt: { gte: oneWeekAgo },
@@ -34,7 +34,7 @@ export const sendWeeklyReports = async (): Promise<void> => {
       // Only send if they were active
       if (progress.length === 0) continue;
 
-      const totalMinutes = progress.reduce((sum, p) => sum + (p.timeSpent ?? 0), 0);
+      const totalMinutes = progress.reduce((sum: number, p: { timeSpent?: number }) => sum + (p.timeSpent ?? 0), 0);
 
       await enqueueEmail({
         type: 'email:weekly-summary',
