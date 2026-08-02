@@ -7,31 +7,82 @@
     "statement": "Given an array of integers `nums` which is sorted in ascending order, and an integer `target`, write a function to search `target` in `nums`. If `target` exists, then return its index. Otherwise, return `-1`.\n\nYou must write an algorithm with O(log n) runtime complexity.",
     "constraints": "- `1 <= nums.length <= 10^4`\n- `-10^4 < nums[i], target < 10^4`\n- All the integers in `nums` are unique.\n- `nums` is sorted in ascending order.",
     "examples": [
-      { "input": "nums = [-1,0,3,5,9,12], target = 9", "output": "4" },
-      { "input": "nums = [-1,0,3,5,9,12], target = 2", "output": "-1" }
+      {
+        "input": "nums = [-1,0,3,5,9,12], target = 9",
+        "output": "4"
+      },
+      {
+        "input": "nums = [-1,0,3,5,9,12], target = 2",
+        "output": "-1"
+      }
     ],
-    "hints": ["Use classic binary search with left and right pointers."],
-    "tags": ["Array", "Binary Search"],
-    "companies": ["Google", "Amazon", "Microsoft"],
+    "hints": [
+      "Use classic binary search with left and right pointers."
+    ],
+    "tags": [
+      "Array",
+      "Binary Search"
+    ],
+    "companies": [
+      "Google",
+      "Amazon",
+      "Microsoft"
+    ],
     "visibleTests": [
-      { "input": "6\n-1 0 3 5 9 12\n9", "output": "4" },
-      { "input": "6\n-1 0 3 5 9 12\n2", "output": "-1" }
+      {
+        "input": "6\n-1 0 3 5 9 12\n9",
+        "output": "4"
+      },
+      {
+        "input": "6\n-1 0 3 5 9 12\n2",
+        "output": "-1"
+      }
     ],
     "hiddenTests": [
-      { "input": "1\n5\n5", "output": "0" },
-      { "input": "1\n5\n6", "output": "-1" },
-      { "input": "5\n1 3 5 7 9\n1", "output": "0" },
-      { "input": "5\n1 3 5 7 9\n9", "output": "4" },
-      { "input": "5\n1 3 5 7 9\n5", "output": "2" },
-      { "input": "4\n2 5 8 12\n3", "output": "-1" },
-      { "input": "6\n1 2 3 4 5 6\n6", "output": "5" },
-      { "input": "3\n-3 -1 1\n-1", "output": "1" }
+      {
+        "input": "1\n5\n5",
+        "output": "0"
+      },
+      {
+        "input": "1\n5\n6",
+        "output": "-1"
+      },
+      {
+        "input": "5\n1 3 5 7 9\n1",
+        "output": "0"
+      },
+      {
+        "input": "5\n1 3 5 7 9\n9",
+        "output": "4"
+      },
+      {
+        "input": "5\n1 3 5 7 9\n5",
+        "output": "2"
+      },
+      {
+        "input": "4\n2 5 8 12\n3",
+        "output": "-1"
+      },
+      {
+        "input": "6\n1 2 3 4 5 6\n6",
+        "output": "5"
+      },
+      {
+        "input": "3\n-3 -1 1\n-1",
+        "output": "1"
+      }
     ],
     "timeLimit": 1000,
     "memoryLimit": 256,
     "xp": 10,
     "estimatedTime": 10,
-    "license": "ORIGINAL"
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
   },
   {
     "title": "Search in Rotated Sorted Array",
@@ -41,32 +92,87 @@
     "statement": "There is an integer array `nums` sorted in ascending order (with distinct values).\n\nPrior to being passed to your function, `nums` is possibly rotated at an unknown pivot index `k` such that the resulting array is `[nums[k], nums[k+1], ..., nums[n-1], nums[0], nums[1], ..., nums[k-1]]`.\n\nGiven the array `nums` after the possible rotation and an integer `target`, return the index of `target` if it is in `nums`, or `-1` if it is not in `nums`.\n\nYou must write an algorithm with O(log n) runtime complexity.",
     "constraints": "- `1 <= nums.length <= 5000`\n- `-10^4 <= nums[i] <= 10^4`\n- All values of `nums` are unique.\n- `nums` is an ascending array that is possibly rotated.\n- `-10^4 <= target <= 10^4`",
     "examples": [
-      { "input": "nums = [4,5,6,7,0,1,2], target = 0", "output": "4" },
-      { "input": "nums = [4,5,6,7,0,1,2], target = 3", "output": "-1" },
-      { "input": "nums = [1], target = 0", "output": "-1" }
+      {
+        "input": "nums = [4,5,6,7,0,1,2], target = 0",
+        "output": "4"
+      },
+      {
+        "input": "nums = [4,5,6,7,0,1,2], target = 3",
+        "output": "-1"
+      },
+      {
+        "input": "nums = [1], target = 0",
+        "output": "-1"
+      }
     ],
-    "hints": ["Identify which half is sorted using mid comparison.", "Check if target is in the sorted half, else search the other."],
-    "tags": ["Array", "Binary Search"],
-    "companies": ["Amazon", "Microsoft", "Google"],
+    "hints": [
+      "Identify which half is sorted using mid comparison.",
+      "Check if target is in the sorted half, else search the other."
+    ],
+    "tags": [
+      "Array",
+      "Binary Search"
+    ],
+    "companies": [
+      "Amazon",
+      "Microsoft",
+      "Google"
+    ],
     "visibleTests": [
-      { "input": "7\n4 5 6 7 0 1 2\n0", "output": "4" },
-      { "input": "7\n4 5 6 7 0 1 2\n3", "output": "-1" }
+      {
+        "input": "7\n4 5 6 7 0 1 2\n0",
+        "output": "4"
+      },
+      {
+        "input": "7\n4 5 6 7 0 1 2\n3",
+        "output": "-1"
+      }
     ],
     "hiddenTests": [
-      { "input": "1\n1\n0", "output": "-1" },
-      { "input": "1\n1\n1", "output": "0" },
-      { "input": "5\n3 4 5 1 2\n1", "output": "3" },
-      { "input": "5\n3 4 5 1 2\n4", "output": "1" },
-      { "input": "6\n6 7 1 2 3 4\n3", "output": "4" },
-      { "input": "4\n1 3 5 7\n5", "output": "2" },
-      { "input": "5\n5 1 2 3 4\n5", "output": "0" },
-      { "input": "7\n1 2 3 4 5 6 7\n7", "output": "6" }
+      {
+        "input": "1\n1\n0",
+        "output": "-1"
+      },
+      {
+        "input": "1\n1\n1",
+        "output": "0"
+      },
+      {
+        "input": "5\n3 4 5 1 2\n1",
+        "output": "3"
+      },
+      {
+        "input": "5\n3 4 5 1 2\n4",
+        "output": "1"
+      },
+      {
+        "input": "6\n6 7 1 2 3 4\n3",
+        "output": "4"
+      },
+      {
+        "input": "4\n1 3 5 7\n5",
+        "output": "2"
+      },
+      {
+        "input": "5\n5 1 2 3 4\n5",
+        "output": "0"
+      },
+      {
+        "input": "7\n1 2 3 4 5 6 7\n7",
+        "output": "6"
+      }
     ],
     "timeLimit": 1000,
     "memoryLimit": 256,
     "xp": 20,
     "estimatedTime": 25,
-    "license": "ORIGINAL"
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
   },
   {
     "title": "Koko Eating Bananas",
@@ -76,31 +182,744 @@
     "statement": "Koko loves to eat bananas. There are `n` piles of bananas, the `i`th pile has `piles[i]` bananas. The guards have gone and will come back in `h` hours.\n\nKoko can decide her bananas-per-hour eating speed of `k`. Each hour, she chooses some pile of bananas and eats `k` bananas from that pile. If the pile has less than `k` bananas, she eats all of them instead and will not eat any more bananas during this hour.\n\nKoko likes to eat slowly but still wants to finish eating all the bananas before the guards return.\n\nReturn the minimum integer `k` such that she can eat all the bananas within `h` hours.",
     "constraints": "- `1 <= piles.length <= 10^4`\n- `piles.length <= h <= 10^9`\n- `1 <= piles[i] <= 10^9`",
     "examples": [
-      { "input": "piles = [3,6,7,11], h = 8", "output": "4" },
-      { "input": "piles = [30,11,23,4,20], h = 5", "output": "30" },
-      { "input": "piles = [30,11,23,4,20], h = 6", "output": "23" }
+      {
+        "input": "piles = [3,6,7,11], h = 8",
+        "output": "4"
+      },
+      {
+        "input": "piles = [30,11,23,4,20], h = 5",
+        "output": "30"
+      },
+      {
+        "input": "piles = [30,11,23,4,20], h = 6",
+        "output": "23"
+      }
     ],
-    "hints": ["Binary search on the answer (speed k).", "Check if Koko can finish all piles in h hours at speed k."],
-    "tags": ["Array", "Binary Search"],
-    "companies": ["Amazon", "Google"],
+    "hints": [
+      "Binary search on the answer (speed k).",
+      "Check if Koko can finish all piles in h hours at speed k."
+    ],
+    "tags": [
+      "Array",
+      "Binary Search"
+    ],
+    "companies": [
+      "Amazon",
+      "Google"
+    ],
     "visibleTests": [
-      { "input": "4 8\n3 6 7 11", "output": "4" },
-      { "input": "5 5\n30 11 23 4 20", "output": "30" }
+      {
+        "input": "4 8\n3 6 7 11",
+        "output": "4"
+      },
+      {
+        "input": "5 5\n30 11 23 4 20",
+        "output": "30"
+      }
     ],
     "hiddenTests": [
-      { "input": "5 6\n30 11 23 4 20", "output": "23" },
-      { "input": "1 1\n1000000000", "output": "1000000000" },
-      { "input": "3 3\n3 3 3", "output": "3" },
-      { "input": "3 10\n3 3 3", "output": "1" },
-      { "input": "4 10\n312884470 285404553 807707190 829799010", "output": "402685172" },
-      { "input": "5 15\n1 2 3 4 5", "output": "1" },
-      { "input": "3 8\n3 6 7", "output": "3" },
-      { "input": "2 2\n1000000000 1000000000", "output": "1000000000" }
+      {
+        "input": "5 6\n30 11 23 4 20",
+        "output": "23"
+      },
+      {
+        "input": "1 1\n1000000000",
+        "output": "1000000000"
+      },
+      {
+        "input": "3 3\n3 3 3",
+        "output": "3"
+      },
+      {
+        "input": "3 10\n3 3 3",
+        "output": "1"
+      },
+      {
+        "input": "4 10\n312884470 285404553 807707190 829799010",
+        "output": "402685172"
+      },
+      {
+        "input": "5 15\n1 2 3 4 5",
+        "output": "1"
+      },
+      {
+        "input": "3 8\n3 6 7",
+        "output": "3"
+      },
+      {
+        "input": "2 2\n1000000000 1000000000",
+        "output": "1000000000"
+      }
     ],
     "timeLimit": 2000,
     "memoryLimit": 256,
     "xp": 20,
     "estimatedTime": 30,
-    "license": "ORIGINAL"
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Find Square Root (Integer)",
+    "slug": "find-square-root-integer",
+    "difficulty": "EASY",
+    "topic": "binary-search",
+    "statement": "Given a non-negative integer `x`, compute and return the **integer square root** of `x`.\n\nThe integer square root is the largest integer `r` such that `r * r <= x`. Do not use any built-in exponent functions or operators.",
+    "constraints": "- `0 <= x <= 2^31 - 1`",
+    "examples": [
+      {
+        "input": "4",
+        "output": "2"
+      },
+      {
+        "input": "8",
+        "output": "2",
+        "explanation": "sqrt(8) = 2.82..., floor = 2."
+      }
+    ],
+    "hints": [
+      "Binary search between 0 and x/2+1.",
+      "Check if mid*mid <= x."
+    ],
+    "tags": [
+      "Binary Search",
+      "Math"
+    ],
+    "companies": [
+      "Amazon",
+      "Google"
+    ],
+    "visibleTests": [
+      {
+        "input": "4",
+        "output": "2"
+      },
+      {
+        "input": "8",
+        "output": "2"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "0",
+        "output": "0"
+      },
+      {
+        "input": "1",
+        "output": "1"
+      },
+      {
+        "input": "2",
+        "output": "1"
+      },
+      {
+        "input": "9",
+        "output": "3"
+      },
+      {
+        "input": "16",
+        "output": "4"
+      },
+      {
+        "input": "100",
+        "output": "10"
+      },
+      {
+        "input": "99",
+        "output": "9"
+      },
+      {
+        "input": "2147483647",
+        "output": "46340"
+      },
+      {
+        "input": "25",
+        "output": "5"
+      },
+      {
+        "input": "26",
+        "output": "5"
+      }
+    ],
+    "timeLimit": 1000,
+    "memoryLimit": 256,
+    "xp": 10,
+    "estimatedTime": 12,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\nlet idx = 0;\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Search in Rotated Sorted Array II",
+    "slug": "search-rotated-sorted-array-ii",
+    "difficulty": "MEDIUM",
+    "topic": "binary-search",
+    "statement": "There is an integer array `nums` sorted in non-decreasing order (with possible duplicates), which is then rotated at an unknown pivot. Given the array and a target, return `true` if target is in `nums`, `false` otherwise.\n\nTime complexity should be O(log n) in average.",
+    "constraints": "- `1 <= nums.length <= 5000`\n- `-10^4 <= nums[i] <= 10^4`\n- `-10^4 <= target <= 10^4`",
+    "examples": [
+      {
+        "input": "5\n2 5 6 0 0 1\n0",
+        "output": "true"
+      },
+      {
+        "input": "6\n2 5 6 0 0 1\n3",
+        "output": "false"
+      }
+    ],
+    "hints": [
+      "Handle the case where nums[left]==nums[mid] by incrementing left.",
+      "Determine which half is sorted and check if target is in that half."
+    ],
+    "tags": [
+      "Array",
+      "Binary Search"
+    ],
+    "companies": [
+      "Amazon",
+      "Google"
+    ],
+    "visibleTests": [
+      {
+        "input": "6\n2 5 6 0 0 1\n0",
+        "output": "true"
+      },
+      {
+        "input": "6\n2 5 6 0 0 1\n3",
+        "output": "false"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "5\n1 1 1 1 1\n1",
+        "output": "true"
+      },
+      {
+        "input": "5\n1 1 1 1 1\n0",
+        "output": "false"
+      },
+      {
+        "input": "4\n3 1 2 2\n2",
+        "output": "true"
+      },
+      {
+        "input": "3\n3 1 1\n3",
+        "output": "true"
+      },
+      {
+        "input": "5\n1 3 5 1 1\n5",
+        "output": "true"
+      },
+      {
+        "input": "4\n2 2 2 0\n0",
+        "output": "true"
+      },
+      {
+        "input": "5\n4 5 6 7 0\n4",
+        "output": "true"
+      },
+      {
+        "input": "4\n1 0 1 1\n2",
+        "output": "false"
+      },
+      {
+        "input": "6\n5 6 7 1 2 3\n1",
+        "output": "true"
+      },
+      {
+        "input": "5\n3 3 3 3 1\n1",
+        "output": "true"
+      }
+    ],
+    "timeLimit": 1000,
+    "memoryLimit": 256,
+    "xp": 20,
+    "estimatedTime": 20,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\nlet idx = 0;\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Capacity To Ship Packages",
+    "slug": "capacity-to-ship-packages",
+    "difficulty": "MEDIUM",
+    "topic": "binary-search",
+    "statement": "A conveyor belt has packages with given weights. You need to ship all packages within `D` days. Packages must be shipped in the order given. Find the **minimum weight capacity** of the ship that allows shipping all packages within `D` days.",
+    "constraints": "- `1 <= weights.length <= 500`\n- `1 <= weights[i] <= 500`\n- `1 <= D <= weights.length`",
+    "examples": [
+      {
+        "input": "10 5\n1 2 3 4 5 6 7 8 9 10",
+        "output": "15"
+      },
+      {
+        "input": "6 3\n3 2 2 4 1 4",
+        "output": "6"
+      }
+    ],
+    "hints": [
+      "Binary search on the answer: capacity between max(weights) and sum(weights).",
+      "For a given capacity, greedily count how many days are needed."
+    ],
+    "tags": [
+      "Array",
+      "Binary Search",
+      "Greedy"
+    ],
+    "companies": [
+      "Amazon",
+      "Google",
+      "Meta"
+    ],
+    "visibleTests": [
+      {
+        "input": "10 5\n1 2 3 4 5 6 7 8 9 10",
+        "output": "15"
+      },
+      {
+        "input": "6 3\n3 2 2 4 1 4",
+        "output": "6"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "4 4\n1 2 3 4",
+        "output": "4"
+      },
+      {
+        "input": "3 1\n1 2 3",
+        "output": "6"
+      },
+      {
+        "input": "1 1\n5",
+        "output": "5"
+      },
+      {
+        "input": "5 5\n1 1 1 1 1",
+        "output": "1"
+      },
+      {
+        "input": "5 2\n5 5 5 5 5",
+        "output": "15"
+      },
+      {
+        "input": "4 2\n10 20 30 40",
+        "output": "60"
+      },
+      {
+        "input": "6 2\n1 2 3 4 5 6",
+        "output": "12"
+      },
+      {
+        "input": "5 3\n3 3 3 3 3",
+        "output": "6"
+      },
+      {
+        "input": "4 1\n4 4 4 4",
+        "output": "16"
+      },
+      {
+        "input": "6 4\n1 1 1 1 1 1",
+        "output": "2"
+      }
+    ],
+    "timeLimit": 1000,
+    "memoryLimit": 256,
+    "xp": 20,
+    "estimatedTime": 25,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\nlet idx = 0;\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Find Peak Element",
+    "slug": "find-peak-element",
+    "difficulty": "MEDIUM",
+    "topic": "binary-search",
+    "statement": "A peak element is an element strictly greater than its neighbors. Given an array of integers, find any peak element index and return it.\n\nYou may imagine that `nums[-1] = nums[n] = -infinity`. The algorithm must run in O(log n) time.",
+    "constraints": "- `1 <= nums.length <= 1000`\n- `-2^31 <= nums[i] <= 2^31 - 1`\n- `nums[i] != nums[i+1]` for all valid `i`.",
+    "examples": [
+      {
+        "input": "3\n1 2 3",
+        "output": "2"
+      },
+      {
+        "input": "4\n1 2 1 3",
+        "output": "3"
+      }
+    ],
+    "hints": [
+      "If nums[mid] < nums[mid+1], peak is in the right half.",
+      "Otherwise, peak is in the left half including mid."
+    ],
+    "tags": [
+      "Array",
+      "Binary Search"
+    ],
+    "companies": [
+      "Google",
+      "Amazon",
+      "Microsoft"
+    ],
+    "visibleTests": [
+      {
+        "input": "3\n1 2 3",
+        "output": "2"
+      },
+      {
+        "input": "4\n1 2 1 3",
+        "output": "3"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "1\n5",
+        "output": "0"
+      },
+      {
+        "input": "2\n5 3",
+        "output": "0"
+      },
+      {
+        "input": "2\n3 5",
+        "output": "1"
+      },
+      {
+        "input": "5\n1 3 2 4 1",
+        "output": "3"
+      },
+      {
+        "input": "5\n5 4 3 2 1",
+        "output": "0"
+      },
+      {
+        "input": "5\n1 2 3 4 5",
+        "output": "4"
+      },
+      {
+        "input": "4\n3 1 4 2",
+        "output": "2"
+      },
+      {
+        "input": "6\n1 3 5 2 4 1",
+        "output": "2"
+      },
+      {
+        "input": "3\n2 3 2",
+        "output": "1"
+      },
+      {
+        "input": "6\n1 2 3 1 5 4",
+        "output": "4"
+      }
+    ],
+    "timeLimit": 1000,
+    "memoryLimit": 256,
+    "xp": 20,
+    "estimatedTime": 20,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\nlet idx = 0;\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Smallest Divisor Given Threshold",
+    "slug": "smallest-divisor-given-threshold",
+    "difficulty": "MEDIUM",
+    "topic": "binary-search",
+    "statement": "Given an array of integers `nums` and an integer `threshold`, find the **smallest positive integer divisor** such that dividing each element by it (ceiling division) makes the sum of all results at most `threshold`.",
+    "constraints": "- `1 <= nums.length <= 5 * 10^4`\n- `1 <= nums[i] <= 10^6`\n- `nums.length <= threshold <= 10^6`",
+    "examples": [
+      {
+        "input": "4 5\n1 2 5 9",
+        "output": "5"
+      },
+      {
+        "input": "4 6\n44 22 33 11 100",
+        "output": "44"
+      }
+    ],
+    "hints": [
+      "Binary search on divisor from 1 to max(nums).",
+      "For each divisor, compute ceil sum and check against threshold."
+    ],
+    "tags": [
+      "Array",
+      "Binary Search"
+    ],
+    "companies": [
+      "Amazon",
+      "Google"
+    ],
+    "visibleTests": [
+      {
+        "input": "4 5\n1 2 5 9",
+        "output": "5"
+      },
+      {
+        "input": "5 6\n44 22 33 11 100",
+        "output": "44"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "3 3\n1 2 3",
+        "output": "3"
+      },
+      {
+        "input": "1 1\n100",
+        "output": "100"
+      },
+      {
+        "input": "3 10\n1 1 1",
+        "output": "1"
+      },
+      {
+        "input": "5 7\n1 2 3 4 5",
+        "output": "2"
+      },
+      {
+        "input": "3 9\n10 20 30",
+        "output": "4"
+      },
+      {
+        "input": "4 8\n2 3 5 7",
+        "output": "1"
+      },
+      {
+        "input": "5 5\n5 5 5 5 5",
+        "output": "5"
+      },
+      {
+        "input": "3 3\n100 100 100",
+        "output": "100"
+      },
+      {
+        "input": "4 6\n4 8 12 16",
+        "output": "4"
+      },
+      {
+        "input": "5 9\n1 3 5 7 9",
+        "output": "3"
+      }
+    ],
+    "timeLimit": 2000,
+    "memoryLimit": 256,
+    "xp": 20,
+    "estimatedTime": 25,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\nlet idx = 0;\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Kth Smallest in Sorted Matrix",
+    "slug": "kth-smallest-sorted-matrix",
+    "difficulty": "MEDIUM",
+    "topic": "binary-search",
+    "statement": "Given an n×n matrix where each row and column is sorted in ascending order, find the `k`th smallest element.",
+    "constraints": "- `n == matrix.length == matrix[i].length`\n- `1 <= n <= 300`\n- `-10^9 <= matrix[i][j] <= 10^9`\n- `1 <= k <= n^2`",
+    "examples": [
+      {
+        "input": "3 5\n1 5 9\n10 11 13\n12 13 15",
+        "output": "13"
+      },
+      {
+        "input": "2 2\n-5 -4\n-4 -3",
+        "output": "-4"
+      }
+    ],
+    "hints": [
+      "Binary search on value range.",
+      "Count elements <= mid to decide which half to search."
+    ],
+    "tags": [
+      "Array",
+      "Binary Search",
+      "Sorting",
+      "Heap",
+      "Matrix"
+    ],
+    "companies": [
+      "Amazon",
+      "Google",
+      "Microsoft"
+    ],
+    "visibleTests": [
+      {
+        "input": "3 5\n1 5 9\n10 11 13\n12 13 15",
+        "output": "13"
+      },
+      {
+        "input": "2 2\n-5 -4\n-4 -3",
+        "output": "-4"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "1 1\n1",
+        "output": "1"
+      },
+      {
+        "input": "2 1\n1 2\n3 4",
+        "output": "1"
+      },
+      {
+        "input": "2 4\n1 2\n3 4",
+        "output": "4"
+      },
+      {
+        "input": "3 1\n1 2 3\n4 5 6\n7 8 9",
+        "output": "1"
+      },
+      {
+        "input": "3 9\n1 2 3\n4 5 6\n7 8 9",
+        "output": "9"
+      },
+      {
+        "input": "3 5\n1 2 3\n4 5 6\n7 8 9",
+        "output": "5"
+      },
+      {
+        "input": "2 3\n1 3\n2 4",
+        "output": "3"
+      },
+      {
+        "input": "3 8\n1 5 9\n10 11 13\n12 13 15",
+        "output": "15"
+      },
+      {
+        "input": "4 7\n1 2 3 4\n5 6 7 8\n9 10 11 12\n13 14 15 16",
+        "output": "7"
+      },
+      {
+        "input": "3 3\n1 2 3\n4 5 6\n7 8 9",
+        "output": "3"
+      }
+    ],
+    "timeLimit": 2000,
+    "memoryLimit": 256,
+    "xp": 20,
+    "estimatedTime": 25,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "// code",
+      "java": "// code",
+      "cpp": "// code"
+    }
+  },
+  {
+    "title": "First Bad Version",
+    "slug": "first-bad-version",
+    "difficulty": "EASY",
+    "topic": "binary-search",
+    "statement": "You have versions `1` through `n`. Given that versions from `bad` onwards are broken, find the first bad version using binary search. The API `isBad(v)` returns true if version v is bad. Simulate with: bad version is given as second input.",
+    "constraints": "- `1 <= bad <= n <= 2^31 - 1`",
+    "examples": [
+      {
+        "input": "5 4",
+        "output": "4"
+      },
+      {
+        "input": "1 1",
+        "output": "1"
+      }
+    ],
+    "hints": [
+      "Binary search: if isBad(mid), search left half; else search right half."
+    ],
+    "tags": [
+      "Binary Search",
+      "Interactive"
+    ],
+    "companies": [
+      "Amazon",
+      "Google",
+      "Meta"
+    ],
+    "visibleTests": [
+      {
+        "input": "5 4",
+        "output": "4"
+      },
+      {
+        "input": "1 1",
+        "output": "1"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "5 1",
+        "output": "1"
+      },
+      {
+        "input": "5 5",
+        "output": "5"
+      },
+      {
+        "input": "10 7",
+        "output": "7"
+      },
+      {
+        "input": "100 50",
+        "output": "50"
+      },
+      {
+        "input": "1000 999",
+        "output": "999"
+      },
+      {
+        "input": "2147483647 2147483647",
+        "output": "2147483647"
+      },
+      {
+        "input": "3 2",
+        "output": "2"
+      },
+      {
+        "input": "7 3",
+        "output": "3"
+      },
+      {
+        "input": "20 11",
+        "output": "11"
+      },
+      {
+        "input": "100 1",
+        "output": "1"
+      }
+    ],
+    "timeLimit": 1000,
+    "memoryLimit": 256,
+    "xp": 10,
+    "estimatedTime": 10,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "// code",
+      "java": "// code",
+      "cpp": "// code"
+    }
   }
 ]

@@ -7,62 +7,927 @@
     "statement": "Given an integer array `nums` and an integer `k`, return the `k`th largest element in the array.\n\nNote that it is the `k`th largest element in the sorted order, not the `k`th distinct element.\n\nCan you solve it without sorting?",
     "constraints": "- `1 <= k <= nums.length <= 10^5`\n- `-10^4 <= nums[i] <= 10^4`",
     "examples": [
-      { "input": "nums = [3,2,1,5,6,4], k = 2", "output": "5" },
-      { "input": "nums = [3,2,3,1,2,4,5,5,6], k = 4", "output": "4" }
+      {
+        "input": "nums = [3,2,1,5,6,4], k = 2",
+        "output": "5"
+      },
+      {
+        "input": "nums = [3,2,3,1,2,4,5,5,6], k = 4",
+        "output": "4"
+      }
     ],
-    "hints": ["Use a min-heap of size k.", "The root of the heap is the kth largest element."],
-    "tags": ["Array", "Divide and Conquer", "Sorting", "Heap (Priority Queue)", "Quickselect"],
-    "companies": ["Amazon", "Google", "Microsoft"],
+    "hints": [
+      "Use a min-heap of size k.",
+      "The root of the heap is the kth largest element."
+    ],
+    "tags": [
+      "Array",
+      "Divide and Conquer",
+      "Sorting",
+      "Heap (Priority Queue)",
+      "Quickselect"
+    ],
+    "companies": [
+      "Amazon",
+      "Google",
+      "Microsoft"
+    ],
     "visibleTests": [
-      { "input": "6 2\n3 2 1 5 6 4", "output": "5" },
-      { "input": "9 4\n3 2 3 1 2 4 5 5 6", "output": "4" }
+      {
+        "input": "6 2\n3 2 1 5 6 4",
+        "output": "5"
+      },
+      {
+        "input": "9 4\n3 2 3 1 2 4 5 5 6",
+        "output": "4"
+      }
     ],
     "hiddenTests": [
-      { "input": "1 1\n1", "output": "1" },
-      { "input": "5 1\n5 4 3 2 1", "output": "5" },
-      { "input": "5 5\n5 4 3 2 1", "output": "1" },
-      { "input": "4 2\n-1 -2 -3 -4", "output": "-2" },
-      { "input": "6 3\n1 1 1 1 1 1", "output": "1" },
-      { "input": "5 3\n10 9 8 7 6", "output": "8" },
-      { "input": "3 2\n2 1 3", "output": "2" },
-      { "input": "7 4\n7 6 5 4 3 2 1", "output": "4" }
+      {
+        "input": "1 1\n1",
+        "output": "1"
+      },
+      {
+        "input": "5 1\n5 4 3 2 1",
+        "output": "5"
+      },
+      {
+        "input": "5 5\n5 4 3 2 1",
+        "output": "1"
+      },
+      {
+        "input": "4 2\n-1 -2 -3 -4",
+        "output": "-2"
+      },
+      {
+        "input": "6 3\n1 1 1 1 1 1",
+        "output": "1"
+      },
+      {
+        "input": "5 3\n10 9 8 7 6",
+        "output": "8"
+      },
+      {
+        "input": "3 2\n2 1 3",
+        "output": "2"
+      },
+      {
+        "input": "7 4\n7 6 5 4 3 2 1",
+        "output": "4"
+      }
     ],
     "timeLimit": 1000,
     "memoryLimit": 256,
     "xp": 20,
     "estimatedTime": 20,
-    "license": "ORIGINAL"
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
   },
   {
     "title": "Find Median from Data Stream",
     "slug": "find-median-from-data-stream",
-    "difficulty": "HARD",
+    "difficulty": "MEDIUM",
     "topic": "heap",
     "statement": "The median is the middle value in an ordered integer list. If the size of the list is even, there is no middle value, and the median is the mean of the two middle values.\n\nImplement the MedianFinder class:\n- `MedianFinder()` initializes the MedianFinder object.\n- `void addNum(int num)` adds the integer `num` from the data stream to the data structure.\n- `double findMedian()` returns the median of all elements so far.\n\nAnswers within `10^-5` of the actual answer will be accepted.",
     "constraints": "- `-10^5 <= num <= 10^5`\n- There will be at least one element in the data structure before calling `findMedian`.\n- At most `5 * 10^4` calls will be made to `addNum` and `findMedian`.",
     "examples": [
-      { "input": "ops: addNum(1), addNum(2), findMedian(), addNum(3), findMedian()", "output": "1.50000, 2.00000" }
+      {
+        "input": "ops: addNum(1), addNum(2), findMedian(), addNum(3), findMedian()",
+        "output": "1.50000, 2.00000"
+      }
     ],
-    "hints": ["Use a max-heap for the lower half and min-heap for the upper half.", "Keep them balanced (size difference at most 1)."],
-    "tags": ["Two Pointers", "Design", "Sorting", "Heap (Priority Queue)", "Data Stream"],
-    "companies": ["Google", "Amazon", "Microsoft"],
+    "hints": [
+      "Use a max-heap for the lower half and min-heap for the upper half.",
+      "Keep them balanced (size difference at most 1)."
+    ],
+    "tags": [
+      "Two Pointers",
+      "Design",
+      "Sorting",
+      "Heap (Priority Queue)",
+      "Data Stream"
+    ],
+    "companies": [
+      "Google",
+      "Amazon",
+      "Microsoft"
+    ],
     "visibleTests": [
-      { "input": "5\nadd 1\nadd 2\nmedian\nadd 3\nmedian", "output": "1.50000\n2.00000" }
+      {
+        "input": "5\nadd 1\nadd 2\nmedian\nadd 3\nmedian",
+        "output": "1.50000\n2.00000"
+      },
+      {
+        "input": "3\nadd 1\nadd 1\nmedian",
+        "output": "1.00000"
+      }
     ],
     "hiddenTests": [
-      { "input": "3\nadd 1\nadd 1\nmedian", "output": "1.00000" },
-      { "input": "4\nadd 1\nadd 2\nadd 3\nmedian", "output": "2.00000" },
-      { "input": "5\nadd 6\nadd 10\nadd 2\nadd 6\nmedian", "output": "6.00000" },
-      { "input": "3\nadd -1\nadd -2\nmedian", "output": "-1.50000" },
-      { "input": "5\nadd 5\nadd 5\nadd 5\nadd 5\nmedian", "output": "5.00000" },
-      { "input": "6\nadd 1\nadd 2\nmedian\nadd 3\nadd 4\nmedian", "output": "1.50000\n2.50000" },
-      { "input": "3\nadd 100000\nadd -100000\nmedian", "output": "0.00000" },
-      { "input": "5\nadd 1\nadd 7\nadd 3\nadd 5\nmedian", "output": "4.00000" }
+      {
+        "input": "4\nadd 1\nadd 2\nadd 3\nmedian",
+        "output": "2.00000"
+      },
+      {
+        "input": "5\nadd 6\nadd 10\nadd 2\nadd 6\nmedian",
+        "output": "6.00000"
+      },
+      {
+        "input": "3\nadd -1\nadd -2\nmedian",
+        "output": "-1.50000"
+      },
+      {
+        "input": "5\nadd 5\nadd 5\nadd 5\nadd 5\nmedian",
+        "output": "5.00000"
+      },
+      {
+        "input": "6\nadd 1\nadd 2\nmedian\nadd 3\nadd 4\nmedian",
+        "output": "1.50000\n2.50000"
+      },
+      {
+        "input": "3\nadd 100000\nadd -100000\nmedian",
+        "output": "0.00000"
+      },
+      {
+        "input": "5\nadd 1\nadd 7\nadd 3\nadd 5\nmedian",
+        "output": "4.00000"
+      },
+      {
+        "input": "5\nadd 1\nadd 2\nmedian\nadd 3\nmedian",
+        "output": "1.50000\n2.00000"
+      }
     ],
     "timeLimit": 2000,
     "memoryLimit": 256,
-    "xp": 30,
+    "xp": 20,
     "estimatedTime": 45,
-    "license": "ORIGINAL"
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Kth Largest in Stream",
+    "slug": "kth-largest-in-stream",
+    "difficulty": "MEDIUM",
+    "topic": "heap",
+    "statement": "Design a class that finds the `k`th largest element in a stream. Given initial array values and `q` queries (each query adds a number and returns the kth largest).\n\nPrint the kth largest after each query.",
+    "constraints": "- `1 <= k <= 10^4`\n- `0 <= nums.length <= 10^4`\n- `1 <= q <= 10^4`\n- `-10^4 <= val <= 10^4`",
+    "examples": [
+      {
+        "input": "3\n4\n4 5 8 2\n3\n3\n5\n10",
+        "output": "4\n5\n8"
+      },
+      {
+        "input": "1\n0\n\n3\n-1\n1\n3",
+        "output": "-1\n1\n3"
+      }
+    ],
+    "hints": [
+      "Maintain a min-heap of size k.",
+      "The top of the heap is the kth largest.",
+      "On each add: push to heap; if heap size > k, pop minimum."
+    ],
+    "tags": [
+      "Tree",
+      "Sorting",
+      "Heap",
+      "Data Stream"
+    ],
+    "companies": [
+      "Amazon",
+      "Google",
+      "Microsoft"
+    ],
+    "visibleTests": [
+      {
+        "input": "3\n4\n4 5 8 2\n3\n3\n5\n10",
+        "output": "4\n5\n8"
+      },
+      {
+        "input": "1\n0\n\n3\n-1\n1\n3",
+        "output": "-1\n1\n3"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "2\n3\n1 2 3\n2\n4\n5",
+        "output": "2\n3"
+      },
+      {
+        "input": "1\n1\n5\n3\n10\n20\n1",
+        "output": "5\n10\n20"
+      },
+      {
+        "input": "3\n0\n\n5\n1\n2\n3\n4\n5",
+        "output": "1\n1\n2\n3\n4"
+      },
+      {
+        "input": "2\n4\n10 20 30 40\n2\n25\n35",
+        "output": "30\n30"
+      },
+      {
+        "input": "4\n4\n1 2 3 4\n3\n5\n6\n7",
+        "output": "2\n3\n4"
+      },
+      {
+        "input": "1\n5\n1 2 3 4 5\n2\n0\n6",
+        "output": "5\n6"
+      },
+      {
+        "input": "3\n5\n5 4 3 2 1\n3\n1\n2\n3",
+        "output": "3\n3\n3"
+      },
+      {
+        "input": "2\n3\n3 1 4\n2\n1\n5",
+        "output": "3\n4"
+      },
+      {
+        "input": "3\n3\n1 1 1\n3\n0\n2\n10",
+        "output": "1\n1\n2"
+      },
+      {
+        "input": "5\n5\n1 2 3 4 5\n3\n6\n7\n8",
+        "output": "2\n3\n4"
+      }
+    ],
+    "timeLimit": 2000,
+    "memoryLimit": 256,
+    "xp": 20,
+    "estimatedTime": 25,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\nlet idx = 0;\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Minimum Cost to Connect Ropes",
+    "slug": "min-cost-connect-ropes",
+    "difficulty": "MEDIUM",
+    "topic": "heap",
+    "statement": "Given `n` ropes of different lengths, connect them all into one rope. The cost of connecting two ropes is the sum of their lengths. Find the **minimum total cost** to connect all ropes.",
+    "constraints": "- `1 <= n <= 10^5`\n- `1 <= ropes[i] <= 10^6`",
+    "examples": [
+      {
+        "input": "4\n4 3 2 6",
+        "output": "29"
+      },
+      {
+        "input": "3\n1 2 3",
+        "output": "9"
+      }
+    ],
+    "hints": [
+      "Use a min-heap.",
+      "Always connect the two shortest ropes first (greedy).",
+      "This is Huffman encoding logic."
+    ],
+    "tags": [
+      "Array",
+      "Greedy",
+      "Heap"
+    ],
+    "companies": [
+      "Amazon",
+      "Google",
+      "Flipkart"
+    ],
+    "visibleTests": [
+      {
+        "input": "4\n4 3 2 6",
+        "output": "29"
+      },
+      {
+        "input": "3\n1 2 3",
+        "output": "9"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "1\n5",
+        "output": "0"
+      },
+      {
+        "input": "2\n1 2",
+        "output": "3"
+      },
+      {
+        "input": "5\n1 2 3 4 5",
+        "output": "33"
+      },
+      {
+        "input": "4\n1 1 1 1",
+        "output": "8"
+      },
+      {
+        "input": "5\n5 5 5 5 5",
+        "output": "75"
+      },
+      {
+        "input": "3\n10 20 30",
+        "output": "90"
+      },
+      {
+        "input": "6\n1 2 3 4 5 6",
+        "output": "56"
+      },
+      {
+        "input": "4\n100 200 300 400",
+        "output": "1900"
+      },
+      {
+        "input": "3\n1 1 1",
+        "output": "5"
+      },
+      {
+        "input": "5\n2 2 2 2 2",
+        "output": "40"
+      }
+    ],
+    "timeLimit": 2000,
+    "memoryLimit": 256,
+    "xp": 20,
+    "estimatedTime": 25,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\nlet idx = 0;\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Find Median in Data Stream",
+    "slug": "find-median-data-stream",
+    "difficulty": "MEDIUM",
+    "topic": "heap",
+    "statement": "Process a stream of integers one at a time. After each integer is added, print the current **median**.\n\nIf the count is even, median = average of two middle values (print as decimal with 1 place). If odd, print the middle value.",
+    "constraints": "- `1 <= n <= 5 * 10^4`\n- `-10^5 <= num <= 10^5`",
+    "examples": [
+      {
+        "input": "5\n5\n15\n1\n3\n8",
+        "output": "5\n10.0\n5\n4.0\n5"
+      }
+    ],
+    "hints": [
+      "Use two heaps: max-heap for lower half, min-heap for upper half.",
+      "Balance so max-heap has at most 1 extra element."
+    ],
+    "tags": [
+      "Heap",
+      "Sorting",
+      "Data Stream"
+    ],
+    "companies": [
+      "Amazon",
+      "Google",
+      "Microsoft",
+      "Meta"
+    ],
+    "visibleTests": [
+      {
+        "input": "5\n5\n15\n1\n3\n8",
+        "output": "5\n10.0\n5\n4.0\n5"
+      },
+      {
+        "input": "1\n5",
+        "output": "5"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "2\n1 2",
+        "output": "1\n1.5"
+      },
+      {
+        "input": "3\n1 2 3",
+        "output": "1\n1.5\n2"
+      },
+      {
+        "input": "4\n4 2 5 1",
+        "output": "4\n3.0\n4\n3.0"
+      },
+      {
+        "input": "3\n5 5 5",
+        "output": "5\n5.0\n5"
+      },
+      {
+        "input": "4\n1 1 1 1",
+        "output": "1\n1.0\n1\n1.0"
+      },
+      {
+        "input": "4\n1 2 3 4",
+        "output": "1\n1.5\n2\n2.5"
+      },
+      {
+        "input": "5\n3 1 4 1 5",
+        "output": "3\n2.0\n3\n2.0\n3"
+      },
+      {
+        "input": "3\n-1 0 1",
+        "output": "-1\n-0.5\n0"
+      },
+      {
+        "input": "5\n6 3 5 4 2",
+        "output": "6\n4.5\n5\n4.5\n4"
+      }
+    ],
+    "timeLimit": 2000,
+    "memoryLimit": 256,
+    "xp": 20,
+    "estimatedTime": 30,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\nlet idx = 0;\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Reorganize String",
+    "slug": "reorganize-string",
+    "difficulty": "MEDIUM",
+    "topic": "heap",
+    "statement": "Given a string `s`, rearrange the characters so that no two adjacent characters are the same. Print the result. If impossible, print an empty line.",
+    "constraints": "- `1 <= s.length <= 500`\n- `s` consists of lowercase English letters.",
+    "examples": [
+      {
+        "input": "aab",
+        "output": "aba"
+      },
+      {
+        "input": "aaab",
+        "output": ""
+      }
+    ],
+    "hints": [
+      "Greedily pick the most frequent character that isn't the same as the last placed.",
+      "Use a max-heap by frequency."
+    ],
+    "tags": [
+      "Hash Table",
+      "String",
+      "Greedy",
+      "Sorting",
+      "Heap"
+    ],
+    "companies": [
+      "Amazon",
+      "Google",
+      "Microsoft"
+    ],
+    "visibleTests": [
+      {
+        "input": "aab",
+        "output": "aba"
+      },
+      {
+        "input": "aaab",
+        "output": ""
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "a",
+        "output": "a"
+      },
+      {
+        "input": "aa",
+        "output": ""
+      },
+      {
+        "input": "ab",
+        "output": "ab"
+      },
+      {
+        "input": "aabb",
+        "output": "abab"
+      },
+      {
+        "input": "aaabbb",
+        "output": "ababab"
+      },
+      {
+        "input": "vvvlo",
+        "output": "vlovv"
+      },
+      {
+        "input": "aaabbc",
+        "output": "ababac"
+      },
+      {
+        "input": "abcabc",
+        "output": "abcabc"
+      },
+      {
+        "input": "aaabc",
+        "output": "abaca"
+      },
+      {
+        "input": "abc",
+        "output": "abc"
+      }
+    ],
+    "timeLimit": 1000,
+    "memoryLimit": 256,
+    "xp": 20,
+    "estimatedTime": 25,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Kth Smallest Element",
+    "slug": "kth-smallest-element",
+    "difficulty": "EASY",
+    "topic": "heap",
+    "statement": "Given an integer array and an integer `k`, return the `k`th smallest element.",
+    "constraints": "- `1 <= k <= nums.length <= 10^4`\n- `-10^4 <= nums[i] <= 10^4`",
+    "examples": [
+      {
+        "input": "6 2\n3 2 1 5 6 4",
+        "output": "2"
+      },
+      {
+        "input": "4 4\n3 2 3 1",
+        "output": "3"
+      }
+    ],
+    "hints": [
+      "Sort and return index k-1, or use a max-heap of size k."
+    ],
+    "tags": [
+      "Array",
+      "Sorting",
+      "Heap"
+    ],
+    "companies": [
+      "Amazon",
+      "Google",
+      "Microsoft"
+    ],
+    "visibleTests": [
+      {
+        "input": "6 2\n3 2 1 5 6 4",
+        "output": "2"
+      },
+      {
+        "input": "4 4\n3 2 3 1",
+        "output": "3"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "1 1\n5",
+        "output": "5"
+      },
+      {
+        "input": "3 1\n3 2 1",
+        "output": "1"
+      },
+      {
+        "input": "3 3\n3 2 1",
+        "output": "3"
+      },
+      {
+        "input": "5 3\n5 4 3 2 1",
+        "output": "3"
+      },
+      {
+        "input": "4 2\n-1 -2 -3 -4",
+        "output": "-3"
+      },
+      {
+        "input": "5 1\n1 2 3 4 5",
+        "output": "1"
+      },
+      {
+        "input": "4 4\n1 1 1 1",
+        "output": "1"
+      },
+      {
+        "input": "5 5\n10 9 8 7 6",
+        "output": "10"
+      },
+      {
+        "input": "4 2\n0 0 1 1",
+        "output": "0"
+      },
+      {
+        "input": "5 2\n100 1 2 3 100",
+        "output": "2"
+      }
+    ],
+    "timeLimit": 1000,
+    "memoryLimit": 256,
+    "xp": 10,
+    "estimatedTime": 12,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\ndef solve():\n    pass\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\n// code",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Last Stone Weight",
+    "slug": "last-stone-weight",
+    "difficulty": "EASY",
+    "topic": "heap",
+    "statement": "You have stones with weights. Each turn, pick the two heaviest stones `x` and `y` (x <= y). If x == y both are destroyed. If x != y, x is destroyed and y becomes y-x. Return the weight of the last remaining stone, or 0 if none remain.",
+    "constraints": "- `1 <= stones.length <= 30`\n- `1 <= stones[i] <= 1000`",
+    "examples": [
+      {
+        "input": "5\n2 7 4 1 8",
+        "output": "1"
+      },
+      {
+        "input": "3\n3 3 3",
+        "output": "3"
+      }
+    ],
+    "hints": [
+      "Use a max-heap (negate values for min-heap trick)."
+    ],
+    "tags": [
+      "Array",
+      "Heap",
+      "Greedy"
+    ],
+    "companies": [
+      "Amazon",
+      "Google"
+    ],
+    "visibleTests": [
+      {
+        "input": "5\n2 7 4 1 8",
+        "output": "1"
+      },
+      {
+        "input": "3\n3 3 3",
+        "output": "3"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "1\n1",
+        "output": "1"
+      },
+      {
+        "input": "2\n2 2",
+        "output": "0"
+      },
+      {
+        "input": "2\n3 2",
+        "output": "1"
+      },
+      {
+        "input": "4\n1 1 1 1",
+        "output": "0"
+      },
+      {
+        "input": "5\n5 4 3 2 1",
+        "output": "1"
+      },
+      {
+        "input": "3\n1 2 3",
+        "output": "2"
+      },
+      {
+        "input": "4\n10 10 5 5",
+        "output": "0"
+      },
+      {
+        "input": "5\n1 1 1 1 2",
+        "output": "2"
+      },
+      {
+        "input": "3\n7 7 7",
+        "output": "7"
+      },
+      {
+        "input": "4\n2 4 6 8",
+        "output": "0"
+      }
+    ],
+    "timeLimit": 1000,
+    "memoryLimit": 256,
+    "xp": 10,
+    "estimatedTime": 12,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\ndef solve():\n    pass\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\n// code",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "K Closest Points to Origin",
+    "slug": "k-closest-points-origin",
+    "difficulty": "MEDIUM",
+    "topic": "heap",
+    "statement": "Given `n` points on an XY plane and integer `k`, return the `k` closest points to the origin (0,0). Print them sorted by distance (ties broken by x then y).",
+    "constraints": "- `1 <= k <= n <= 10^4`\n- `-10^4 <= x, y <= 10^4`",
+    "examples": [
+      {
+        "input": "2 1\n1 3\n-2 2",
+        "output": "-2 2"
+      },
+      {
+        "input": "3 2\n3 3\n5 -1\n-2 4",
+        "output": "3 3\n-2 4"
+      }
+    ],
+    "hints": [
+      "Compute x^2+y^2 for each point, sort by distance.",
+      "Or use a max-heap of size k."
+    ],
+    "tags": [
+      "Array",
+      "Math",
+      "Sorting",
+      "Heap"
+    ],
+    "companies": [
+      "Amazon",
+      "Google",
+      "Microsoft",
+      "Meta"
+    ],
+    "visibleTests": [
+      {
+        "input": "2 1\n1 3\n-2 2",
+        "output": "-2 2"
+      },
+      {
+        "input": "3 2\n3 3\n5 -1\n-2 4",
+        "output": "3 3\n-2 4"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "1 1\n0 0",
+        "output": "0 0"
+      },
+      {
+        "input": "3 1\n1 0\n0 1\n0 0",
+        "output": "0 0"
+      },
+      {
+        "input": "3 2\n1 0\n0 1\n0 0",
+        "output": "0 0\n0 1"
+      },
+      {
+        "input": "4 2\n1 1\n-1 -1\n2 0\n0 2",
+        "output": "1 1\n-1 -1"
+      },
+      {
+        "input": "5 3\n0 1\n1 0\n0 -1\n-1 0\n2 2",
+        "output": "0 -1\n-1 0\n0 1"
+      },
+      {
+        "input": "2 2\n3 4\n1 2",
+        "output": "1 2\n3 4"
+      },
+      {
+        "input": "4 4\n1 0\n0 1\n1 1\n0 0",
+        "output": "0 0\n0 1\n1 0\n1 1"
+      },
+      {
+        "input": "3 1\n10000 0\n0 10000\n1 1",
+        "output": "1 1"
+      },
+      {
+        "input": "3 2\n1 2\n1 2\n2 1",
+        "output": "1 2\n1 2"
+      },
+      {
+        "input": "4 3\n0 3\n4 0\n3 4\n0 0",
+        "output": "0 0\n0 3\n4 0"
+      }
+    ],
+    "timeLimit": 2000,
+    "memoryLimit": 256,
+    "xp": 20,
+    "estimatedTime": 20,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\ndef solve():\n    pass\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\n// code",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Merge K Sorted Arrays",
+    "slug": "merge-k-sorted-arrays",
+    "difficulty": "MEDIUM",
+    "topic": "heap",
+    "statement": "Given `k` sorted arrays, merge them into a single sorted array. Print the result.",
+    "constraints": "- `1 <= k <= 100`\n- `1 <= each_array.length <= 100`\n- `-10^4 <= val <= 10^4`",
+    "examples": [
+      {
+        "input": "3\n1 4 5\n1 3 4\n2 6",
+        "output": "1 1 2 3 4 4 5 6"
+      },
+      {
+        "input": "1\n1 2 3",
+        "output": "1 2 3"
+      }
+    ],
+    "hints": [
+      "Use a min-heap initialized with first element of each array.",
+      "Pop min, push next element from same array."
+    ],
+    "tags": [
+      "Array",
+      "Sorting",
+      "Heap"
+    ],
+    "companies": [
+      "Amazon",
+      "Google",
+      "Microsoft"
+    ],
+    "visibleTests": [
+      {
+        "input": "3\n1 4 5\n1 3 4\n2 6",
+        "output": "1 1 2 3 4 4 5 6"
+      },
+      {
+        "input": "1\n1 2 3",
+        "output": "1 2 3"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "2\n1 3\n2 4",
+        "output": "1 2 3 4"
+      },
+      {
+        "input": "2\n1\n2",
+        "output": "1 2"
+      },
+      {
+        "input": "3\n1\n2\n3",
+        "output": "1 2 3"
+      },
+      {
+        "input": "2\n5 10 15\n1 6 11",
+        "output": "1 5 6 10 11 15"
+      },
+      {
+        "input": "3\n1 2 3\n4 5 6\n7 8 9",
+        "output": "1 2 3 4 5 6 7 8 9"
+      },
+      {
+        "input": "2\n-5 -3\n-4 -2",
+        "output": "-5 -4 -3 -2"
+      },
+      {
+        "input": "3\n0 0\n0 0\n0 0",
+        "output": "0 0 0 0 0 0"
+      },
+      {
+        "input": "4\n1\n2\n3\n4",
+        "output": "1 2 3 4"
+      },
+      {
+        "input": "2\n100 200\n150 250",
+        "output": "100 150 200 250"
+      },
+      {
+        "input": "3\n1 3 5\n2 4 6\n0 7 8",
+        "output": "0 1 2 3 4 5 6 7 8"
+      }
+    ],
+    "timeLimit": 2000,
+    "memoryLimit": 256,
+    "xp": 20,
+    "estimatedTime": 20,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "// code",
+      "java": "// code",
+      "cpp": "// code"
+    }
   }
 ]

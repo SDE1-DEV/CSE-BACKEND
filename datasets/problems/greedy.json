@@ -1,0 +1,1139 @@
+[
+  {
+    "title": "Assign Cookies to Children",
+    "slug": "assign-cookies-to-children",
+    "difficulty": "EASY",
+    "topic": "greedy",
+    "statement": "Each child `i` has a greed factor `g[i]` (minimum cookie size they accept). Each cookie `j` has size `s[j]`. Assign at most one cookie per child, maximize the number of content children.\n\nA child is content if `s[j] >= g[i]`.",
+    "constraints": "- `1 <= g.length <= 3 * 10^4`\n- `0 <= s.length <= 3 * 10^4`\n- `1 <= g[i], s[i] <= 2^31 - 1`",
+    "examples": [
+      {
+        "input": "3\n1 2 3\n2\n1 1",
+        "output": "1"
+      },
+      {
+        "input": "2\n1 2\n3\n1 2 3",
+        "output": "2"
+      }
+    ],
+    "hints": [
+      "Sort both arrays.",
+      "Greedily assign the smallest sufficient cookie to each child."
+    ],
+    "tags": [
+      "Array",
+      "Greedy",
+      "Sorting"
+    ],
+    "companies": [
+      "Amazon",
+      "Google"
+    ],
+    "visibleTests": [
+      {
+        "input": "3\n1 2 3\n2\n1 1",
+        "output": "1"
+      },
+      {
+        "input": "2\n1 2\n3\n1 2 3",
+        "output": "2"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "3\n1 2 3\n3\n3 3 3",
+        "output": "3"
+      },
+      {
+        "input": "3\n10 9 8\n3\n5 6 7",
+        "output": "0"
+      },
+      {
+        "input": "2\n1 1\n3\n1 1 1",
+        "output": "2"
+      },
+      {
+        "input": "1\n5\n1\n1",
+        "output": "0"
+      },
+      {
+        "input": "3\n1 2 3\n3\n4 5 6",
+        "output": "3"
+      },
+      {
+        "input": "3\n5 5 5\n3\n5 5 5",
+        "output": "3"
+      },
+      {
+        "input": "4\n2 3 4 5\n3\n1 2 3",
+        "output": "2"
+      },
+      {
+        "input": "3\n1 2 3\n0\n",
+        "output": "0"
+      },
+      {
+        "input": "2\n1 2\n1\n2",
+        "output": "1"
+      },
+      {
+        "input": "5\n1 1 1 1 1\n5\n1 1 1 1 1",
+        "output": "5"
+      }
+    ],
+    "timeLimit": 1000,
+    "memoryLimit": 256,
+    "xp": 10,
+    "estimatedTime": 12,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\nlet idx = 0;\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Jump Game",
+    "slug": "jump-game",
+    "difficulty": "MEDIUM",
+    "topic": "greedy",
+    "statement": "Given an integer array `nums` where `nums[i]` is the maximum jump length from position `i`, determine if you can reach the last index starting from index 0. Return `true` or `false`.",
+    "constraints": "- `1 <= nums.length <= 3 * 10^4`\n- `0 <= nums[i] <= 10^5`",
+    "examples": [
+      {
+        "input": "5\n2 3 1 1 4",
+        "output": "true"
+      },
+      {
+        "input": "5\n3 2 1 0 4",
+        "output": "false"
+      }
+    ],
+    "hints": [
+      "Track the maximum reachable index.",
+      "If at any point your current position exceeds max reachable, return false."
+    ],
+    "tags": [
+      "Array",
+      "Greedy",
+      "Dynamic Programming"
+    ],
+    "companies": [
+      "Amazon",
+      "Google",
+      "Microsoft",
+      "Meta"
+    ],
+    "visibleTests": [
+      {
+        "input": "5\n2 3 1 1 4",
+        "output": "true"
+      },
+      {
+        "input": "5\n3 2 1 0 4",
+        "output": "false"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "1\n0",
+        "output": "true"
+      },
+      {
+        "input": "2\n1 0",
+        "output": "true"
+      },
+      {
+        "input": "3\n0 1 2",
+        "output": "false"
+      },
+      {
+        "input": "4\n2 0 0 1",
+        "output": "false"
+      },
+      {
+        "input": "5\n1 1 1 1 1",
+        "output": "true"
+      },
+      {
+        "input": "5\n0 0 0 0 0",
+        "output": "false"
+      },
+      {
+        "input": "4\n1 2 3 0",
+        "output": "true"
+      },
+      {
+        "input": "5\n5 0 0 0 0",
+        "output": "true"
+      },
+      {
+        "input": "3\n1 0 1",
+        "output": "false"
+      },
+      {
+        "input": "5\n2 1 0 1 4",
+        "output": "false"
+      }
+    ],
+    "timeLimit": 1000,
+    "memoryLimit": 256,
+    "xp": 20,
+    "estimatedTime": 20,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\nlet idx = 0;\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Activity Selection",
+    "slug": "activity-selection",
+    "difficulty": "MEDIUM",
+    "topic": "greedy",
+    "statement": "Given `n` activities each with a start and end time, select the **maximum number of non-overlapping activities** (no two activities overlap).",
+    "constraints": "- `1 <= n <= 10^4`\n- `0 <= start[i] < end[i] <= 10^6`",
+    "examples": [
+      {
+        "input": "3\n1 3\n2 5\n4 6",
+        "output": "2"
+      },
+      {
+        "input": "4\n1 2\n2 3\n3 4\n4 5",
+        "output": "4"
+      }
+    ],
+    "hints": [
+      "Sort by end time.",
+      "Greedily pick the next activity that starts after the previous one ends."
+    ],
+    "tags": [
+      "Array",
+      "Greedy",
+      "Sorting"
+    ],
+    "companies": [
+      "Amazon",
+      "Google",
+      "Microsoft"
+    ],
+    "visibleTests": [
+      {
+        "input": "3\n1 3\n2 5\n4 6",
+        "output": "2"
+      },
+      {
+        "input": "4\n1 2\n2 3\n3 4\n4 5",
+        "output": "4"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "1\n0 1",
+        "output": "1"
+      },
+      {
+        "input": "5\n1 10\n2 3\n4 5\n6 7\n8 9",
+        "output": "4"
+      },
+      {
+        "input": "3\n0 5\n4 10\n5 15",
+        "output": "1"
+      },
+      {
+        "input": "5\n0 1\n0 1\n0 1\n0 1\n0 1",
+        "output": "1"
+      },
+      {
+        "input": "6\n1 3\n3 5\n0 6\n5 7\n3 9\n5 9",
+        "output": "3"
+      },
+      {
+        "input": "4\n1 5\n2 3\n4 6\n7 8",
+        "output": "3"
+      },
+      {
+        "input": "3\n0 100\n0 50\n50 100",
+        "output": "1"
+      },
+      {
+        "input": "5\n0 1\n1 2\n2 3\n3 4\n4 5",
+        "output": "5"
+      },
+      {
+        "input": "4\n0 4\n1 2\n3 5\n4 6",
+        "output": "3"
+      },
+      {
+        "input": "3\n0 3\n2 5\n4 8",
+        "output": "2"
+      }
+    ],
+    "timeLimit": 1000,
+    "memoryLimit": 256,
+    "xp": 20,
+    "estimatedTime": 20,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\nlet idx = 0;\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Minimum Number of Platforms",
+    "slug": "minimum-number-of-platforms",
+    "difficulty": "MEDIUM",
+    "topic": "greedy",
+    "statement": "Given arrival and departure times of trains at a station, find the **minimum number of platforms** required so no train waits.",
+    "constraints": "- `1 <= n <= 10^4`\n- `0 <= arrival[i] < departure[i] <= 2359`",
+    "examples": [
+      {
+        "input": "6\n900 940 950 1100 1500 1800\n910 1200 1120 1130 1900 2000",
+        "output": "3"
+      },
+      {
+        "input": "3\n900 1000 1100\n1000 1100 1200",
+        "output": "1"
+      }
+    ],
+    "hints": [
+      "Sort arrival and departure arrays separately.",
+      "Use two pointers: increment count when a train arrives before another departs."
+    ],
+    "tags": [
+      "Array",
+      "Greedy",
+      "Sorting"
+    ],
+    "companies": [
+      "Amazon",
+      "Flipkart",
+      "Microsoft"
+    ],
+    "visibleTests": [
+      {
+        "input": "6\n900 940 950 1100 1500 1800\n910 1200 1120 1130 1900 2000",
+        "output": "3"
+      },
+      {
+        "input": "3\n900 1000 1100\n1000 1100 1200",
+        "output": "1"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "1\n100\n200",
+        "output": "1"
+      },
+      {
+        "input": "3\n900 900 900\n1000 1000 1000",
+        "output": "3"
+      },
+      {
+        "input": "4\n100 200 300 400\n1000 1000 1000 1000",
+        "output": "4"
+      },
+      {
+        "input": "3\n100 300 500\n200 400 600",
+        "output": "1"
+      },
+      {
+        "input": "4\n100 100 200 200\n300 400 400 500",
+        "output": "2"
+      },
+      {
+        "input": "5\n100 101 102 103 104\n1000 1000 1000 1000 1000",
+        "output": "5"
+      },
+      {
+        "input": "4\n100 150 200 250\n200 250 300 350",
+        "output": "2"
+      },
+      {
+        "input": "3\n800 900 1000\n830 900 1030",
+        "output": "2"
+      },
+      {
+        "input": "5\n900 940 950 1100 1500\n910 1200 1120 1130 1900",
+        "output": "3"
+      },
+      {
+        "input": "4\n100 200 300 400\n200 300 400 500",
+        "output": "1"
+      }
+    ],
+    "timeLimit": 1000,
+    "memoryLimit": 256,
+    "xp": 20,
+    "estimatedTime": 25,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\nlet idx = 0;\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Gas Station Circuit",
+    "slug": "gas-station-circuit",
+    "difficulty": "MEDIUM",
+    "topic": "greedy",
+    "statement": "There are `n` gas stations in a circle. Station `i` has `gas[i]` units of gas and costs `cost[i]` units to travel to the next station. Start at any station with an empty tank. If possible to travel around the circuit once, return the **starting station index**. Otherwise return `-1`.\n\nThe solution is guaranteed to be unique if it exists.",
+    "constraints": "- `n == gas.length == cost.length`\n- `1 <= n <= 10^5`\n- `0 <= gas[i], cost[i] <= 10^4`",
+    "examples": [
+      {
+        "input": "5\n1 2 3 4 5\n3 4 5 1 2",
+        "output": "3"
+      },
+      {
+        "input": "2\n2 3\n3 4",
+        "output": "-1"
+      }
+    ],
+    "hints": [
+      "If total gas >= total cost, a solution exists.",
+      "The starting point is where the running sum goes most negative (one-pass approach)."
+    ],
+    "tags": [
+      "Array",
+      "Greedy"
+    ],
+    "companies": [
+      "Amazon",
+      "Google",
+      "Microsoft"
+    ],
+    "visibleTests": [
+      {
+        "input": "5\n1 2 3 4 5\n3 4 5 1 2",
+        "output": "3"
+      },
+      {
+        "input": "2\n2 3\n3 4",
+        "output": "-1"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "1\n5\n4",
+        "output": "0"
+      },
+      {
+        "input": "3\n1 2 3\n1 2 3",
+        "output": "0"
+      },
+      {
+        "input": "4\n1 2 3 4\n2 3 4 3",
+        "output": "3"
+      },
+      {
+        "input": "5\n5 1 2 3 4\n4 4 1 5 1",
+        "output": "4"
+      },
+      {
+        "input": "3\n3 3 3\n3 3 3",
+        "output": "0"
+      },
+      {
+        "input": "5\n0 0 0 0 10\n1 2 3 4 0",
+        "output": "-1"
+      },
+      {
+        "input": "4\n4 6 7 4\n6 5 3 5",
+        "output": "1"
+      },
+      {
+        "input": "3\n2 3 4\n3 4 3",
+        "output": "2"
+      },
+      {
+        "input": "5\n1 1 1 1 1\n2 1 1 1 1",
+        "output": "1"
+      },
+      {
+        "input": "4\n5 8 2 8\n6 5 6 6",
+        "output": "3"
+      }
+    ],
+    "timeLimit": 1000,
+    "memoryLimit": 256,
+    "xp": 20,
+    "estimatedTime": 20,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\nlet idx = 0;\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Lemonade Change",
+    "slug": "lemonade-change",
+    "difficulty": "EASY",
+    "topic": "greedy",
+    "statement": "At a lemonade stand, each drink costs `$5`. Customers pay with `$5`, `$10`, or `$20` bills. Initially you have no change. Given an array of customer bills in order, return `true` if you can provide every customer exact change, `false` otherwise.",
+    "constraints": "- `1 <= bills.length <= 10^5`\n- `bills[i]` is `5`, `10`, or `20`.",
+    "examples": [
+      {
+        "input": "5\n5 5 5 10 20",
+        "output": "true"
+      },
+      {
+        "input": "4\n5 5 10 10 20",
+        "output": "false"
+      }
+    ],
+    "hints": [
+      "Track how many $5 and $10 bills you have.",
+      "For a $20, prefer to give $10+$5 over three $5s."
+    ],
+    "tags": [
+      "Array",
+      "Greedy"
+    ],
+    "companies": [
+      "Amazon",
+      "Google"
+    ],
+    "visibleTests": [
+      {
+        "input": "5\n5 5 5 10 20",
+        "output": "true"
+      },
+      {
+        "input": "5\n5 5 10 10 20",
+        "output": "false"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "1\n5",
+        "output": "true"
+      },
+      {
+        "input": "2\n5 10",
+        "output": "true"
+      },
+      {
+        "input": "3\n10 5 5",
+        "output": "false"
+      },
+      {
+        "input": "5\n5 10 20 5 5",
+        "output": "false"
+      },
+      {
+        "input": "5\n5 5 5 5 5",
+        "output": "true"
+      },
+      {
+        "input": "4\n5 5 5 20",
+        "output": "true"
+      },
+      {
+        "input": "5\n5 10 5 20 5",
+        "output": "false"
+      },
+      {
+        "input": "3\n5 5 20",
+        "output": "true"
+      },
+      {
+        "input": "5\n5 5 5 10 10",
+        "output": "true"
+      },
+      {
+        "input": "6\n5 5 5 5 10 20",
+        "output": "true"
+      }
+    ],
+    "timeLimit": 1000,
+    "memoryLimit": 256,
+    "xp": 10,
+    "estimatedTime": 12,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\nlet idx = 0;\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Minimum Number of Arrows to Burst Balloons",
+    "slug": "min-arrows-burst-balloons",
+    "difficulty": "MEDIUM",
+    "topic": "greedy",
+    "statement": "Balloons are represented as intervals. An arrow shot vertically at position `x` bursts any balloon with `x_start <= x <= x_end`. Return the **minimum number of arrows** needed to burst all balloons.",
+    "constraints": "- `1 <= points.length <= 10^4`\n- `-2^31 <= x_start <= x_end <= 2^31 - 1`",
+    "examples": [
+      {
+        "input": "4\n10 16\n2 8\n1 6\n7 12",
+        "output": "2"
+      },
+      {
+        "input": "3\n1 2\n3 4\n5 6",
+        "output": "3"
+      }
+    ],
+    "hints": [
+      "Sort by end point.",
+      "Fire arrow at first balloon's end; skip all balloons hit by this arrow."
+    ],
+    "tags": [
+      "Array",
+      "Greedy",
+      "Sorting"
+    ],
+    "companies": [
+      "Amazon",
+      "Google",
+      "Microsoft"
+    ],
+    "visibleTests": [
+      {
+        "input": "4\n10 16\n2 8\n1 6\n7 12",
+        "output": "2"
+      },
+      {
+        "input": "3\n1 2\n3 4\n5 6",
+        "output": "3"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "1\n1 2",
+        "output": "1"
+      },
+      {
+        "input": "2\n1 2\n2 3",
+        "output": "1"
+      },
+      {
+        "input": "2\n1 2\n3 4",
+        "output": "2"
+      },
+      {
+        "input": "4\n1 10\n2 8\n3 6\n4 5",
+        "output": "1"
+      },
+      {
+        "input": "3\n-2147483648 2147483647\n-2147483648 0\n0 2147483647",
+        "output": "1"
+      },
+      {
+        "input": "4\n3 9\n7 12\n3 8\n6 8",
+        "output": "2"
+      },
+      {
+        "input": "4\n1 4\n2 3\n3 5\n4 6",
+        "output": "2"
+      },
+      {
+        "input": "3\n0 5\n5 10\n10 15",
+        "output": "1"
+      },
+      {
+        "input": "5\n1 2\n3 4\n5 6\n7 8\n9 10",
+        "output": "5"
+      },
+      {
+        "input": "4\n1 10\n1 10\n1 10\n1 10",
+        "output": "1"
+      }
+    ],
+    "timeLimit": 1000,
+    "memoryLimit": 256,
+    "xp": 20,
+    "estimatedTime": 20,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Best Time to Buy and Sell Stock II",
+    "slug": "best-time-buy-sell-stock-ii",
+    "difficulty": "MEDIUM",
+    "topic": "greedy",
+    "statement": "Given an integer array `prices` where `prices[i]` is the stock price on day `i`, find the **maximum profit** you can achieve. You may complete as many transactions as you like (buy then sell; you must sell before buying again).",
+    "constraints": "- `1 <= prices.length <= 3 * 10^4`\n- `0 <= prices[i] <= 10^4`",
+    "examples": [
+      {
+        "input": "6\n7 1 5 3 6 4",
+        "output": "7"
+      },
+      {
+        "input": "5\n1 2 3 4 5",
+        "output": "4"
+      }
+    ],
+    "hints": [
+      "Add every upward slope: profit += max(0, prices[i]-prices[i-1]) for each i."
+    ],
+    "tags": [
+      "Array",
+      "Greedy",
+      "Dynamic Programming"
+    ],
+    "companies": [
+      "Amazon",
+      "Google",
+      "Microsoft"
+    ],
+    "visibleTests": [
+      {
+        "input": "6\n7 1 5 3 6 4",
+        "output": "7"
+      },
+      {
+        "input": "5\n1 2 3 4 5",
+        "output": "4"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "5\n7 6 4 3 1",
+        "output": "0"
+      },
+      {
+        "input": "1\n5",
+        "output": "0"
+      },
+      {
+        "input": "2\n1 2",
+        "output": "1"
+      },
+      {
+        "input": "2\n2 1",
+        "output": "0"
+      },
+      {
+        "input": "4\n1 4 2 7",
+        "output": "8"
+      },
+      {
+        "input": "5\n3 3 5 0 0",
+        "output": "2"
+      },
+      {
+        "input": "6\n2 1 4 5 2 9",
+        "output": "11"
+      },
+      {
+        "input": "5\n1 2 1 2 1",
+        "output": "2"
+      },
+      {
+        "input": "4\n3 1 4 1",
+        "output": "3"
+      },
+      {
+        "input": "6\n1 2 3 1 2 3",
+        "output": "4"
+      }
+    ],
+    "timeLimit": 1000,
+    "memoryLimit": 256,
+    "xp": 20,
+    "estimatedTime": 15,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Minimum Operations to Make Array Increasing",
+    "slug": "min-ops-increasing-array",
+    "difficulty": "EASY",
+    "topic": "greedy",
+    "statement": "Given an integer array `nums`, return the minimum number of operations to make it strictly increasing. In each operation, you can increment one element by 1.",
+    "constraints": "- `1 <= nums.length <= 5000`\n- `1 <= nums[i] <= 10^9`",
+    "examples": [
+      {
+        "input": "4\n1 1 1 1",
+        "output": "6"
+      },
+      {
+        "input": "3\n1 5 2",
+        "output": "3"
+      }
+    ],
+    "hints": [
+      "Process left to right.",
+      "If nums[i] <= nums[i-1], add (nums[i-1]+1 - nums[i]) to operations and set nums[i] = nums[i-1]+1."
+    ],
+    "tags": [
+      "Array",
+      "Greedy"
+    ],
+    "companies": [
+      "Amazon",
+      "Google"
+    ],
+    "visibleTests": [
+      {
+        "input": "4\n1 1 1 1",
+        "output": "6"
+      },
+      {
+        "input": "3\n1 5 2",
+        "output": "3"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "1\n5",
+        "output": "0"
+      },
+      {
+        "input": "3\n1 2 3",
+        "output": "0"
+      },
+      {
+        "input": "3\n3 2 1",
+        "output": "3"
+      },
+      {
+        "input": "5\n1 2 2 2 2",
+        "output": "6"
+      },
+      {
+        "input": "4\n5 3 2 1",
+        "output": "6"
+      },
+      {
+        "input": "3\n1 1 2",
+        "output": "1"
+      },
+      {
+        "input": "5\n10 1 1 1 1",
+        "output": "10"
+      },
+      {
+        "input": "4\n0 0 0 0",
+        "output": "6"
+      },
+      {
+        "input": "4\n2 3 3 2",
+        "output": "2"
+      },
+      {
+        "input": "5\n5 5 5 5 5",
+        "output": "10"
+      }
+    ],
+    "timeLimit": 1000,
+    "memoryLength": 256,
+    "xp": 10,
+    "estimatedTime": 12,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\ndef solve():\n    pass\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\n// code",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Task Scheduler",
+    "slug": "task-scheduler",
+    "difficulty": "MEDIUM",
+    "topic": "greedy",
+    "statement": "Given a list of tasks and a cooldown period `n`, compute the minimum number of intervals needed to finish all tasks. Idle intervals can be inserted between tasks of the same type.",
+    "constraints": "- `1 <= tasks.length <= 10^4`\n- `tasks[i]` is uppercase English letter\n- `0 <= n <= 100`",
+    "examples": [
+      {
+        "input": "6 2\nA A A B B B",
+        "output": "8"
+      },
+      {
+        "input": "6 0\nA A A B B B",
+        "output": "6"
+      }
+    ],
+    "hints": [
+      "Count task frequencies.",
+      "max_freq = highest frequency.",
+      "Result = max(total_tasks, (max_freq-1)*(n+1) + count_of_max_freq_tasks)."
+    ],
+    "tags": [
+      "Array",
+      "Greedy",
+      "Hash Table",
+      "Queue",
+      "Sorting",
+      "Heap"
+    ],
+    "companies": [
+      "Amazon",
+      "Google",
+      "Meta",
+      "Microsoft"
+    ],
+    "visibleTests": [
+      {
+        "input": "6 2\nA A A B B B",
+        "output": "8"
+      },
+      {
+        "input": "6 0\nA A A B B B",
+        "output": "6"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "3 2\nA A A",
+        "output": "7"
+      },
+      {
+        "input": "3 0\nA A A",
+        "output": "3"
+      },
+      {
+        "input": "7 2\nA A A A B B C",
+        "output": "10"
+      },
+      {
+        "input": "6 1\nA A A B B B",
+        "output": "6"
+      },
+      {
+        "input": "1 0\nA",
+        "output": "1"
+      },
+      {
+        "input": "4 3\nA A B B",
+        "output": "6"
+      },
+      {
+        "input": "5 2\nA B C D E",
+        "output": "5"
+      },
+      {
+        "input": "8 2\nA A A A B B B B",
+        "output": "10"
+      },
+      {
+        "input": "6 3\nA A B B C C",
+        "output": "7"
+      },
+      {
+        "input": "10 2\nA A A A A B B C C D",
+        "output": "12"
+      }
+    ],
+    "timeLimit": 1000,
+    "memoryLimit": 256,
+    "xp": 20,
+    "estimatedTime": 25,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\ndef solve():\n    pass\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\n// code",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Partition Labels",
+    "slug": "partition-labels",
+    "difficulty": "MEDIUM",
+    "topic": "greedy",
+    "statement": "A string `s` is to be partitioned into as many parts as possible so that each letter appears in at most one part. Return the sizes of each partition as space-separated values.",
+    "constraints": "- `1 <= s.length <= 500`\n- `s` consists of lowercase English letters.",
+    "examples": [
+      {
+        "input": "ababcbacadefegdehijhklij",
+        "output": "9 7 8"
+      },
+      {
+        "input": "eccbbbbdec",
+        "output": "10"
+      }
+    ],
+    "hints": [
+      "Record last occurrence of each character.",
+      "Greedily extend the partition to the max last index seen so far."
+    ],
+    "tags": [
+      "Hash Table",
+      "String",
+      "Greedy",
+      "Two Pointers"
+    ],
+    "companies": [
+      "Amazon",
+      "Google",
+      "Meta"
+    ],
+    "visibleTests": [
+      {
+        "input": "ababcbacadefegdehijhklij",
+        "output": "9 7 8"
+      },
+      {
+        "input": "eccbbbbdec",
+        "output": "10"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "a",
+        "output": "1"
+      },
+      {
+        "input": "ab",
+        "output": "1 1"
+      },
+      {
+        "input": "aa",
+        "output": "2"
+      },
+      {
+        "input": "abc",
+        "output": "1 1 1"
+      },
+      {
+        "input": "aab",
+        "output": "2 1"
+      },
+      {
+        "input": "abcabc",
+        "output": "6"
+      },
+      {
+        "input": "abcba",
+        "output": "5"
+      },
+      {
+        "input": "abab",
+        "output": "4"
+      },
+      {
+        "input": "caedbdedda",
+        "output": "1 9"
+      },
+      {
+        "input": "jybmxeqqnqqo",
+        "output": "6 6"
+      }
+    ],
+    "timeLimit": 1000,
+    "memoryLimit": 256,
+    "xp": 20,
+    "estimatedTime": 20,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\ndef solve():\n    pass\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\n// code",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Minimum Operations to Increase Array",
+    "slug": "min-ops-to-increase-array",
+    "difficulty": "EASY",
+    "topic": "greedy",
+    "statement": "Given an integer array `nums`, return the minimum number of increments (each +1 to one element) to make it strictly increasing.",
+    "constraints": "- `1 <= nums.length <= 5000`\n- `1 <= nums[i] <= 10^9`",
+    "examples": [
+      {
+        "input": "4\n1 1 1 1",
+        "output": "6"
+      },
+      {
+        "input": "3\n1 5 2",
+        "output": "3"
+      }
+    ],
+    "hints": [
+      "If nums[i] <= nums[i-1], add (nums[i-1]+1 - nums[i]) to ops and update nums[i]."
+    ],
+    "tags": [
+      "Array",
+      "Greedy"
+    ],
+    "companies": [
+      "Amazon",
+      "Google"
+    ],
+    "visibleTests": [
+      {
+        "input": "4\n1 1 1 1",
+        "output": "6"
+      },
+      {
+        "input": "3\n1 5 2",
+        "output": "3"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "1\n5",
+        "output": "0"
+      },
+      {
+        "input": "3\n1 2 3",
+        "output": "0"
+      },
+      {
+        "input": "3\n3 2 1",
+        "output": "3"
+      },
+      {
+        "input": "5\n1 2 2 2 2",
+        "output": "6"
+      },
+      {
+        "input": "4\n5 3 2 1",
+        "output": "6"
+      },
+      {
+        "input": "3\n1 1 2",
+        "output": "1"
+      },
+      {
+        "input": "5\n10 1 1 1 1",
+        "output": "10"
+      },
+      {
+        "input": "4\n0 0 0 0",
+        "output": "6"
+      },
+      {
+        "input": "4\n2 3 3 2",
+        "output": "2"
+      },
+      {
+        "input": "5\n5 5 5 5 5",
+        "output": "10"
+      }
+    ],
+    "timeLimit": 1000,
+    "memoryLimit": 256,
+    "xp": 10,
+    "estimatedTime": 12,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "// code",
+      "java": "// code",
+      "cpp": "// code"
+    }
+  }
+]

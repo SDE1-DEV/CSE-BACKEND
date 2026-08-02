@@ -7,31 +7,86 @@
     "statement": "You are climbing a staircase. It takes `n` steps to reach the top.\n\nEach time you can either climb `1` or `2` steps. In how many distinct ways can you climb to the top?",
     "constraints": "- `1 <= n <= 45`",
     "examples": [
-      { "input": "n = 2", "output": "2", "explanation": "There are two ways to climb to the top: 1+1, 2" },
-      { "input": "n = 3", "output": "3", "explanation": "There are three ways: 1+1+1, 1+2, 2+1" }
+      {
+        "input": "n = 2",
+        "output": "2",
+        "explanation": "There are two ways to climb to the top: 1+1, 2"
+      },
+      {
+        "input": "n = 3",
+        "output": "3",
+        "explanation": "There are three ways: 1+1+1, 1+2, 2+1"
+      }
     ],
-    "hints": ["This is essentially the Fibonacci sequence.", "dp[i] = dp[i-1] + dp[i-2]"],
-    "tags": ["Math", "Dynamic Programming", "Memoization"],
-    "companies": ["Amazon", "Google", "Microsoft"],
+    "hints": [
+      "This is essentially the Fibonacci sequence.",
+      "dp[i] = dp[i-1] + dp[i-2]"
+    ],
+    "tags": [
+      "Math",
+      "Dynamic Programming",
+      "Memoization"
+    ],
+    "companies": [
+      "Amazon",
+      "Google",
+      "Microsoft"
+    ],
     "visibleTests": [
-      { "input": "2", "output": "2" },
-      { "input": "3", "output": "3" }
+      {
+        "input": "2",
+        "output": "2"
+      },
+      {
+        "input": "3",
+        "output": "3"
+      }
     ],
     "hiddenTests": [
-      { "input": "1", "output": "1" },
-      { "input": "4", "output": "5" },
-      { "input": "5", "output": "8" },
-      { "input": "10", "output": "89" },
-      { "input": "20", "output": "10946" },
-      { "input": "35", "output": "14930352" },
-      { "input": "44", "output": "1134903170" },
-      { "input": "45", "output": "1836311903" }
+      {
+        "input": "1",
+        "output": "1"
+      },
+      {
+        "input": "4",
+        "output": "5"
+      },
+      {
+        "input": "5",
+        "output": "8"
+      },
+      {
+        "input": "10",
+        "output": "89"
+      },
+      {
+        "input": "20",
+        "output": "10946"
+      },
+      {
+        "input": "35",
+        "output": "14930352"
+      },
+      {
+        "input": "44",
+        "output": "1134903170"
+      },
+      {
+        "input": "45",
+        "output": "1836311903"
+      }
     ],
     "timeLimit": 1000,
     "memoryLimit": 256,
     "xp": 10,
     "estimatedTime": 10,
-    "license": "ORIGINAL"
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
   },
   {
     "title": "House Robber",
@@ -41,31 +96,81 @@
     "statement": "You are a professional robber planning to rob houses along a street. Each house has a certain amount of money stashed, the only constraint stopping you from robbing each of them is that adjacent houses have security systems connected and it will automatically contact the police if two adjacent houses were broken into on the same night.\n\nGiven an integer array `nums` representing the amount of money of each house, return the maximum amount of money you can rob tonight without alerting the police.",
     "constraints": "- `1 <= nums.length <= 100`\n- `0 <= nums[i] <= 400`",
     "examples": [
-      { "input": "nums = [1,2,3,1]", "output": "4" },
-      { "input": "nums = [2,7,9,3,1]", "output": "12" }
+      {
+        "input": "nums = [1,2,3,1]",
+        "output": "4"
+      },
+      {
+        "input": "nums = [2,7,9,3,1]",
+        "output": "12"
+      }
     ],
-    "hints": ["dp[i] = max(dp[i-1], dp[i-2] + nums[i])"],
-    "tags": ["Array", "Dynamic Programming"],
-    "companies": ["Amazon", "Google"],
+    "hints": [
+      "dp[i] = max(dp[i-1], dp[i-2] + nums[i])"
+    ],
+    "tags": [
+      "Array",
+      "Dynamic Programming"
+    ],
+    "companies": [
+      "Amazon",
+      "Google"
+    ],
     "visibleTests": [
-      { "input": "4\n1 2 3 1", "output": "4" },
-      { "input": "5\n2 7 9 3 1", "output": "12" }
+      {
+        "input": "4\n1 2 3 1",
+        "output": "4"
+      },
+      {
+        "input": "5\n2 7 9 3 1",
+        "output": "12"
+      }
     ],
     "hiddenTests": [
-      { "input": "1\n5", "output": "5" },
-      { "input": "2\n1 2", "output": "2" },
-      { "input": "3\n2 1 1", "output": "2" },
-      { "input": "5\n1 1 1 1 1", "output": "3" },
-      { "input": "6\n2 7 9 3 1 8", "output": "19" },
-      { "input": "4\n10 0 0 10", "output": "20" },
-      { "input": "3\n0 0 0", "output": "0" },
-      { "input": "6\n4 1 1 4 2 1", "output": "9" }
+      {
+        "input": "1\n5",
+        "output": "5"
+      },
+      {
+        "input": "2\n1 2",
+        "output": "2"
+      },
+      {
+        "input": "3\n2 1 1",
+        "output": "2"
+      },
+      {
+        "input": "5\n1 1 1 1 1",
+        "output": "3"
+      },
+      {
+        "input": "6\n2 7 9 3 1 8",
+        "output": "19"
+      },
+      {
+        "input": "4\n10 0 0 10",
+        "output": "20"
+      },
+      {
+        "input": "3\n0 0 0",
+        "output": "0"
+      },
+      {
+        "input": "6\n4 1 1 4 2 1",
+        "output": "9"
+      }
     ],
     "timeLimit": 1000,
     "memoryLimit": 256,
     "xp": 20,
     "estimatedTime": 20,
-    "license": "ORIGINAL"
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
   },
   {
     "title": "Coin Change",
@@ -75,32 +180,89 @@
     "statement": "You are given an integer array `coins` representing coins of different denominations and an integer `amount` representing a total amount of money.\n\nReturn the fewest number of coins that you need to make up that amount. If that amount of money cannot be made up by any combination of the coins, return `-1`.\n\nYou may assume that you have an infinite number of each kind of coin.",
     "constraints": "- `1 <= coins.length <= 12`\n- `1 <= coins[i] <= 2^31 - 1`\n- `0 <= amount <= 10^4`",
     "examples": [
-      { "input": "coins = [1,2,5], amount = 11", "output": "3", "explanation": "11 = 5 + 5 + 1" },
-      { "input": "coins = [2], amount = 3", "output": "-1" },
-      { "input": "coins = [1], amount = 0", "output": "0" }
+      {
+        "input": "coins = [1,2,5], amount = 11",
+        "output": "3",
+        "explanation": "11 = 5 + 5 + 1"
+      },
+      {
+        "input": "coins = [2], amount = 3",
+        "output": "-1"
+      },
+      {
+        "input": "coins = [1], amount = 0",
+        "output": "0"
+      }
     ],
-    "hints": ["Use bottom-up DP.", "dp[i] = min(dp[i - coin] + 1) for each coin."],
-    "tags": ["Array", "Dynamic Programming", "Breadth-First Search"],
-    "companies": ["Amazon", "Google", "Microsoft"],
+    "hints": [
+      "Use bottom-up DP.",
+      "dp[i] = min(dp[i - coin] + 1) for each coin."
+    ],
+    "tags": [
+      "Array",
+      "Dynamic Programming",
+      "Breadth-First Search"
+    ],
+    "companies": [
+      "Amazon",
+      "Google",
+      "Microsoft"
+    ],
     "visibleTests": [
-      { "input": "3\n1 2 5\n11", "output": "3" },
-      { "input": "1\n2\n3", "output": "-1" }
+      {
+        "input": "3\n1 2 5\n11",
+        "output": "3"
+      },
+      {
+        "input": "1\n2\n3",
+        "output": "-1"
+      }
     ],
     "hiddenTests": [
-      { "input": "1\n1\n0", "output": "0" },
-      { "input": "1\n1\n1", "output": "1" },
-      { "input": "3\n1 2 5\n100", "output": "20" },
-      { "input": "2\n5 10\n15", "output": "2" },
-      { "input": "3\n2 5 10\n3", "output": "-1" },
-      { "input": "4\n1 5 6 9\n11", "output": "2" },
-      { "input": "2\n2 5\n0", "output": "0" },
-      { "input": "3\n3 5 7\n1", "output": "-1" }
+      {
+        "input": "1\n1\n0",
+        "output": "0"
+      },
+      {
+        "input": "1\n1\n1",
+        "output": "1"
+      },
+      {
+        "input": "3\n1 2 5\n100",
+        "output": "20"
+      },
+      {
+        "input": "2\n5 10\n15",
+        "output": "2"
+      },
+      {
+        "input": "3\n2 5 10\n3",
+        "output": "-1"
+      },
+      {
+        "input": "4\n1 5 6 9\n11",
+        "output": "2"
+      },
+      {
+        "input": "2\n2 5\n0",
+        "output": "0"
+      },
+      {
+        "input": "3\n3 5 7\n1",
+        "output": "-1"
+      }
     ],
     "timeLimit": 2000,
     "memoryLimit": 256,
     "xp": 20,
     "estimatedTime": 25,
-    "license": "ORIGINAL"
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
   },
   {
     "title": "Longest Common Subsequence",
@@ -110,32 +272,88 @@
     "statement": "Given two strings `text1` and `text2`, return the length of their longest common subsequence. If there is no common subsequence, return `0`.\n\nA subsequence of a string is a new string generated from the original string with some characters (can be none) deleted without changing the relative order of the remaining characters.\n\nA common subsequence of two strings is a subsequence that is common to both strings.",
     "constraints": "- `1 <= text1.length, text2.length <= 1000`\n- `text1` and `text2` consist of only lowercase English characters.",
     "examples": [
-      { "input": "text1 = \"abcde\", text2 = \"ace\"", "output": "3", "explanation": "The longest common subsequence is \"ace\" and its length is 3." },
-      { "input": "text1 = \"abc\", text2 = \"abc\"", "output": "3" },
-      { "input": "text1 = \"abc\", text2 = \"def\"", "output": "0" }
+      {
+        "input": "text1 = \"abcde\", text2 = \"ace\"",
+        "output": "3",
+        "explanation": "The longest common subsequence is \"ace\" and its length is 3."
+      },
+      {
+        "input": "text1 = \"abc\", text2 = \"abc\"",
+        "output": "3"
+      },
+      {
+        "input": "text1 = \"abc\", text2 = \"def\"",
+        "output": "0"
+      }
     ],
-    "hints": ["dp[i][j] = length of LCS of text1[0..i] and text2[0..j].", "If text1[i] == text2[j], dp[i][j] = dp[i-1][j-1] + 1."],
-    "tags": ["String", "Dynamic Programming"],
-    "companies": ["Google", "Amazon", "Microsoft"],
+    "hints": [
+      "dp[i][j] = length of LCS of text1[0..i] and text2[0..j].",
+      "If text1[i] == text2[j], dp[i][j] = dp[i-1][j-1] + 1."
+    ],
+    "tags": [
+      "String",
+      "Dynamic Programming"
+    ],
+    "companies": [
+      "Google",
+      "Amazon",
+      "Microsoft"
+    ],
     "visibleTests": [
-      { "input": "abcde\nace", "output": "3" },
-      { "input": "abc\nabc", "output": "3" }
+      {
+        "input": "abcde\nace",
+        "output": "3"
+      },
+      {
+        "input": "abc\nabc",
+        "output": "3"
+      }
     ],
     "hiddenTests": [
-      { "input": "abc\ndef", "output": "0" },
-      { "input": "a\na", "output": "1" },
-      { "input": "abcde\nbde", "output": "3" },
-      { "input": "bl\nybyel", "output": "2" },
-      { "input": "ezupkr\nubmrapg", "output": "2" },
-      { "input": "hofubmnylkra\nohklkufryhbm", "output": "6" },
-      { "input": "aaaaaa\naaaa", "output": "4" },
-      { "input": "abcd\ndcba", "output": "1" }
+      {
+        "input": "abc\ndef",
+        "output": "0"
+      },
+      {
+        "input": "a\na",
+        "output": "1"
+      },
+      {
+        "input": "abcde\nbde",
+        "output": "3"
+      },
+      {
+        "input": "bl\nybyel",
+        "output": "2"
+      },
+      {
+        "input": "ezupkr\nubmrapg",
+        "output": "2"
+      },
+      {
+        "input": "hofubmnylkra\nohklkufryhbm",
+        "output": "6"
+      },
+      {
+        "input": "aaaaaa\naaaa",
+        "output": "4"
+      },
+      {
+        "input": "abcd\ndcba",
+        "output": "1"
+      }
     ],
     "timeLimit": 2000,
     "memoryLimit": 256,
     "xp": 20,
     "estimatedTime": 30,
-    "license": "ORIGINAL"
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
   },
   {
     "title": "Word Break",
@@ -145,65 +363,1589 @@
     "statement": "Given a string `s` and a dictionary of strings `wordDict`, return `true` if `s` can be segmented into a space-separated sequence of one or more dictionary words.\n\nNote that the same word in the dictionary may be reused multiple times in the segmentation.",
     "constraints": "- `1 <= s.length <= 300`\n- `1 <= wordDict.length <= 1000`\n- `1 <= wordDict[i].length <= 20`\n- `s` and `wordDict[i]` consist of only lowercase English letters.\n- All the strings of `wordDict` are unique.",
     "examples": [
-      { "input": "s = \"leetcode\", wordDict = [\"leet\",\"code\"]", "output": "true" },
-      { "input": "s = \"applepenapple\", wordDict = [\"apple\",\"pen\"]", "output": "true" },
-      { "input": "s = \"catsandog\", wordDict = [\"cats\",\"dog\",\"sand\",\"and\",\"cat\"]", "output": "false" }
+      {
+        "input": "s = \"leetcode\", wordDict = [\"leet\",\"code\"]",
+        "output": "true"
+      },
+      {
+        "input": "s = \"applepenapple\", wordDict = [\"apple\",\"pen\"]",
+        "output": "true"
+      },
+      {
+        "input": "s = \"catsandog\", wordDict = [\"cats\",\"dog\",\"sand\",\"and\",\"cat\"]",
+        "output": "false"
+      }
     ],
-    "hints": ["dp[i] = can we partition s[0..i-1] using words in dict.", "dp[i] = true if dp[j] is true and s[j..i] is in dict for some j < i."],
-    "tags": ["Hash Table", "String", "Dynamic Programming", "Trie", "Memoization"],
-    "companies": ["Amazon", "Google", "Microsoft"],
+    "hints": [
+      "dp[i] = can we partition s[0..i-1] using words in dict.",
+      "dp[i] = true if dp[j] is true and s[j..i] is in dict for some j < i."
+    ],
+    "tags": [
+      "Hash Table",
+      "String",
+      "Dynamic Programming",
+      "Trie",
+      "Memoization"
+    ],
+    "companies": [
+      "Amazon",
+      "Google",
+      "Microsoft"
+    ],
     "visibleTests": [
-      { "input": "leetcode\n2\nleet code", "output": "true" },
-      { "input": "applepenapple\n2\napple pen", "output": "true" }
+      {
+        "input": "leetcode\n2\nleet code",
+        "output": "true"
+      },
+      {
+        "input": "applepenapple\n2\napple pen",
+        "output": "true"
+      }
     ],
     "hiddenTests": [
-      { "input": "catsandog\n5\ncats dog sand and cat", "output": "false" },
-      { "input": "a\n1\na", "output": "true" },
-      { "input": "ab\n2\na ab", "output": "true" },
-      { "input": "cars\n3\ncar ca rs", "output": "true" },
-      { "input": "aaaaaaa\n2\naaaa aaa", "output": "true" },
-      { "input": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaab\n2\naa aaa", "output": "false" },
-      { "input": "hello\n2\nhel lo", "output": "true" },
-      { "input": "abc\n1\nab", "output": "false" }
+      {
+        "input": "catsandog\n5\ncats dog sand and cat",
+        "output": "false"
+      },
+      {
+        "input": "a\n1\na",
+        "output": "true"
+      },
+      {
+        "input": "ab\n2\na ab",
+        "output": "true"
+      },
+      {
+        "input": "cars\n3\ncar ca rs",
+        "output": "true"
+      },
+      {
+        "input": "aaaaaaa\n2\naaaa aaa",
+        "output": "true"
+      },
+      {
+        "input": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaab\n2\naa aaa",
+        "output": "false"
+      },
+      {
+        "input": "hello\n2\nhel lo",
+        "output": "true"
+      },
+      {
+        "input": "abc\n1\nab",
+        "output": "false"
+      }
     ],
     "timeLimit": 2000,
     "memoryLimit": 256,
     "xp": 20,
     "estimatedTime": 30,
-    "license": "ORIGINAL"
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
   },
   {
     "title": "Edit Distance",
     "slug": "edit-distance",
-    "difficulty": "HARD",
+    "difficulty": "MEDIUM",
     "topic": "dynamic-programming",
     "statement": "Given two strings `word1` and `word2`, return the minimum number of operations required to convert `word1` to `word2`.\n\nYou have the following three operations permitted on a word:\n- Insert a character\n- Delete a character\n- Replace a character",
     "constraints": "- `0 <= word1.length, word2.length <= 500`\n- `word1` and `word2` consist of lowercase English letters.",
     "examples": [
-      { "input": "word1 = \"horse\", word2 = \"ros\"", "output": "3" },
-      { "input": "word1 = \"intention\", word2 = \"execution\"", "output": "5" }
+      {
+        "input": "word1 = \"horse\", word2 = \"ros\"",
+        "output": "3"
+      },
+      {
+        "input": "word1 = \"intention\", word2 = \"execution\"",
+        "output": "5"
+      }
     ],
-    "hints": ["Classic 2D DP.", "dp[i][j] = edit distance for word1[0..i-1] and word2[0..j-1]."],
-    "tags": ["String", "Dynamic Programming"],
-    "companies": ["Google", "Amazon", "Microsoft"],
+    "hints": [
+      "Classic 2D DP.",
+      "dp[i][j] = edit distance for word1[0..i-1] and word2[0..j-1]."
+    ],
+    "tags": [
+      "String",
+      "Dynamic Programming"
+    ],
+    "companies": [
+      "Google",
+      "Amazon",
+      "Microsoft"
+    ],
     "visibleTests": [
-      { "input": "horse\nros", "output": "3" },
-      { "input": "intention\nexecution", "output": "5" }
+      {
+        "input": "horse\nros",
+        "output": "3"
+      },
+      {
+        "input": "intention\nexecution",
+        "output": "5"
+      }
     ],
     "hiddenTests": [
-      { "input": "a\nb", "output": "1" },
-      { "input": "abc\nabc", "output": "0" },
-      { "input": "\nabc", "output": "3" },
-      { "input": "abc\n", "output": "3" },
-      { "input": "kitten\nsitting", "output": "3" },
-      { "input": "abc\ndef", "output": "3" },
-      { "input": "abcde\nafce", "output": "2" },
-      { "input": "sunday\nsaturday", "output": "3" }
+      {
+        "input": "a\nb",
+        "output": "1"
+      },
+      {
+        "input": "abc\nabc",
+        "output": "0"
+      },
+      {
+        "input": "\nabc",
+        "output": "3"
+      },
+      {
+        "input": "abc\n",
+        "output": "3"
+      },
+      {
+        "input": "kitten\nsitting",
+        "output": "3"
+      },
+      {
+        "input": "abc\ndef",
+        "output": "3"
+      },
+      {
+        "input": "abcde\nafce",
+        "output": "2"
+      },
+      {
+        "input": "sunday\nsaturday",
+        "output": "3"
+      }
     ],
     "timeLimit": 2000,
     "memoryLimit": 256,
-    "xp": 30,
+    "xp": 20,
     "estimatedTime": 45,
-    "license": "ORIGINAL"
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Minimum Coins for Change",
+    "slug": "minimum-coins-for-change",
+    "difficulty": "MEDIUM",
+    "topic": "dynamic-programming",
+    "statement": "You are given an integer array `coins` (distinct denominations) and an integer `amount`. Return the **minimum number of coins** needed to make up `amount`. If not possible, return `-1`.",
+    "constraints": "- `1 <= coins.length <= 12`\n- `1 <= coins[i] <= 2^31 - 1`\n- `0 <= amount <= 10^4`",
+    "examples": [
+      {
+        "input": "3\n1 5 6\n11",
+        "output": "2"
+      },
+      {
+        "input": "3\n1 2 5\n11",
+        "output": "3"
+      }
+    ],
+    "hints": [
+      "dp[i] = minimum coins to make amount i.",
+      "dp[i] = min(dp[i-coin]+1) for each coin <= i."
+    ],
+    "tags": [
+      "Dynamic Programming",
+      "Array",
+      "BFS"
+    ],
+    "companies": [
+      "Amazon",
+      "Google",
+      "Meta"
+    ],
+    "visibleTests": [
+      {
+        "input": "3\n1 5 6\n11",
+        "output": "2"
+      },
+      {
+        "input": "3\n1 2 5\n11",
+        "output": "3"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "1\n2\n3",
+        "output": "-1"
+      },
+      {
+        "input": "1\n1\n0",
+        "output": "0"
+      },
+      {
+        "input": "1\n1\n5",
+        "output": "5"
+      },
+      {
+        "input": "3\n2 5 10\n3",
+        "output": "-1"
+      },
+      {
+        "input": "3\n1 2 5\n100",
+        "output": "20"
+      },
+      {
+        "input": "2\n1 2\n10",
+        "output": "5"
+      },
+      {
+        "input": "3\n3 5 7\n15",
+        "output": "3"
+      },
+      {
+        "input": "2\n5 7\n14",
+        "output": "2"
+      },
+      {
+        "input": "2\n2 3\n7",
+        "output": "3"
+      },
+      {
+        "input": "3\n186 419 83 408\n6249",
+        "output": "20"
+      }
+    ],
+    "timeLimit": 2000,
+    "memoryLimit": 256,
+    "xp": 20,
+    "estimatedTime": 25,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\nlet idx = 0;\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Unique Paths in Grid",
+    "slug": "unique-paths-in-grid",
+    "difficulty": "MEDIUM",
+    "topic": "dynamic-programming",
+    "statement": "A robot is on an `m x n` grid and wants to move from the top-left to the bottom-right corner. The robot can only move **right** or **down**. Count the number of unique paths.",
+    "constraints": "- `1 <= m, n <= 100`",
+    "examples": [
+      {
+        "input": "3 7",
+        "output": "28"
+      },
+      {
+        "input": "3 2",
+        "output": "3"
+      }
+    ],
+    "hints": [
+      "dp[i][j] = dp[i-1][j] + dp[i][j-1]",
+      "First row and column are all 1s."
+    ],
+    "tags": [
+      "Dynamic Programming",
+      "Math"
+    ],
+    "companies": [
+      "Amazon",
+      "Google",
+      "Microsoft"
+    ],
+    "visibleTests": [
+      {
+        "input": "3 7",
+        "output": "28"
+      },
+      {
+        "input": "3 2",
+        "output": "3"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "1 1",
+        "output": "1"
+      },
+      {
+        "input": "1 10",
+        "output": "1"
+      },
+      {
+        "input": "10 1",
+        "output": "1"
+      },
+      {
+        "input": "2 2",
+        "output": "2"
+      },
+      {
+        "input": "5 5",
+        "output": "70"
+      },
+      {
+        "input": "3 3",
+        "output": "6"
+      },
+      {
+        "input": "4 4",
+        "output": "20"
+      },
+      {
+        "input": "100 100",
+        "output": "22750883079422426656880"
+      },
+      {
+        "input": "7 3",
+        "output": "28"
+      },
+      {
+        "input": "5 4",
+        "output": "35"
+      }
+    ],
+    "timeLimit": 1000,
+    "memoryLimit": 256,
+    "xp": 20,
+    "estimatedTime": 20,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\nlet idx = 0;\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Minimum Path Sum",
+    "slug": "minimum-path-sum",
+    "difficulty": "MEDIUM",
+    "topic": "dynamic-programming",
+    "statement": "Given a 2D grid of non-negative integers, find a path from top-left to bottom-right that **minimizes the sum** of all numbers along its path. You can only move right or down.",
+    "constraints": "- `1 <= m, n <= 200`\n- `0 <= grid[i][j] <= 200`",
+    "examples": [
+      {
+        "input": "3 3\n1 3 1\n1 5 1\n4 2 1",
+        "output": "7"
+      },
+      {
+        "input": "2 3\n1 2 3\n4 5 6",
+        "output": "12"
+      }
+    ],
+    "hints": [
+      "dp[i][j] = grid[i][j] + min(dp[i-1][j], dp[i][j-1])"
+    ],
+    "tags": [
+      "Array",
+      "Dynamic Programming",
+      "Matrix"
+    ],
+    "companies": [
+      "Amazon",
+      "Google",
+      "Adobe"
+    ],
+    "visibleTests": [
+      {
+        "input": "3 3\n1 3 1\n1 5 1\n4 2 1",
+        "output": "7"
+      },
+      {
+        "input": "2 3\n1 2 3\n4 5 6",
+        "output": "12"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "1 1\n5",
+        "output": "5"
+      },
+      {
+        "input": "1 3\n1 2 3",
+        "output": "6"
+      },
+      {
+        "input": "3 1\n1\n2\n3",
+        "output": "6"
+      },
+      {
+        "input": "2 2\n1 2\n3 4",
+        "output": "7"
+      },
+      {
+        "input": "3 3\n0 0 0\n0 0 0\n0 0 0",
+        "output": "0"
+      },
+      {
+        "input": "2 2\n0 5\n4 0",
+        "output": "4"
+      },
+      {
+        "input": "3 3\n1 2 3\n4 5 6\n7 8 9",
+        "output": "21"
+      },
+      {
+        "input": "2 2\n1 1\n1 1",
+        "output": "3"
+      },
+      {
+        "input": "4 4\n1 2 3 4\n5 6 7 8\n9 10 11 12\n13 14 15 16",
+        "output": "52"
+      },
+      {
+        "input": "3 3\n5 1 1\n1 5 1\n1 1 5",
+        "output": "9"
+      }
+    ],
+    "timeLimit": 1000,
+    "memoryLimit": 256,
+    "xp": 20,
+    "estimatedTime": 20,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\nlet idx = 0;\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Dice Throw Sum Count",
+    "slug": "dice-throw-sum-count",
+    "difficulty": "MEDIUM",
+    "topic": "dynamic-programming",
+    "statement": "Given `n` dice each with `m` faces (numbered 1 to m), count the number of ways to get a target sum `x`.",
+    "constraints": "- `1 <= n <= 50`\n- `1 <= m <= 50`\n- `n <= x <= n*m`",
+    "examples": [
+      {
+        "input": "2 6 7",
+        "output": "6"
+      },
+      {
+        "input": "3 4 5",
+        "output": "6"
+      }
+    ],
+    "hints": [
+      "dp[i][j] = number of ways to get sum j with i dice.",
+      "For each face value f: dp[i][j] += dp[i-1][j-f]."
+    ],
+    "tags": [
+      "Dynamic Programming"
+    ],
+    "companies": [
+      "Amazon",
+      "Google"
+    ],
+    "visibleTests": [
+      {
+        "input": "2 6 7",
+        "output": "6"
+      },
+      {
+        "input": "3 4 5",
+        "output": "6"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "1 6 3",
+        "output": "1"
+      },
+      {
+        "input": "2 4 1",
+        "output": "0"
+      },
+      {
+        "input": "2 4 8",
+        "output": "1"
+      },
+      {
+        "input": "1 10 10",
+        "output": "1"
+      },
+      {
+        "input": "2 6 2",
+        "output": "1"
+      },
+      {
+        "input": "3 6 18",
+        "output": "1"
+      },
+      {
+        "input": "3 6 9",
+        "output": "25"
+      },
+      {
+        "input": "2 3 4",
+        "output": "3"
+      },
+      {
+        "input": "4 2 6",
+        "output": "4"
+      },
+      {
+        "input": "2 10 11",
+        "output": "10"
+      }
+    ],
+    "timeLimit": 2000,
+    "memoryLimit": 256,
+    "xp": 20,
+    "estimatedTime": 25,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\nlet idx = 0;\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Word Break Check",
+    "slug": "word-break-check",
+    "difficulty": "MEDIUM",
+    "topic": "dynamic-programming",
+    "statement": "Given a string `s` and a dictionary of words, return `true` if `s` can be segmented into a space-separated sequence of dictionary words.\n\nYou may reuse dictionary words.",
+    "constraints": "- `1 <= s.length <= 300`\n- `1 <= wordDict.size <= 1000`\n- `1 <= wordDict[i].length <= 20`\n- `s` and dictionary words consist of lowercase English letters.",
+    "examples": [
+      {
+        "input": "leetcode\n2\nleet code",
+        "output": "true"
+      },
+      {
+        "input": "catsandog\n2\ncats dog",
+        "output": "false"
+      }
+    ],
+    "hints": [
+      "dp[i] = true if s[0..i-1] can be segmented.",
+      "For each i, check all j < i where dp[j] is true and s[j..i] is in the dictionary."
+    ],
+    "tags": [
+      "Dynamic Programming",
+      "Hash Table",
+      "String"
+    ],
+    "companies": [
+      "Amazon",
+      "Google",
+      "Meta",
+      "Microsoft"
+    ],
+    "visibleTests": [
+      {
+        "input": "leetcode\n2\nleet code",
+        "output": "true"
+      },
+      {
+        "input": "catsandog\n2\ncats dog",
+        "output": "false"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "applepenapple\n2\napple pen",
+        "output": "true"
+      },
+      {
+        "input": "catsanddog\n3\ncat cats and sand dog",
+        "output": "true"
+      },
+      {
+        "input": "ab\n2\na b",
+        "output": "true"
+      },
+      {
+        "input": "a\n1\na",
+        "output": "true"
+      },
+      {
+        "input": "abcd\n2\nab cd",
+        "output": "true"
+      },
+      {
+        "input": "hello\n1\nhell",
+        "output": "false"
+      },
+      {
+        "input": "programming\n2\npro gramming",
+        "output": "true"
+      },
+      {
+        "input": "aaaa\n1\naa",
+        "output": "true"
+      },
+      {
+        "input": "abc\n3\na bc ab c",
+        "output": "true"
+      },
+      {
+        "input": "xyz\n2\nxy z",
+        "output": "true"
+      }
+    ],
+    "timeLimit": 2000,
+    "memoryLimit": 256,
+    "xp": 20,
+    "estimatedTime": 25,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\nlet idx = 0;\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Longest Increasing Subsequence",
+    "slug": "longest-increasing-subsequence",
+    "difficulty": "MEDIUM",
+    "topic": "dynamic-programming",
+    "statement": "Given an integer array `nums`, return the length of the **longest strictly increasing subsequence**.",
+    "constraints": "- `1 <= nums.length <= 2500`\n- `-10^4 <= nums[i] <= 10^4`",
+    "examples": [
+      {
+        "input": "8\n10 9 2 5 3 7 101 18",
+        "output": "4"
+      },
+      {
+        "input": "3\n0 1 0",
+        "output": "2"
+      }
+    ],
+    "hints": [
+      "dp[i] = length of LIS ending at index i.",
+      "dp[i] = 1 + max(dp[j]) for all j < i where nums[j] < nums[i]."
+    ],
+    "tags": [
+      "Array",
+      "Binary Search",
+      "Dynamic Programming"
+    ],
+    "companies": [
+      "Amazon",
+      "Google",
+      "Microsoft",
+      "Meta"
+    ],
+    "visibleTests": [
+      {
+        "input": "8\n10 9 2 5 3 7 101 18",
+        "output": "4"
+      },
+      {
+        "input": "3\n0 1 0",
+        "output": "2"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "6\n7 7 7 7 7 7",
+        "output": "1"
+      },
+      {
+        "input": "5\n1 2 3 4 5",
+        "output": "5"
+      },
+      {
+        "input": "5\n5 4 3 2 1",
+        "output": "1"
+      },
+      {
+        "input": "1\n5",
+        "output": "1"
+      },
+      {
+        "input": "6\n3 5 6 2 5 4",
+        "output": "3"
+      },
+      {
+        "input": "7\n1 3 6 7 9 4 10",
+        "output": "6"
+      },
+      {
+        "input": "5\n2 3 7 101 18",
+        "output": "4"
+      },
+      {
+        "input": "6\n1 1 1 1 1 1",
+        "output": "1"
+      },
+      {
+        "input": "8\n3 6 2 7 1 5 8 4",
+        "output": "4"
+      },
+      {
+        "input": "5\n-5 -3 -1 0 2",
+        "output": "5"
+      }
+    ],
+    "timeLimit": 2000,
+    "memoryLimit": 256,
+    "xp": 20,
+    "estimatedTime": 30,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\nlet idx = 0;\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Partition Equal Subset Sum",
+    "slug": "partition-equal-subset-sum",
+    "difficulty": "MEDIUM",
+    "topic": "dynamic-programming",
+    "statement": "Given an integer array `nums`, determine if it can be partitioned into **two subsets with equal sum**. Return `true` or `false`.",
+    "constraints": "- `1 <= nums.length <= 200`\n- `1 <= nums[i] <= 100`",
+    "examples": [
+      {
+        "input": "4\n1 5 11 5",
+        "output": "true"
+      },
+      {
+        "input": "4\n1 2 3 5",
+        "output": "false"
+      }
+    ],
+    "hints": [
+      "The total sum must be even. Target = sum/2.",
+      "0/1 Knapsack: can we pick items summing to target?"
+    ],
+    "tags": [
+      "Array",
+      "Dynamic Programming"
+    ],
+    "companies": [
+      "Amazon",
+      "Google",
+      "Meta"
+    ],
+    "visibleTests": [
+      {
+        "input": "4\n1 5 11 5",
+        "output": "true"
+      },
+      {
+        "input": "4\n1 2 3 5",
+        "output": "false"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "1\n1",
+        "output": "false"
+      },
+      {
+        "input": "2\n1 1",
+        "output": "true"
+      },
+      {
+        "input": "4\n3 1 1 2",
+        "output": "true"
+      },
+      {
+        "input": "5\n1 2 5 4 3",
+        "output": "true"
+      },
+      {
+        "input": "3\n1 2 3",
+        "output": "true"
+      },
+      {
+        "input": "4\n1 1 1 1",
+        "output": "true"
+      },
+      {
+        "input": "5\n1 2 3 5 7",
+        "output": "true"
+      },
+      {
+        "input": "3\n2 2 1",
+        "output": "false"
+      },
+      {
+        "input": "4\n100 100 100 100",
+        "output": "true"
+      },
+      {
+        "input": "5\n1 100 1 100 1",
+        "output": "false"
+      }
+    ],
+    "timeLimit": 2000,
+    "memoryLimit": 256,
+    "xp": 20,
+    "estimatedTime": 30,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\nlet idx = 0;\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Count Staircase Ways",
+    "slug": "count-staircase-ways",
+    "difficulty": "EASY",
+    "topic": "dynamic-programming",
+    "statement": "You are climbing a staircase with `n` steps. Each time you can climb 1, 2, or 3 steps. Count the number of distinct ways to reach the top.",
+    "constraints": "- `1 <= n <= 30`",
+    "examples": [
+      {
+        "input": "4",
+        "output": "7"
+      },
+      {
+        "input": "3",
+        "output": "4"
+      }
+    ],
+    "hints": [
+      "dp[i] = dp[i-1] + dp[i-2] + dp[i-3] with base cases dp[0]=1, dp[1]=1, dp[2]=2."
+    ],
+    "tags": [
+      "Dynamic Programming"
+    ],
+    "companies": [
+      "Amazon",
+      "Google"
+    ],
+    "visibleTests": [
+      {
+        "input": "4",
+        "output": "7"
+      },
+      {
+        "input": "3",
+        "output": "4"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "1",
+        "output": "1"
+      },
+      {
+        "input": "2",
+        "output": "2"
+      },
+      {
+        "input": "5",
+        "output": "13"
+      },
+      {
+        "input": "6",
+        "output": "24"
+      },
+      {
+        "input": "7",
+        "output": "44"
+      },
+      {
+        "input": "10",
+        "output": "274"
+      },
+      {
+        "input": "15",
+        "output": "5768"
+      },
+      {
+        "input": "20",
+        "output": "121415"
+      },
+      {
+        "input": "25",
+        "output": "2555757"
+      },
+      {
+        "input": "30",
+        "output": "53798080"
+      }
+    ],
+    "timeLimit": 1000,
+    "memoryLimit": 256,
+    "xp": 10,
+    "estimatedTime": 12,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\nlet idx = 0;\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Maximum Product Subarray",
+    "slug": "maximum-product-subarray",
+    "difficulty": "MEDIUM",
+    "topic": "dynamic-programming",
+    "statement": "Given an integer array `nums`, find the contiguous subarray that has the **largest product** and return that product.",
+    "constraints": "- `1 <= nums.length <= 2 * 10^4`\n- `-10 <= nums[i] <= 10`\n- The product of any prefix or suffix of `nums` is guaranteed to fit in a 32-bit integer.",
+    "examples": [
+      {
+        "input": "6\n2 3 -2 4",
+        "output": "6"
+      },
+      {
+        "input": "3\n-2 0 -1",
+        "output": "0"
+      }
+    ],
+    "hints": [
+      "Track both the max and min product ending at current position (since neg*neg = pos).",
+      "At each step: max_cur = max(nums[i], max_prev*nums[i], min_prev*nums[i])."
+    ],
+    "tags": [
+      "Array",
+      "Dynamic Programming"
+    ],
+    "companies": [
+      "Amazon",
+      "Google",
+      "Microsoft",
+      "LinkedIn"
+    ],
+    "visibleTests": [
+      {
+        "input": "4\n2 3 -2 4",
+        "output": "6"
+      },
+      {
+        "input": "3\n-2 0 -1",
+        "output": "0"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "1\n-2",
+        "output": "-2"
+      },
+      {
+        "input": "5\n-2 3 -4",
+        "output": "24"
+      },
+      {
+        "input": "3\n2 -5 -2",
+        "output": "20"
+      },
+      {
+        "input": "4\n0 2 -5 0",
+        "output": "2"
+      },
+      {
+        "input": "5\n1 2 3 4 5",
+        "output": "120"
+      },
+      {
+        "input": "5\n-1 -2 -3 -4",
+        "output": "24"
+      },
+      {
+        "input": "5\n2 3 0 4 5",
+        "output": "20"
+      },
+      {
+        "input": "4\n-3 -1 -1 0",
+        "output": "3"
+      },
+      {
+        "input": "5\n1 0 -1 0 1",
+        "output": "1"
+      },
+      {
+        "input": "4\n-4 -3 -2 1",
+        "output": "24"
+      }
+    ],
+    "timeLimit": 1000,
+    "memoryLimit": 256,
+    "xp": 20,
+    "estimatedTime": 20,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\nlet idx = 0;\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Triangle Minimum Path Sum",
+    "slug": "triangle-minimum-path-sum",
+    "difficulty": "MEDIUM",
+    "topic": "dynamic-programming",
+    "statement": "Given a triangle (as rows of numbers), find the minimum path sum from top to bottom. At each step you may move to adjacent numbers on the row below.",
+    "constraints": "- `1 <= triangle.length <= 200`\n- `triangle[i].length == i + 1`\n- `-10^4 <= triangle[i][j] <= 10^4`",
+    "examples": [
+      {
+        "input": "4\n2\n3 4\n6 5 7\n4 1 8 3",
+        "output": "11"
+      },
+      {
+        "input": "1\n-10",
+        "output": "-10"
+      }
+    ],
+    "hints": [
+      "Work bottom-up: for each element add the minimum of the two below.",
+      "dp[i] = triangle[row][i] + min(dp[i], dp[i+1])."
+    ],
+    "tags": [
+      "Array",
+      "Dynamic Programming"
+    ],
+    "companies": [
+      "Amazon",
+      "Google",
+      "Microsoft"
+    ],
+    "visibleTests": [
+      {
+        "input": "4\n2\n3 4\n6 5 7\n4 1 8 3",
+        "output": "11"
+      },
+      {
+        "input": "1\n-10",
+        "output": "-10"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "1\n1",
+        "output": "1"
+      },
+      {
+        "input": "2\n1\n2 3",
+        "output": "3"
+      },
+      {
+        "input": "3\n2\n3 4\n6 5 7",
+        "output": "10"
+      },
+      {
+        "input": "3\n-1\n2 3\n1 -1 -3",
+        "output": "-1"
+      },
+      {
+        "input": "4\n1\n2 3\n4 5 6\n7 8 9 10",
+        "output": "14"
+      },
+      {
+        "input": "3\n5\n1 2\n3 4 5",
+        "output": "9"
+      },
+      {
+        "input": "4\n2\n3 2\n6 5 7\n4 4 8 1",
+        "output": "11"
+      },
+      {
+        "input": "2\n0\n5 0",
+        "output": "0"
+      },
+      {
+        "input": "3\n1\n3 5\n2 1 4",
+        "output": "5"
+      },
+      {
+        "input": "5\n5\n9 6\n4 6 8\n0 7 1 5\n0 1 2 3 4",
+        "output": "10"
+      }
+    ],
+    "timeLimit": 2000,
+    "memoryLimit": 256,
+    "xp": 20,
+    "estimatedTime": 20,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Fibonacci with Memoization",
+    "slug": "fibonacci-memoization",
+    "difficulty": "EASY",
+    "topic": "dynamic-programming",
+    "statement": "Given `n`, compute the nth Fibonacci number (0-indexed: F(0)=0, F(1)=1, F(n)=F(n-1)+F(n-2)). Since the answer can be large, return it modulo `10^9 + 7`.",
+    "constraints": "- `0 <= n <= 10^5`",
+    "examples": [
+      {
+        "input": "10",
+        "output": "55"
+      },
+      {
+        "input": "0",
+        "output": "0"
+      }
+    ],
+    "hints": [
+      "Use DP or iterative computation with two variables.",
+      "Apply modulo at each step."
+    ],
+    "tags": [
+      "Math",
+      "Dynamic Programming",
+      "Recursion",
+      "Memoization"
+    ],
+    "companies": [
+      "Amazon",
+      "Google"
+    ],
+    "visibleTests": [
+      {
+        "input": "10",
+        "output": "55"
+      },
+      {
+        "input": "0",
+        "output": "0"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "1",
+        "output": "1"
+      },
+      {
+        "input": "2",
+        "output": "1"
+      },
+      {
+        "input": "5",
+        "output": "5"
+      },
+      {
+        "input": "20",
+        "output": "6765"
+      },
+      {
+        "input": "50",
+        "output": "12586269025"
+      },
+      {
+        "input": "100",
+        "output": "354224848179261915075"
+      },
+      {
+        "input": "40",
+        "output": "102334155"
+      },
+      {
+        "input": "30",
+        "output": "832040"
+      },
+      {
+        "input": "70",
+        "output": "190392490709135"
+      },
+      {
+        "input": "1000",
+        "output": "517691607"
+      }
+    ],
+    "timeLimit": 2000,
+    "memoryLimit": 256,
+    "xp": 10,
+    "estimatedTime": 10,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\ndef solve():\n    pass\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\n// code",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Count Paths With Obstacles",
+    "slug": "count-paths-with-obstacles",
+    "difficulty": "MEDIUM",
+    "topic": "dynamic-programming",
+    "statement": "Given an m×n grid with obstacles (1=obstacle, 0=free), count the number of unique paths from top-left to bottom-right moving only right or down. Return answer modulo 10^9+7.",
+    "constraints": "- `1 <= m, n <= 100`\n- `grid[i][j]` is `0` or `1`.",
+    "examples": [
+      {
+        "input": "3 3\n0 0 0\n0 1 0\n0 0 0",
+        "output": "2"
+      },
+      {
+        "input": "2 2\n0 1\n0 0",
+        "output": "1"
+      }
+    ],
+    "hints": [
+      "dp[i][j] = dp[i-1][j] + dp[i][j-1] if no obstacle.",
+      "dp[i][j] = 0 if obstacle."
+    ],
+    "tags": [
+      "Array",
+      "Dynamic Programming",
+      "Matrix"
+    ],
+    "companies": [
+      "Amazon",
+      "Google",
+      "Microsoft"
+    ],
+    "visibleTests": [
+      {
+        "input": "3 3\n0 0 0\n0 1 0\n0 0 0",
+        "output": "2"
+      },
+      {
+        "input": "2 2\n0 1\n0 0",
+        "output": "1"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "1 1\n0",
+        "output": "1"
+      },
+      {
+        "input": "1 1\n1",
+        "output": "0"
+      },
+      {
+        "input": "3 3\n0 0 0\n0 0 0\n0 0 0",
+        "output": "6"
+      },
+      {
+        "input": "2 3\n0 0 0\n0 0 0",
+        "output": "3"
+      },
+      {
+        "input": "3 2\n0 0\n0 0\n0 0",
+        "output": "3"
+      },
+      {
+        "input": "3 3\n0 1 0\n0 0 0\n0 1 0",
+        "output": "2"
+      },
+      {
+        "input": "3 3\n0 0 0\n1 1 0\n0 0 0",
+        "output": "1"
+      },
+      {
+        "input": "4 4\n0 0 0 0\n0 1 0 0\n0 0 1 0\n0 0 0 0",
+        "output": "4"
+      },
+      {
+        "input": "2 2\n1 0\n0 0",
+        "output": "0"
+      },
+      {
+        "input": "3 3\n0 0 0\n0 0 1\n0 1 0",
+        "output": "0"
+      }
+    ],
+    "timeLimit": 1000,
+    "memoryLimit": 256,
+    "xp": 20,
+    "estimatedTime": 20,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\ndef solve():\n    pass\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\n// code",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Decode Ways Count",
+    "slug": "decode-ways-count",
+    "difficulty": "MEDIUM",
+    "topic": "dynamic-programming",
+    "statement": "A message is encoded where `A=1, B=2, ..., Z=26`. Given a string of digits, count the number of ways to decode it.",
+    "constraints": "- `1 <= s.length <= 100`\n- `s` contains only digits\n- `s[0] != '0'`",
+    "examples": [
+      {
+        "input": "12",
+        "output": "2"
+      },
+      {
+        "input": "226",
+        "output": "3"
+      }
+    ],
+    "hints": [
+      "dp[i] = ways to decode s[0..i-1].",
+      "Single digit: dp[i] += dp[i-1] if s[i-1] != 0.",
+      "Two digits: dp[i] += dp[i-2] if 10 <= int(s[i-2..i-1]) <= 26."
+    ],
+    "tags": [
+      "String",
+      "Dynamic Programming"
+    ],
+    "companies": [
+      "Amazon",
+      "Google",
+      "Microsoft",
+      "Meta"
+    ],
+    "visibleTests": [
+      {
+        "input": "12",
+        "output": "2"
+      },
+      {
+        "input": "226",
+        "output": "3"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "0",
+        "output": "0"
+      },
+      {
+        "input": "1",
+        "output": "1"
+      },
+      {
+        "input": "10",
+        "output": "1"
+      },
+      {
+        "input": "11",
+        "output": "2"
+      },
+      {
+        "input": "121",
+        "output": "3"
+      },
+      {
+        "input": "1201234",
+        "output": "3"
+      },
+      {
+        "input": "111",
+        "output": "3"
+      },
+      {
+        "input": "27",
+        "output": "1"
+      },
+      {
+        "input": "2611055971756562",
+        "output": "4"
+      },
+      {
+        "input": "301",
+        "output": "0"
+      }
+    ],
+    "timeLimit": 1000,
+    "memoryLimit": 256,
+    "xp": 20,
+    "estimatedTime": 25,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\ndef solve():\n    pass\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\n// code",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Paint Houses Minimum Cost",
+    "slug": "paint-houses-minimum-cost",
+    "difficulty": "MEDIUM",
+    "topic": "dynamic-programming",
+    "statement": "There are `n` houses in a row. Each house can be painted red (0), blue (1), or green (2). Adjacent houses must not be the same color. Given an n×3 cost matrix, find the minimum cost to paint all houses.",
+    "constraints": "- `1 <= n <= 100`\n- `1 <= cost[i][j] <= 20`",
+    "examples": [
+      {
+        "input": "3\n17 2 17\n16 16 5\n14 3 19",
+        "output": "10"
+      },
+      {
+        "input": "1\n1 2 3",
+        "output": "1"
+      }
+    ],
+    "hints": [
+      "dp[i][c] = min cost to paint houses 0..i with house i having color c.",
+      "dp[i][c] = cost[i][c] + min(dp[i-1] for other colors)."
+    ],
+    "tags": [
+      "Array",
+      "Dynamic Programming"
+    ],
+    "companies": [
+      "Amazon",
+      "Google",
+      "Adobe"
+    ],
+    "visibleTests": [
+      {
+        "input": "3\n17 2 17\n16 16 5\n14 3 19",
+        "output": "10"
+      },
+      {
+        "input": "1\n1 2 3",
+        "output": "1"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "2\n1 2 3\n3 2 1",
+        "output": "2"
+      },
+      {
+        "input": "4\n5 8 6\n19 14 13\n7 5 12\n14 15 17",
+        "output": "26"
+      },
+      {
+        "input": "3\n1 1 1\n1 1 1\n1 1 1",
+        "output": "3"
+      },
+      {
+        "input": "2\n10 1 10\n1 10 10",
+        "output": "2"
+      },
+      {
+        "input": "5\n1 2 3\n3 2 1\n1 2 3\n3 2 1\n1 2 3",
+        "output": "5"
+      },
+      {
+        "input": "3\n20 20 3\n3 20 20\n20 3 20",
+        "output": "9"
+      },
+      {
+        "input": "2\n1 1 1\n1 1 1",
+        "output": "2"
+      },
+      {
+        "input": "4\n1 100 1\n1 100 1\n1 100 1\n1 100 1",
+        "output": "4"
+      },
+      {
+        "input": "3\n3 1 2\n2 1 3\n1 3 2",
+        "output": "3"
+      },
+      {
+        "input": "1\n5 10 15",
+        "output": "5"
+      }
+    ],
+    "timeLimit": 1000,
+    "memoryLimit": 256,
+    "xp": 20,
+    "estimatedTime": 25,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\ndef solve():\n    pass\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\n// code",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Subset Sum Exists",
+    "slug": "subset-sum-exists",
+    "difficulty": "MEDIUM",
+    "topic": "dynamic-programming",
+    "statement": "Given an array of non-negative integers and a target, determine if any subset sums to the target. Return `true` or `false`.",
+    "constraints": "- `1 <= nums.length <= 200`\n- `0 <= nums[i] <= 1000`\n- `0 <= target <= 10^4`",
+    "examples": [
+      {
+        "input": "6\n3 34 4 12 5 2\n9",
+        "output": "true"
+      },
+      {
+        "input": "6\n3 34 4 12 5 2\n30",
+        "output": "false"
+      }
+    ],
+    "hints": [
+      "dp[i][s] = can we achieve sum s using first i elements."
+    ],
+    "tags": [
+      "Array",
+      "Dynamic Programming"
+    ],
+    "companies": [
+      "Amazon",
+      "Google",
+      "Microsoft"
+    ],
+    "visibleTests": [
+      {
+        "input": "6\n3 34 4 12 5 2\n9",
+        "output": "true"
+      },
+      {
+        "input": "6\n3 34 4 12 5 2\n30",
+        "output": "false"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "1\n0\n0",
+        "output": "true"
+      },
+      {
+        "input": "1\n1\n1",
+        "output": "true"
+      },
+      {
+        "input": "1\n1\n2",
+        "output": "false"
+      },
+      {
+        "input": "3\n1 2 3\n6",
+        "output": "true"
+      },
+      {
+        "input": "3\n1 2 3\n7",
+        "output": "false"
+      },
+      {
+        "input": "4\n1 1 1 1\n4",
+        "output": "true"
+      },
+      {
+        "input": "4\n1 1 1 1\n5",
+        "output": "false"
+      },
+      {
+        "input": "5\n2 4 6 8 10\n11",
+        "output": "false"
+      },
+      {
+        "input": "5\n2 3 7 8 10\n11",
+        "output": "true"
+      },
+      {
+        "input": "5\n1 2 3 4 5\n10",
+        "output": "true"
+      }
+    ],
+    "timeLimit": 2000,
+    "memoryLimit": 256,
+    "xp": 20,
+    "estimatedTime": 25,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "// code",
+      "java": "// code",
+      "cpp": "// code"
+    }
   }
 ]

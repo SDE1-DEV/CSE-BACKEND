@@ -7,31 +7,83 @@
     "statement": "Given an integer array `nums` of unique elements, return all possible subsets (the power set).\n\nThe solution set must not contain duplicate subsets. Return the solution in any order.\n\nOutput each subset on a separate line, elements space-separated. Empty subset on a blank line.",
     "constraints": "- `1 <= nums.length <= 10`\n- `-10 <= nums[i] <= 10`\n- All the numbers of `nums` are unique.",
     "examples": [
-      { "input": "nums = [1,2,3]", "output": "[[],[1],[2],[1,2],[3],[1,3],[2,3],[1,2,3]]" },
-      { "input": "nums = [0]", "output": "[[],[0]]" }
+      {
+        "input": "nums = [1,2,3]",
+        "output": "[[],[1],[2],[1,2],[3],[1,3],[2,3],[1,2,3]]"
+      },
+      {
+        "input": "nums = [0]",
+        "output": "[[],[0]]"
+      }
     ],
-    "hints": ["Use backtracking: at each step include or exclude current element.", "Or iterate and for each existing subset, create a new one with the current element added."],
-    "tags": ["Array", "Backtracking", "Bit Manipulation"],
-    "companies": ["Amazon", "Google"],
+    "hints": [
+      "Use backtracking: at each step include or exclude current element.",
+      "Or iterate and for each existing subset, create a new one with the current element added."
+    ],
+    "tags": [
+      "Array",
+      "Backtracking",
+      "Bit Manipulation"
+    ],
+    "companies": [
+      "Amazon",
+      "Google"
+    ],
     "visibleTests": [
-      { "input": "3\n1 2 3", "output": "\n1\n2\n1 2\n3\n1 3\n2 3\n1 2 3" },
-      { "input": "1\n0", "output": "\n0" }
+      {
+        "input": "3\n1 2 3",
+        "output": "\n1\n2\n1 2\n3\n1 3\n2 3\n1 2 3"
+      },
+      {
+        "input": "1\n0",
+        "output": "\n0"
+      }
     ],
     "hiddenTests": [
-      { "input": "2\n1 2", "output": "\n1\n2\n1 2" },
-      { "input": "4\n1 2 3 4", "output": "\n1\n2\n1 2\n3\n1 3\n2 3\n1 2 3\n4\n1 4\n2 4\n1 2 4\n3 4\n1 3 4\n2 3 4\n1 2 3 4" },
-      { "input": "1\n5", "output": "\n5" },
-      { "input": "2\n-1 0", "output": "\n-1\n0\n-1 0" },
-      { "input": "3\n-3 -2 -1", "output": "\n-3\n-2\n-3 -2\n-1\n-3 -1\n-2 -1\n-3 -2 -1" },
-      { "input": "2\n0 1", "output": "\n0\n1\n0 1" },
-      { "input": "3\n5 6 7", "output": "\n5\n6\n5 6\n7\n5 7\n6 7\n5 6 7" },
-      { "input": "1\n-10", "output": "\n-10" }
+      {
+        "input": "2\n1 2",
+        "output": "\n1\n2\n1 2"
+      },
+      {
+        "input": "4\n1 2 3 4",
+        "output": "\n1\n2\n1 2\n3\n1 3\n2 3\n1 2 3\n4\n1 4\n2 4\n1 2 4\n3 4\n1 3 4\n2 3 4\n1 2 3 4"
+      },
+      {
+        "input": "1\n5",
+        "output": "\n5"
+      },
+      {
+        "input": "2\n-1 0",
+        "output": "\n-1\n0\n-1 0"
+      },
+      {
+        "input": "3\n-3 -2 -1",
+        "output": "\n-3\n-2\n-3 -2\n-1\n-3 -1\n-2 -1\n-3 -2 -1"
+      },
+      {
+        "input": "2\n0 1",
+        "output": "\n0\n1\n0 1"
+      },
+      {
+        "input": "3\n5 6 7",
+        "output": "\n5\n6\n5 6\n7\n5 7\n6 7\n5 6 7"
+      },
+      {
+        "input": "1\n-10",
+        "output": "\n-10"
+      }
     ],
     "timeLimit": 1000,
     "memoryLimit": 256,
     "xp": 20,
     "estimatedTime": 20,
-    "license": "ORIGINAL"
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
   },
   {
     "title": "Combination Sum",
@@ -41,31 +93,803 @@
     "statement": "Given an array of distinct integers `candidates` and a target integer `target`, return a list of all unique combinations of `candidates` where the chosen numbers sum to `target`. You may return the combinations in any order.\n\nThe same number may be chosen from `candidates` an unlimited number of times. Two combinations are unique if the frequency of at least one of the chosen numbers is different.\n\nThe test cases are generated such that the number of unique combinations that sum up to `target` is less than `150` combinations for the given input.",
     "constraints": "- `1 <= candidates.length <= 30`\n- `2 <= candidates[i] <= 40`\n- All elements of `candidates` are distinct.\n- `1 <= target <= 40`",
     "examples": [
-      { "input": "candidates = [2,3,6,7], target = 7", "output": "[[2,2,3],[7]]" },
-      { "input": "candidates = [2,3,5], target = 8", "output": "[[2,2,2,2],[2,3,3],[3,5]]" },
-      { "input": "candidates = [2], target = 1", "output": "[]" }
+      {
+        "input": "candidates = [2,3,6,7], target = 7",
+        "output": "[[2,2,3],[7]]"
+      },
+      {
+        "input": "candidates = [2,3,5], target = 8",
+        "output": "[[2,2,2,2],[2,3,3],[3,5]]"
+      },
+      {
+        "input": "candidates = [2], target = 1",
+        "output": "[]"
+      }
     ],
-    "hints": ["Use backtracking, starting from index i to avoid duplicates.", "At each step, either include candidates[i] (can reuse) or move to i+1."],
-    "tags": ["Array", "Backtracking"],
-    "companies": ["Google", "Amazon"],
+    "hints": [
+      "Use backtracking, starting from index i to avoid duplicates.",
+      "At each step, either include candidates[i] (can reuse) or move to i+1."
+    ],
+    "tags": [
+      "Array",
+      "Backtracking"
+    ],
+    "companies": [
+      "Google",
+      "Amazon"
+    ],
     "visibleTests": [
-      { "input": "4 7\n2 3 6 7", "output": "2 2 3\n7" },
-      { "input": "3 8\n2 3 5", "output": "2 2 2 2\n2 3 3\n3 5" }
+      {
+        "input": "4 7\n2 3 6 7",
+        "output": "2 2 3\n7"
+      },
+      {
+        "input": "3 8\n2 3 5",
+        "output": "2 2 2 2\n2 3 3\n3 5"
+      }
     ],
     "hiddenTests": [
-      { "input": "1 1\n2", "output": "" },
-      { "input": "2 4\n2 3", "output": "2 2" },
-      { "input": "3 9\n2 3 5", "output": "2 2 5\n3 3 3" },
-      { "input": "4 10\n2 3 5 7", "output": "2 2 2 2 2\n2 2 3 3\n2 3 5\n3 7\n5 5" },
-      { "input": "2 6\n3 5", "output": "3 3" },
-      { "input": "3 15\n3 5 7", "output": "3 3 3 3 3\n3 5 7\n5 5 5" },
-      { "input": "1 4\n2", "output": "2 2" },
-      { "input": "3 5\n2 3 7", "output": "2 3" }
+      {
+        "input": "1 1\n2",
+        "output": ""
+      },
+      {
+        "input": "2 4\n2 3",
+        "output": "2 2"
+      },
+      {
+        "input": "3 9\n2 3 5",
+        "output": "2 2 5\n3 3 3"
+      },
+      {
+        "input": "4 10\n2 3 5 7",
+        "output": "2 2 2 2 2\n2 2 3 3\n2 3 5\n3 7\n5 5"
+      },
+      {
+        "input": "2 6\n3 5",
+        "output": "3 3"
+      },
+      {
+        "input": "3 15\n3 5 7",
+        "output": "3 3 3 3 3\n3 5 7\n5 5 5"
+      },
+      {
+        "input": "1 4\n2",
+        "output": "2 2"
+      },
+      {
+        "input": "3 5\n2 3 7",
+        "output": "2 3"
+      }
     ],
     "timeLimit": 2000,
     "memoryLimit": 256,
     "xp": 20,
     "estimatedTime": 25,
-    "license": "ORIGINAL"
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Generate All Subsets",
+    "slug": "generate-all-subsets",
+    "difficulty": "MEDIUM",
+    "topic": "backtracking",
+    "statement": "Given an integer array `nums` of unique elements, return all possible subsets (the power set).\n\nPrint each subset on a separate line as space-separated values in sorted order. Print an empty line for the empty subset. Print subsets in lexicographic order.",
+    "constraints": "- `1 <= nums.length <= 10`\n- `-10 <= nums[i] <= 10`\n- All elements in `nums` are unique.",
+    "examples": [
+      {
+        "input": "2\n1 2",
+        "output": "\n1\n1 2\n2"
+      },
+      {
+        "input": "1\n5",
+        "output": "\n5"
+      }
+    ],
+    "hints": [
+      "Backtrack: at each index, either include or exclude the current element.",
+      "Sort the input first for lexicographic output."
+    ],
+    "tags": [
+      "Array",
+      "Backtracking",
+      "Bit Manipulation"
+    ],
+    "companies": [
+      "Amazon",
+      "Google",
+      "Microsoft"
+    ],
+    "visibleTests": [
+      {
+        "input": "2\n1 2",
+        "output": "\n1\n1 2\n2"
+      },
+      {
+        "input": "1\n5",
+        "output": "\n5"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "3\n1 2 3",
+        "output": "\n1\n1 2\n1 2 3\n1 3\n2\n2 3\n3"
+      },
+      {
+        "input": "2\n0 1",
+        "output": "\n0\n0 1\n1"
+      },
+      {
+        "input": "3\n1 2 3",
+        "output": "\n1\n1 2\n1 2 3\n1 3\n2\n2 3\n3"
+      },
+      {
+        "input": "2\n-1 1",
+        "output": "\n-1\n-1 1\n1"
+      },
+      {
+        "input": "2\n3 5",
+        "output": "\n3\n3 5\n5"
+      },
+      {
+        "input": "3\n5 10 15",
+        "output": "\n5\n5 10\n5 10 15\n5 15\n10\n10 15\n15"
+      },
+      {
+        "input": "2\n2 3",
+        "output": "\n2\n2 3\n3"
+      },
+      {
+        "input": "3\n0 1 2",
+        "output": "\n0\n0 1\n0 1 2\n0 2\n1\n1 2\n2"
+      },
+      {
+        "input": "2\n-2 -1",
+        "output": "\n-2\n-2 -1\n-1"
+      },
+      {
+        "input": "3\n4 5 6",
+        "output": "\n4\n4 5\n4 5 6\n4 6\n5\n5 6\n6"
+      }
+    ],
+    "timeLimit": 2000,
+    "memoryLimit": 256,
+    "xp": 20,
+    "estimatedTime": 20,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\nlet idx = 0;\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "N Queens Count",
+    "slug": "n-queens-count",
+    "difficulty": "MEDIUM",
+    "topic": "backtracking",
+    "statement": "The n-queens puzzle places `n` queens on an n×n chessboard so no two queens attack each other. Return the **number of distinct solutions**.",
+    "constraints": "- `1 <= n <= 9`",
+    "examples": [
+      {
+        "input": "4",
+        "output": "2"
+      },
+      {
+        "input": "1",
+        "output": "1"
+      }
+    ],
+    "hints": [
+      "Backtrack row by row.",
+      "Track which columns, diagonals, and anti-diagonals are occupied."
+    ],
+    "tags": [
+      "Backtracking"
+    ],
+    "companies": [
+      "Amazon",
+      "Google",
+      "Microsoft"
+    ],
+    "visibleTests": [
+      {
+        "input": "4",
+        "output": "2"
+      },
+      {
+        "input": "1",
+        "output": "1"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "2",
+        "output": "0"
+      },
+      {
+        "input": "3",
+        "output": "0"
+      },
+      {
+        "input": "5",
+        "output": "10"
+      },
+      {
+        "input": "6",
+        "output": "4"
+      },
+      {
+        "input": "7",
+        "output": "40"
+      },
+      {
+        "input": "8",
+        "output": "92"
+      },
+      {
+        "input": "9",
+        "output": "352"
+      },
+      {
+        "input": "4",
+        "output": "2"
+      }
+    ],
+    "timeLimit": 2000,
+    "memoryLimit": 256,
+    "xp": 20,
+    "estimatedTime": 30,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\nlet idx = 0;\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Generate Parentheses",
+    "slug": "generate-parentheses",
+    "difficulty": "MEDIUM",
+    "topic": "backtracking",
+    "statement": "Given `n` pairs of parentheses, generate all combinations of well-formed parentheses. Print each on a separate line in lexicographic order.",
+    "constraints": "- `1 <= n <= 8`",
+    "examples": [
+      {
+        "input": "3",
+        "output": "((()))\n(()())\n(())()\n()(())\n()()()"
+      },
+      {
+        "input": "1",
+        "output": "()"
+      }
+    ],
+    "hints": [
+      "Backtrack: add `(` if open < n; add `)` if close < open."
+    ],
+    "tags": [
+      "String",
+      "Backtracking",
+      "Dynamic Programming"
+    ],
+    "companies": [
+      "Amazon",
+      "Google",
+      "Microsoft",
+      "Meta"
+    ],
+    "visibleTests": [
+      {
+        "input": "3",
+        "output": "((()))\n(()())\n(())()\n()(())\n()()()"
+      },
+      {
+        "input": "1",
+        "output": "()"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "2",
+        "output": "(())\n()()"
+      },
+      {
+        "input": "4",
+        "output": "(((())))\n((()()))\n((())())\n((()))()\n(()(()))\n(()()())\n(()())()\n(())(())\n(())()()\n()((()))\n()(()())\n()(())()\n()()(())\n()()()()"
+      },
+      {
+        "input": "3",
+        "output": "((()))\n(()())\n(())()\n()(())\n()()()"
+      },
+      {
+        "input": "1",
+        "output": "()"
+      }
+    ],
+    "timeLimit": 2000,
+    "memoryLimit": 256,
+    "xp": 20,
+    "estimatedTime": 25,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Letter Combinations Phone Number",
+    "slug": "letter-combinations-phone",
+    "difficulty": "MEDIUM",
+    "topic": "backtracking",
+    "statement": "Given a string containing digits 2-9 inclusive, return all possible letter combinations using a phone keypad mapping. Print combinations in lexicographic order, one per line.",
+    "constraints": "- `0 <= digits.length <= 4`\n- `digits[i]` is a digit in `['2', '9']`.",
+    "examples": [
+      {
+        "input": "23",
+        "output": "ad\nae\naf\nbd\nbe\nbf\ncd\nce\ncf"
+      },
+      {
+        "input": "2",
+        "output": "a\nb\nc"
+      }
+    ],
+    "hints": [
+      "Map each digit to its letters (2->abc, 3->def, etc.).",
+      "Backtrack: at each step, pick a letter for the current digit."
+    ],
+    "tags": [
+      "Hash Table",
+      "String",
+      "Backtracking"
+    ],
+    "companies": [
+      "Amazon",
+      "Google",
+      "Microsoft",
+      "Meta"
+    ],
+    "visibleTests": [
+      {
+        "input": "23",
+        "output": "ad\nae\naf\nbd\nbe\nbf\ncd\nce\ncf"
+      },
+      {
+        "input": "2",
+        "output": "a\nb\nc"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "",
+        "output": ""
+      },
+      {
+        "input": "9",
+        "output": "w\nx\ny\nz"
+      },
+      {
+        "input": "22",
+        "output": "aa\nab\nac\nba\nbb\nbc\nca\ncb\ncc"
+      },
+      {
+        "input": "29",
+        "output": "aw\nax\nay\naz\nbw\nbx\nby\nbz\ncw\ncx\ncy\ncz"
+      },
+      {
+        "input": "7",
+        "output": "p\nq\nr\ns"
+      },
+      {
+        "input": "8",
+        "output": "t\nu\nv"
+      },
+      {
+        "input": "3",
+        "output": "d\ne\nf"
+      },
+      {
+        "input": "4",
+        "output": "g\nh\ni"
+      },
+      {
+        "input": "5",
+        "output": "j\nk\nl"
+      },
+      {
+        "input": "6",
+        "output": "m\nn\no"
+      }
+    ],
+    "timeLimit": 2000,
+    "memoryLimit": 256,
+    "xp": 20,
+    "estimatedTime": 20,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Is Subsequence",
+    "slug": "is-subsequence",
+    "difficulty": "EASY",
+    "topic": "backtracking",
+    "statement": "Given strings `s` and `t`, return `true` if `s` is a subsequence of `t`.",
+    "constraints": "- `0 <= s.length <= 100`\n- `0 <= t.length <= 10^4`",
+    "examples": [
+      {
+        "input": "abc\nahbgdc",
+        "output": "true"
+      },
+      {
+        "input": "axc\nahbgdc",
+        "output": "false"
+      }
+    ],
+    "hints": [
+      "Two-pointer: advance s-pointer whenever chars match."
+    ],
+    "tags": [
+      "Two Pointers",
+      "String"
+    ],
+    "companies": [
+      "Amazon",
+      "Google",
+      "Microsoft"
+    ],
+    "visibleTests": [
+      {
+        "input": "abc\nahbgdc",
+        "output": "true"
+      },
+      {
+        "input": "axc\nahbgdc",
+        "output": "false"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "\nabc",
+        "output": "true"
+      },
+      {
+        "input": "abc\nabc",
+        "output": "true"
+      },
+      {
+        "input": "ace\nabcde",
+        "output": "true"
+      },
+      {
+        "input": "aec\nabcde",
+        "output": "false"
+      },
+      {
+        "input": "z\nabc",
+        "output": "false"
+      },
+      {
+        "input": "aa\nababab",
+        "output": "true"
+      },
+      {
+        "input": "abc\nac",
+        "output": "false"
+      },
+      {
+        "input": "ab\nba",
+        "output": "false"
+      },
+      {
+        "input": "ab\nab",
+        "output": "true"
+      },
+      {
+        "input": "b\nabc",
+        "output": "true"
+      }
+    ],
+    "timeLimit": 1000,
+    "memoryLimit": 256,
+    "xp": 10,
+    "estimatedTime": 10,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\ndef solve():\n    pass\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\n// code",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Phone Number Letter Combinations",
+    "slug": "phone-number-letter-combinations",
+    "difficulty": "MEDIUM",
+    "topic": "backtracking",
+    "statement": "Given a string of digits 2-9, return all letter combinations a phone keypad can produce. Print each on a new line in lexicographic order.\n\nMapping: 2=abc 3=def 4=ghi 5=jkl 6=mno 7=pqrs 8=tuv 9=wxyz",
+    "constraints": "- `0 <= digits.length <= 4`",
+    "examples": [
+      {
+        "input": "23",
+        "output": "ad\nae\naf\nbd\nbe\nbf\ncd\nce\ncf"
+      }
+    ],
+    "hints": [
+      "Backtrack over each digit's letters.",
+      "Sort output for lexicographic order."
+    ],
+    "tags": [
+      "Hash Table",
+      "String",
+      "Backtracking"
+    ],
+    "companies": [
+      "Amazon",
+      "Google",
+      "Meta"
+    ],
+    "visibleTests": [
+      {
+        "input": "23",
+        "output": "ad\nae\naf\nbd\nbe\nbf\ncd\nce\ncf"
+      },
+      {
+        "input": "",
+        "output": ""
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "2",
+        "output": "a\nb\nc"
+      },
+      {
+        "input": "7",
+        "output": "p\nq\nr\ns"
+      },
+      {
+        "input": "9",
+        "output": "w\nx\ny\nz"
+      },
+      {
+        "input": "22",
+        "output": "aa\nab\nac\nba\nbb\nbc\nca\ncb\ncc"
+      },
+      {
+        "input": "29",
+        "output": "aw\nax\nay\naz\nbw\nbx\nby\nbz\ncw\ncx\ncy\ncz"
+      },
+      {
+        "input": "8",
+        "output": "t\nu\nv"
+      },
+      {
+        "input": "3",
+        "output": "d\ne\nf"
+      },
+      {
+        "input": "4",
+        "output": "g\nh\ni"
+      },
+      {
+        "input": "5",
+        "output": "j\nk\nl"
+      }
+    ],
+    "timeLimit": 2000,
+    "memoryLimit": 256,
+    "xp": 20,
+    "estimatedTime": 20,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\ndef solve():\n    pass\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\n// code",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Word Search in Grid",
+    "slug": "word-search-in-grid",
+    "difficulty": "MEDIUM",
+    "topic": "backtracking",
+    "statement": "Given an m×n grid of characters and a word, return `true` if the word exists as a connected path of adjacent cells (horizontally/vertically). Each cell may be used only once.",
+    "constraints": "- `1 <= m, n <= 6`\n- `1 <= word.length <= 15`",
+    "examples": [
+      {
+        "input": "3 4\nABCE\nSFCS\nADEE\nSEE",
+        "output": "true"
+      },
+      {
+        "input": "3 4\nABCE\nSFCS\nADEE\nABCB",
+        "output": "false"
+      }
+    ],
+    "hints": [
+      "DFS from each cell matching word[0].",
+      "Mark cells visited; unmark on backtrack."
+    ],
+    "tags": [
+      "Array",
+      "Backtracking",
+      "Matrix",
+      "DFS"
+    ],
+    "companies": [
+      "Amazon",
+      "Google",
+      "Microsoft"
+    ],
+    "visibleTests": [
+      {
+        "input": "3 4\nABCE\nSFCS\nADEE\nSEE",
+        "output": "true"
+      },
+      {
+        "input": "3 4\nABCE\nSFCS\nADEE\nABCB",
+        "output": "false"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "1 1\nA\nA",
+        "output": "true"
+      },
+      {
+        "input": "1 1\nA\nB",
+        "output": "false"
+      },
+      {
+        "input": "2 2\nAB\nCD\nABDC",
+        "output": "false"
+      },
+      {
+        "input": "2 2\nAB\nCD\nABCD",
+        "output": "false"
+      },
+      {
+        "input": "3 3\nABC\nDEF\nGHI\nABC",
+        "output": "true"
+      },
+      {
+        "input": "3 3\nABC\nDEF\nGHI\nAEI",
+        "output": "false"
+      },
+      {
+        "input": "2 3\nABC\nDEF\nABEDC",
+        "output": "false"
+      },
+      {
+        "input": "2 2\nAB\nCD\nACDB",
+        "output": "false"
+      },
+      {
+        "input": "3 3\nAAA\nAAA\nAAA\nAAAA",
+        "output": "true"
+      },
+      {
+        "input": "3 3\nABC\nDEF\nGHI\nBFE",
+        "output": "true"
+      }
+    ],
+    "timeLimit": 3000,
+    "memoryLimit": 256,
+    "xp": 20,
+    "estimatedTime": 30,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\ndef solve():\n    pass\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\n// code",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Palindrome Partitioning",
+    "slug": "palindrome-partitioning",
+    "difficulty": "MEDIUM",
+    "topic": "backtracking",
+    "statement": "Given a string `s`, partition it so that every substring is a palindrome. Return the minimum number of cuts needed.",
+    "constraints": "- `1 <= s.length <= 2000`\n- `s` consists of lowercase English letters.",
+    "examples": [
+      {
+        "input": "aab",
+        "output": "1"
+      },
+      {
+        "input": "a",
+        "output": "0"
+      }
+    ],
+    "hints": [
+      "dp[i] = min cuts for s[0..i].",
+      "Check all palindrome substrings ending at i."
+    ],
+    "tags": [
+      "String",
+      "Dynamic Programming",
+      "Backtracking"
+    ],
+    "companies": [
+      "Amazon",
+      "Google",
+      "Microsoft"
+    ],
+    "visibleTests": [
+      {
+        "input": "aab",
+        "output": "1"
+      },
+      {
+        "input": "a",
+        "output": "0"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "ab",
+        "output": "1"
+      },
+      {
+        "input": "aa",
+        "output": "0"
+      },
+      {
+        "input": "abc",
+        "output": "2"
+      },
+      {
+        "input": "aabb",
+        "output": "1"
+      },
+      {
+        "input": "racecar",
+        "output": "0"
+      },
+      {
+        "input": "abcba",
+        "output": "0"
+      },
+      {
+        "input": "abba",
+        "output": "0"
+      },
+      {
+        "input": "abcbc",
+        "output": "2"
+      },
+      {
+        "input": "aaaa",
+        "output": "0"
+      },
+      {
+        "input": "abcde",
+        "output": "4"
+      }
+    ],
+    "timeLimit": 3000,
+    "memoryLimit": 256,
+    "xp": 20,
+    "estimatedTime": 30,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "// code",
+      "java": "// code",
+      "cpp": "// code"
+    }
   }
 ]

@@ -280,56 +280,112 @@ router.get('/topics/:slug', async (req: Request, res: Response, next: NextFuncti
   }
 });
 
-// ─── Phase 19 — Instant Search: GET /questions/search ────────────────────────
+// ─── Phase 19 / FPRD-19 Part 8 — Enhanced Search: GET /questions/search ───────
+// Supports: title, topic, difficulty, company, tag, keyword, acceptance, status,
+//           estimatedTime, XP range, sortBy (acceptance/xp/estimatedTime)
 router.get('/search', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const userId = (req as any).user?.userId;
     const {
-      q, difficulty, topic, tagId, companyId,
-      minAcceptance, maxAcceptance,
-      status, page: rawPage, limit: rawLimit,
+      q, keyword, difficulty, topic, tagId, companyId, tag,
+      minAcceptance, maxAcceptance, minXp, maxXp,
+      minEstimatedTime, maxEstimatedTime,
+      status, sortBy: rawSortBy, sortOrder: rawSortOrder,
+      page: rawPage, limit: rawLimit,
     } = req.query as Record<string, string>;
 
-    if (!q || q.trim().length === 0) {
+    // Accept both `q` and `keyword` for search term
+    const searchTerm = (q || keyword || '').trim();
+    if (!searchTerm && !difficulty && !topic && !tagId && !companyId && !tag && !status) {
       sendSuccess(res, 'Search results', buildPaginated([], 0, 1, 20));
       return;
     }
 
     const page  = Math.max(1, parseInt(rawPage ?? '1', 10));
-    const limit = Math.min(parseInt(rawLimit ?? '20', 10), 50);
+    const limit = Math.min(parseInt(rawLimit ?? '20', 10), 100);
 
     const where: any = { isPublished: true, deletedAt: null };
 
-    // Full-text keyword search across title + statement
-    where.OR = [
-      { title: { contains: q, mode: 'insensitive' } },
-      { problemStatement: { contains: q, mode: 'insensitive' } },
-      { description: { contains: q, mode: 'insensitive' } },
-    ];
+    // Full-text keyword search across title, statement, description, notes
+    if (searchTerm) {
+      where.OR = [
+        { title: { contains: searchTerm, mode: 'insensitive' } },
+        { problemStatement: { contains: searchTerm, mode: 'insensitive' } },
+        { description: { contains: searchTerm, mode: 'insensitive' } },
+        { notes: { contains: searchTerm, mode: 'insensitive' } },
+      ];
+    }
 
     if (difficulty && difficulty !== 'all') where.difficulty = difficulty.toUpperCase();
+
+    // Topic filter: by slug, name, or category ID
     if (topic) {
       const cat = await prisma.problemCategory.findFirst({
-        where: { OR: [{ slug: topic }, { name: { contains: topic, mode: 'insensitive' } }] },
+        where: { OR: [{ slug: topic }, { id: topic }, { name: { contains: topic, mode: 'insensitive' } }] },
       });
       if (cat) where.categoryId = cat.id;
     }
-    if (tagId) where.tags = { some: { tagId } };
-    if (companyId) where.companies = { some: { companyId } };
-    if (minAcceptance) where.acceptanceRate = { gte: parseFloat(minAcceptance) };
-    if (maxAcceptance) where.acceptanceRate = { ...where.acceptanceRate, lte: parseFloat(maxAcceptance) };
 
+    // Tag filter: support both tagId and tag (name/slug)
+    if (tagId) {
+      where.tags = { some: { tagId } };
+    } else if (tag) {
+      const tagRecord = await prisma.problemTag.findFirst({
+        where: { OR: [{ id: tag }, { slug: tag }, { name: { contains: tag, mode: 'insensitive' } }] },
+      });
+      if (tagRecord) where.tags = { some: { tagId: tagRecord.id } };
+    }
+
+    if (companyId) where.companies = { some: { companyId } };
+
+    // Acceptance rate range
+    if (minAcceptance || maxAcceptance) {
+      where.acceptanceRate = {};
+      if (minAcceptance) where.acceptanceRate.gte = parseFloat(minAcceptance);
+      if (maxAcceptance) where.acceptanceRate.lte = parseFloat(maxAcceptance);
+    }
+
+    // XP range
+    if (minXp || maxXp) {
+      where.xp = {};
+      if (minXp) where.xp.gte = parseInt(minXp, 10);
+      if (maxXp) where.xp.lte = parseInt(maxXp, 10);
+    }
+
+    // Estimated time range
+    if (minEstimatedTime || maxEstimatedTime) {
+      where.estimatedTime = {};
+      if (minEstimatedTime) where.estimatedTime.gte = parseInt(minEstimatedTime, 10);
+      if (maxEstimatedTime) where.estimatedTime.lte = parseInt(maxEstimatedTime, 10);
+    }
+
+    // Status filter (requires auth)
     if (status === 'solved' && userId) {
       where.submissions = { some: { userId, status: 'ACCEPTED', isRun: false } };
     } else if (status === 'unsolved' && userId) {
       where.NOT = { submissions: { some: { userId, status: 'ACCEPTED', isRun: false } } };
+    } else if (status === 'attempted' && userId) {
+      where.submissions = { some: { userId, isRun: false } };
+      where.NOT = { submissions: { some: { userId, status: 'ACCEPTED', isRun: false } } };
     }
+
+    // Sort
+    const validSortBy: Record<string, any> = {
+      title: { title: rawSortOrder ?? 'asc' },
+      difficulty: { difficulty: rawSortOrder ?? 'asc' },
+      acceptanceRate: { acceptanceRate: rawSortOrder ?? 'desc' },
+      acceptance: { acceptanceRate: rawSortOrder ?? 'desc' },
+      xp: { xp: rawSortOrder ?? 'desc' },
+      estimatedTime: { estimatedTime: rawSortOrder ?? 'asc' },
+      submissionCount: { submissionCount: rawSortOrder ?? 'desc' },
+    };
+    const orderBy = validSortBy[rawSortBy ?? ''] ?? { acceptanceRate: 'desc' };
 
     const [data, total] = await Promise.all([
       prisma.codingProblem.findMany({
         where,
         include: PROBLEM_INCLUDE,
-        orderBy: { acceptanceRate: 'desc' },
+        orderBy,
         skip: (page - 1) * limit,
         take: limit,
       }),

@@ -1,0 +1,1326 @@
+[
+  {
+    "title": "Sort by Frequency",
+    "slug": "sort-by-frequency",
+    "difficulty": "MEDIUM",
+    "topic": "sorting",
+    "statement": "Given an array of integers, sort the elements by their frequency in **descending order**. Elements with the same frequency should appear in **ascending order** of their value.",
+    "constraints": "- `1 <= nums.length <= 10^4`\n- `-10^4 <= nums[i] <= 10^4`",
+    "examples": [
+      {
+        "input": "6\n1 1 2 2 2 3",
+        "output": "2 2 2 1 1 3"
+      },
+      {
+        "input": "5\n2 3 1 3 2",
+        "output": "2 2 3 3 1"
+      }
+    ],
+    "hints": [
+      "Count frequencies.",
+      "Sort by (-freq, value)."
+    ],
+    "tags": [
+      "Array",
+      "Hash Table",
+      "Sorting"
+    ],
+    "companies": [
+      "Amazon",
+      "Google"
+    ],
+    "visibleTests": [
+      {
+        "input": "6\n1 1 2 2 2 3",
+        "output": "2 2 2 1 1 3"
+      },
+      {
+        "input": "5\n2 3 1 3 2",
+        "output": "2 2 3 3 1"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "1\n5",
+        "output": "5"
+      },
+      {
+        "input": "4\n1 1 1 1",
+        "output": "1 1 1 1"
+      },
+      {
+        "input": "5\n5 4 3 2 1",
+        "output": "1 2 3 4 5"
+      },
+      {
+        "input": "6\n1 1 2 2 3 3",
+        "output": "1 1 2 2 3 3"
+      },
+      {
+        "input": "4\n3 1 4 1",
+        "output": "1 1 3 4"
+      },
+      {
+        "input": "7\n3 3 3 1 1 2 4",
+        "output": "3 3 3 1 1 2 4"
+      },
+      {
+        "input": "4\n-1 -1 2 2",
+        "output": "-1 -1 2 2"
+      },
+      {
+        "input": "5\n0 0 0 1 1",
+        "output": "0 0 0 1 1"
+      },
+      {
+        "input": "6\n100 100 1 2 3 4",
+        "output": "100 100 1 2 3 4"
+      },
+      {
+        "input": "4\n5 5 3 3",
+        "output": "3 3 5 5"
+      }
+    ],
+    "timeLimit": 1000,
+    "memoryLimit": 256,
+    "xp": 20,
+    "estimatedTime": 20,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\nlet idx = 0;\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Merge Sorted Arrays In-Place",
+    "slug": "merge-sorted-arrays-inplace",
+    "difficulty": "EASY",
+    "topic": "sorting",
+    "statement": "You have two sorted integer arrays `nums1` and `nums2`. Merge `nums2` into `nums1` in-place so the result is sorted.\n\nPrint the merged sorted array.",
+    "constraints": "- `0 <= m, n <= 200`\n- `nums1.length == m + n`\n- `nums2.length == n`\n- `-10^9 <= nums1[i], nums2[j] <= 10^9`",
+    "examples": [
+      {
+        "input": "3 3\n1 2 3\n2 5 6",
+        "output": "1 2 2 3 5 6"
+      },
+      {
+        "input": "1 0\n1\n",
+        "output": "1"
+      }
+    ],
+    "hints": [
+      "Use two pointers starting from the END of both arrays.",
+      "Place the larger element at position m+n-1."
+    ],
+    "tags": [
+      "Array",
+      "Two Pointers",
+      "Sorting"
+    ],
+    "companies": [
+      "Google",
+      "Amazon",
+      "Microsoft"
+    ],
+    "visibleTests": [
+      {
+        "input": "3 3\n1 2 3\n2 5 6",
+        "output": "1 2 2 3 5 6"
+      },
+      {
+        "input": "1 0\n1\n",
+        "output": "1"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "0 3\n\n1 2 3",
+        "output": "1 2 3"
+      },
+      {
+        "input": "3 3\n1 3 5\n2 4 6",
+        "output": "1 2 3 4 5 6"
+      },
+      {
+        "input": "2 2\n0 0\n1 1",
+        "output": "0 0 1 1"
+      },
+      {
+        "input": "3 1\n1 3 5\n2",
+        "output": "1 2 3 5"
+      },
+      {
+        "input": "4 2\n1 2 5 6\n3 4",
+        "output": "1 2 3 4 5 6"
+      },
+      {
+        "input": "3 3\n-3 -1 0\n-2 1 2",
+        "output": "-3 -2 -1 0 1 2"
+      },
+      {
+        "input": "1 1\n2\n1",
+        "output": "1 2"
+      },
+      {
+        "input": "2 3\n4 5\n1 2 3",
+        "output": "1 2 3 4 5"
+      },
+      {
+        "input": "5 0\n1 2 3 4 5\n",
+        "output": "1 2 3 4 5"
+      },
+      {
+        "input": "3 3\n10 20 30\n5 15 25",
+        "output": "5 10 15 20 25 30"
+      }
+    ],
+    "timeLimit": 1000,
+    "memoryLimit": 256,
+    "xp": 10,
+    "estimatedTime": 15,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\nlet idx = 0;\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Kth Largest Element",
+    "slug": "kth-largest-element",
+    "difficulty": "MEDIUM",
+    "topic": "sorting",
+    "statement": "Given an integer array `nums` and an integer `k`, return the `k`th largest element in the array (not the `k`th distinct element).",
+    "constraints": "- `1 <= k <= nums.length <= 10^4`\n- `-10^4 <= nums[i] <= 10^4`",
+    "examples": [
+      {
+        "input": "5 2\n3 2 1 5 6 4",
+        "output": "5"
+      },
+      {
+        "input": "4 4\n3 2 3 1 2 4 5 5 6",
+        "output": "4"
+      }
+    ],
+    "hints": [
+      "Sort descending and return index k-1.",
+      "Or use a min-heap of size k."
+    ],
+    "tags": [
+      "Array",
+      "Sorting",
+      "Heap"
+    ],
+    "companies": [
+      "Amazon",
+      "Google",
+      "Microsoft"
+    ],
+    "visibleTests": [
+      {
+        "input": "6 2\n3 2 1 5 6 4",
+        "output": "5"
+      },
+      {
+        "input": "9 4\n3 2 3 1 2 4 5 5 6",
+        "output": "4"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "1 1\n5",
+        "output": "5"
+      },
+      {
+        "input": "3 1\n3 2 1",
+        "output": "3"
+      },
+      {
+        "input": "3 3\n3 2 1",
+        "output": "1"
+      },
+      {
+        "input": "4 2\n1 1 1 1",
+        "output": "1"
+      },
+      {
+        "input": "5 3\n5 4 3 2 1",
+        "output": "3"
+      },
+      {
+        "input": "4 2\n-1 -2 -3 -4",
+        "output": "-2"
+      },
+      {
+        "input": "6 1\n1 2 3 4 5 6",
+        "output": "6"
+      },
+      {
+        "input": "5 5\n10 9 8 7 6",
+        "output": "6"
+      },
+      {
+        "input": "4 3\n0 0 1 1",
+        "output": "0"
+      },
+      {
+        "input": "5 2\n100 1 2 3 100",
+        "output": "100"
+      }
+    ],
+    "timeLimit": 1000,
+    "memoryLimit": 256,
+    "xp": 20,
+    "estimatedTime": 15,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\nlet idx = 0;\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Sort Colors",
+    "slug": "sort-colors",
+    "difficulty": "EASY",
+    "topic": "sorting",
+    "statement": "Given an array `nums` containing only values `0`, `1`, and `2` (representing red, white, and blue), sort them in-place so that all `0`s come first, then `1`s, then `2`s.\n\nYou must solve this without using the built-in sort function and in a single pass.",
+    "constraints": "- `1 <= nums.length <= 300`\n- `nums[i]` is `0`, `1`, or `2`.",
+    "examples": [
+      {
+        "input": "6\n2 0 2 1 1 0",
+        "output": "0 0 1 1 2 2"
+      },
+      {
+        "input": "3\n2 0 1",
+        "output": "0 1 2"
+      }
+    ],
+    "hints": [
+      "Dutch National Flag algorithm.",
+      "Maintain three pointers: low, mid, high."
+    ],
+    "tags": [
+      "Array",
+      "Two Pointers",
+      "Sorting"
+    ],
+    "companies": [
+      "Amazon",
+      "Adobe",
+      "Atlassian"
+    ],
+    "visibleTests": [
+      {
+        "input": "6\n2 0 2 1 1 0",
+        "output": "0 0 1 1 2 2"
+      },
+      {
+        "input": "3\n2 0 1",
+        "output": "0 1 2"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "1\n0",
+        "output": "0"
+      },
+      {
+        "input": "1\n1",
+        "output": "1"
+      },
+      {
+        "input": "1\n2",
+        "output": "2"
+      },
+      {
+        "input": "4\n0 0 0 0",
+        "output": "0 0 0 0"
+      },
+      {
+        "input": "4\n2 2 2 2",
+        "output": "2 2 2 2"
+      },
+      {
+        "input": "6\n1 0 2 0 1 2",
+        "output": "0 0 1 1 2 2"
+      },
+      {
+        "input": "5\n2 2 0 0 1",
+        "output": "0 0 1 2 2"
+      },
+      {
+        "input": "3\n2 2 0",
+        "output": "0 2 2"
+      },
+      {
+        "input": "6\n1 2 0 1 2 0",
+        "output": "0 0 1 1 2 2"
+      },
+      {
+        "input": "5\n0 1 2 0 1",
+        "output": "0 0 1 1 2"
+      }
+    ],
+    "timeLimit": 1000,
+    "memoryLimit": 256,
+    "xp": 10,
+    "estimatedTime": 15,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\nlet idx = 0;\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Meeting Rooms Required",
+    "slug": "meeting-rooms-required",
+    "difficulty": "MEDIUM",
+    "topic": "sorting",
+    "statement": "Given `n` meeting time intervals, return the **minimum number of conference rooms** required.\n\nEach meeting is represented as `[start, end]`.",
+    "constraints": "- `0 <= n <= 10^4`\n- `0 <= start < end <= 10^6`",
+    "examples": [
+      {
+        "input": "3\n0 30\n5 10\n15 20",
+        "output": "2"
+      },
+      {
+        "input": "2\n7 10\n2 4",
+        "output": "1"
+      }
+    ],
+    "hints": [
+      "Sort start times and end times separately.",
+      "Use two pointers to count overlapping meetings."
+    ],
+    "tags": [
+      "Array",
+      "Sorting",
+      "Heap",
+      "Greedy"
+    ],
+    "companies": [
+      "Google",
+      "Amazon",
+      "Microsoft",
+      "Meta"
+    ],
+    "visibleTests": [
+      {
+        "input": "3\n0 30\n5 10\n15 20",
+        "output": "2"
+      },
+      {
+        "input": "2\n7 10\n2 4",
+        "output": "1"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "0",
+        "output": "0"
+      },
+      {
+        "input": "1\n1 5",
+        "output": "1"
+      },
+      {
+        "input": "4\n1 10\n2 8\n3 6\n4 5",
+        "output": "4"
+      },
+      {
+        "input": "4\n1 2\n3 4\n5 6\n7 8",
+        "output": "1"
+      },
+      {
+        "input": "3\n0 10\n0 10\n0 10",
+        "output": "3"
+      },
+      {
+        "input": "5\n1 4\n2 3\n3 8\n4 6\n5 7",
+        "output": "3"
+      },
+      {
+        "input": "3\n5 10\n1 4\n7 12",
+        "output": "2"
+      },
+      {
+        "input": "4\n0 5\n5 10\n10 15\n15 20",
+        "output": "1"
+      },
+      {
+        "input": "5\n1 5\n1 5\n1 5\n1 5\n1 5",
+        "output": "5"
+      },
+      {
+        "input": "3\n1 3\n2 4\n3 5",
+        "output": "2"
+      }
+    ],
+    "timeLimit": 1000,
+    "memoryLimit": 256,
+    "xp": 20,
+    "estimatedTime": 25,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\nlet idx = 0;\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Largest Number From Array",
+    "slug": "largest-number-from-array",
+    "difficulty": "MEDIUM",
+    "topic": "sorting",
+    "statement": "Given an array of non-negative integers, arrange them such that they form the **largest possible number** and return it as a string.\n\nNote: The result may be very large, so you need to return it as a string rather than an integer.",
+    "constraints": "- `1 <= nums.length <= 100`\n- `0 <= nums[i] <= 10^9`",
+    "examples": [
+      {
+        "input": "3\n10 2 30",
+        "output": "30210"
+      },
+      {
+        "input": "4\n3 30 34 5 9",
+        "output": "9534330"
+      }
+    ],
+    "hints": [
+      "Sort using a custom comparator: prefer a+b over b+a if a+b > b+a lexicographically.",
+      "Handle leading zeros: if result starts with '0', return '0'."
+    ],
+    "tags": [
+      "Array",
+      "Sorting",
+      "Greedy"
+    ],
+    "companies": [
+      "Amazon",
+      "Google",
+      "Meta"
+    ],
+    "visibleTests": [
+      {
+        "input": "3\n10 2 30",
+        "output": "30210"
+      },
+      {
+        "input": "5\n3 30 34 5 9",
+        "output": "9534330"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "1\n1",
+        "output": "1"
+      },
+      {
+        "input": "3\n0 0 0",
+        "output": "0"
+      },
+      {
+        "input": "4\n1 2 3 4",
+        "output": "4321"
+      },
+      {
+        "input": "3\n10 1 2",
+        "output": "2110"
+      },
+      {
+        "input": "2\n1000000000 1000000000",
+        "output": "10000000001000000000"
+      },
+      {
+        "input": "4\n0 0 0 1",
+        "output": "1000"
+      },
+      {
+        "input": "3\n5 50 56",
+        "output": "56550"
+      },
+      {
+        "input": "3\n100 100 10",
+        "output": "100100100"
+      },
+      {
+        "input": "3\n121 12 1",
+        "output": "1211221"
+      },
+      {
+        "input": "3\n9 99 999",
+        "output": "999999"
+      }
+    ],
+    "timeLimit": 1000,
+    "memoryLimit": 256,
+    "xp": 20,
+    "estimatedTime": 25,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\nlet idx = 0;\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Top K Frequent Numbers",
+    "slug": "top-k-frequent-numbers",
+    "difficulty": "MEDIUM",
+    "topic": "sorting",
+    "statement": "Given an integer array `nums` and an integer `k`, return the `k` most frequent elements. You may return the answer in **any order**.\n\nPrint them sorted in ascending order for consistent output.",
+    "constraints": "- `1 <= nums.length <= 10^5`\n- `-10^4 <= nums[i] <= 10^4`\n- `k` is in the range `[1, number of unique elements]`\n- The answer is guaranteed to be unique.",
+    "examples": [
+      {
+        "input": "6 2\n1 1 1 2 2 3",
+        "output": "1 2"
+      },
+      {
+        "input": "5 1\n1 1 1 2 2",
+        "output": "1"
+      }
+    ],
+    "hints": [
+      "Count frequencies with a hash map.",
+      "Use a partial sort or bucket sort by frequency."
+    ],
+    "tags": [
+      "Array",
+      "Hash Table",
+      "Sorting",
+      "Heap"
+    ],
+    "companies": [
+      "Amazon",
+      "Google",
+      "Meta"
+    ],
+    "visibleTests": [
+      {
+        "input": "6 2\n1 1 1 2 2 3",
+        "output": "1 2"
+      },
+      {
+        "input": "5 1\n1 1 1 2 2",
+        "output": "1"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "1 1\n1",
+        "output": "1"
+      },
+      {
+        "input": "4 2\n4 1 -1 2",
+        "output": "-1 1"
+      },
+      {
+        "input": "5 2\n5 3 1 1 3",
+        "output": "1 3"
+      },
+      {
+        "input": "6 3\n1 2 3 1 2 3",
+        "output": "1 2 3"
+      },
+      {
+        "input": "7 2\n1 1 2 2 3 3 3",
+        "output": "2 3"
+      },
+      {
+        "input": "4 1\n-1 -1 -1 2",
+        "output": "-1"
+      },
+      {
+        "input": "5 3\n1 1 2 2 3",
+        "output": "1 2 3"
+      },
+      {
+        "input": "8 2\n1 2 3 4 1 2 3 4",
+        "output": "1 2"
+      },
+      {
+        "input": "6 2\n0 0 0 5 5 5",
+        "output": "0 5"
+      },
+      {
+        "input": "4 2\n4 4 4 4",
+        "output": "4"
+      }
+    ],
+    "timeLimit": 2000,
+    "memoryLimit": 256,
+    "xp": 20,
+    "estimatedTime": 20,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\nlet idx = 0;\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Minimum Difference Between Largest and Smallest After Removals",
+    "slug": "min-diff-after-removals",
+    "difficulty": "MEDIUM",
+    "topic": "sorting",
+    "statement": "You are given an array of integers. You can remove exactly one element. Return the **minimum difference** between the maximum and minimum elements after the removal.",
+    "constraints": "- `2 <= nums.length <= 10^5`\n- `-10^4 <= nums[i] <= 10^4`",
+    "examples": [
+      {
+        "input": "5\n5 3 2 4 1",
+        "output": "3",
+        "explanation": "Remove 5, then max=4, min=1, diff=3."
+      },
+      {
+        "input": "4\n1 3 7 5",
+        "output": "4"
+      }
+    ],
+    "hints": [
+      "Sort the array.",
+      "The optimal removal is always the current max or current min."
+    ],
+    "tags": [
+      "Array",
+      "Sorting",
+      "Greedy"
+    ],
+    "companies": [
+      "Adobe",
+      "Uber"
+    ],
+    "visibleTests": [
+      {
+        "input": "5\n5 3 2 4 1",
+        "output": "3"
+      },
+      {
+        "input": "4\n1 3 7 5",
+        "output": "4"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "2\n1 5",
+        "output": "0"
+      },
+      {
+        "input": "3\n1 5 9",
+        "output": "4"
+      },
+      {
+        "input": "4\n1 1 1 1",
+        "output": "0"
+      },
+      {
+        "input": "5\n1 2 3 4 5",
+        "output": "3"
+      },
+      {
+        "input": "4\n10 1 10 10",
+        "output": "9"
+      },
+      {
+        "input": "5\n-5 -3 -1 0 2",
+        "output": "5"
+      },
+      {
+        "input": "4\n0 0 100 100",
+        "output": "100"
+      },
+      {
+        "input": "5\n1 2 100 200 300",
+        "output": "199"
+      },
+      {
+        "input": "3\n3 3 3",
+        "output": "0"
+      },
+      {
+        "input": "5\n100 200 300 400 500",
+        "output": "300"
+      }
+    ],
+    "timeLimit": 1000,
+    "memoryLimit": 256,
+    "xp": 20,
+    "estimatedTime": 15,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\nlet idx = 0;\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Count Inversions in Array",
+    "slug": "count-inversions-array",
+    "difficulty": "MEDIUM",
+    "topic": "sorting",
+    "statement": "Given an array of integers, count the number of **inversions** (pairs `i < j` where `arr[i] > arr[j]`).",
+    "constraints": "- `1 <= n <= 10^5`\n- `0 <= arr[i] <= 10^9`",
+    "examples": [
+      {
+        "input": "5\n2 4 1 3 5",
+        "output": "3"
+      },
+      {
+        "input": "4\n3 2 1 0",
+        "output": "6"
+      }
+    ],
+    "hints": [
+      "Modify merge sort: while merging, count elements where left > right."
+    ],
+    "tags": [
+      "Array",
+      "Sorting",
+      "Divide and Conquer"
+    ],
+    "companies": [
+      "Amazon",
+      "Google",
+      "Microsoft",
+      "Flipkart"
+    ],
+    "visibleTests": [
+      {
+        "input": "5\n2 4 1 3 5",
+        "output": "3"
+      },
+      {
+        "input": "4\n3 2 1 0",
+        "output": "6"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "1\n1",
+        "output": "0"
+      },
+      {
+        "input": "3\n1 2 3",
+        "output": "0"
+      },
+      {
+        "input": "3\n3 2 1",
+        "output": "3"
+      },
+      {
+        "input": "4\n1 3 2 4",
+        "output": "1"
+      },
+      {
+        "input": "5\n1 5 2 4 3",
+        "output": "4"
+      },
+      {
+        "input": "6\n6 5 4 3 2 1",
+        "output": "15"
+      },
+      {
+        "input": "4\n1 2 3 4",
+        "output": "0"
+      },
+      {
+        "input": "5\n5 1 2 3 4",
+        "output": "4"
+      },
+      {
+        "input": "4\n2 1 4 3",
+        "output": "2"
+      },
+      {
+        "input": "5\n1 20 6 4 5",
+        "output": "5"
+      }
+    ],
+    "timeLimit": 2000,
+    "memoryLimit": 256,
+    "xp": 20,
+    "estimatedTime": 30,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Wiggle Sort",
+    "slug": "wiggle-sort",
+    "difficulty": "MEDIUM",
+    "topic": "sorting",
+    "statement": "Given an integer array `nums`, reorder it in-place such that `nums[0] <= nums[1] >= nums[2] <= nums[3]...`. Print the resulting array.\n\nMultiple valid answers are possible — print any valid one.",
+    "constraints": "- `1 <= nums.length <= 5 * 10^4`\n- `0 <= nums[i] <= 10^4`",
+    "examples": [
+      {
+        "input": "3\n3 5 2",
+        "output": "3 5 2"
+      },
+      {
+        "input": "4\n6 6 5 3",
+        "output": "3 6 5 6"
+      }
+    ],
+    "hints": [
+      "For every even index i: if nums[i] > nums[i+1], swap.",
+      "For every odd index i: if nums[i] < nums[i+1], swap."
+    ],
+    "tags": [
+      "Array",
+      "Sorting",
+      "Greedy"
+    ],
+    "companies": [
+      "Amazon",
+      "Google"
+    ],
+    "visibleTests": [
+      {
+        "input": "3\n3 5 2",
+        "output": "3 5 2"
+      },
+      {
+        "input": "4\n6 6 5 3",
+        "output": "3 6 5 6"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "1\n1",
+        "output": "1"
+      },
+      {
+        "input": "2\n1 2",
+        "output": "1 2"
+      },
+      {
+        "input": "2\n2 1",
+        "output": "1 2"
+      },
+      {
+        "input": "5\n1 2 3 4 5",
+        "output": "1 3 2 5 4"
+      },
+      {
+        "input": "4\n4 3 2 1",
+        "output": "1 4 2 3"
+      },
+      {
+        "input": "5\n0 0 0 0 0",
+        "output": "0 0 0 0 0"
+      },
+      {
+        "input": "3\n1 1 1",
+        "output": "1 1 1"
+      },
+      {
+        "input": "5\n5 3 1 4 2",
+        "output": "1 5 2 4 3"
+      },
+      {
+        "input": "4\n1 2 1 2",
+        "output": "1 2 1 2"
+      },
+      {
+        "input": "6\n1 5 1 1 6 4",
+        "output": "1 5 1 6 1 4"
+      }
+    ],
+    "timeLimit": 1000,
+    "memoryLimit": 256,
+    "xp": 20,
+    "estimatedTime": 20,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Bubble Sort Steps",
+    "slug": "bubble-sort-steps",
+    "difficulty": "EASY",
+    "topic": "sorting",
+    "statement": "Given an array of integers, sort it using bubble sort and return the total number of swaps performed.",
+    "constraints": "- `1 <= nums.length <= 10^3`\n- `-10^4 <= nums[i] <= 10^4`",
+    "examples": [
+      {
+        "input": "4\n4 3 2 1",
+        "output": "6"
+      },
+      {
+        "input": "3\n1 2 3",
+        "output": "0"
+      }
+    ],
+    "hints": [
+      "Standard bubble sort: count every swap."
+    ],
+    "tags": [
+      "Array",
+      "Sorting"
+    ],
+    "companies": [
+      "Amazon",
+      "Adobe"
+    ],
+    "visibleTests": [
+      {
+        "input": "4\n4 3 2 1",
+        "output": "6"
+      },
+      {
+        "input": "3\n1 2 3",
+        "output": "0"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "1\n5",
+        "output": "0"
+      },
+      {
+        "input": "2\n2 1",
+        "output": "1"
+      },
+      {
+        "input": "2\n1 2",
+        "output": "0"
+      },
+      {
+        "input": "5\n5 4 3 2 1",
+        "output": "10"
+      },
+      {
+        "input": "5\n1 2 3 4 5",
+        "output": "0"
+      },
+      {
+        "input": "4\n2 1 4 3",
+        "output": "2"
+      },
+      {
+        "input": "3\n3 1 2",
+        "output": "2"
+      },
+      {
+        "input": "5\n3 5 1 4 2",
+        "output": "7"
+      },
+      {
+        "input": "4\n1 1 1 1",
+        "output": "0"
+      },
+      {
+        "input": "5\n2 5 3 1 4",
+        "output": "6"
+      }
+    ],
+    "timeLimit": 2000,
+    "memoryLimit": 256,
+    "xp": 10,
+    "estimatedTime": 12,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\ndef solve():\n    pass\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\n// code",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Check Array is Sorted",
+    "slug": "check-array-sorted",
+    "difficulty": "EASY",
+    "topic": "sorting",
+    "statement": "Given an array of integers, check if it is sorted in non-decreasing order. Return `true` if sorted, `false` otherwise.",
+    "constraints": "- `1 <= nums.length <= 10^5`\n- `-10^9 <= nums[i] <= 10^9`",
+    "examples": [
+      {
+        "input": "4\n1 2 3 4",
+        "output": "true"
+      },
+      {
+        "input": "4\n4 3 2 1",
+        "output": "false"
+      }
+    ],
+    "hints": [
+      "Single pass: check nums[i] <= nums[i+1]."
+    ],
+    "tags": [
+      "Array",
+      "Sorting"
+    ],
+    "companies": [
+      "Adobe",
+      "Samsung"
+    ],
+    "visibleTests": [
+      {
+        "input": "4\n1 2 3 4",
+        "output": "true"
+      },
+      {
+        "input": "4\n4 3 2 1",
+        "output": "false"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "1\n1",
+        "output": "true"
+      },
+      {
+        "input": "2\n1 1",
+        "output": "true"
+      },
+      {
+        "input": "2\n2 1",
+        "output": "false"
+      },
+      {
+        "input": "5\n1 2 2 3 4",
+        "output": "true"
+      },
+      {
+        "input": "5\n1 3 2 4 5",
+        "output": "false"
+      },
+      {
+        "input": "5\n5 5 5 5 5",
+        "output": "true"
+      },
+      {
+        "input": "3\n1 2 1",
+        "output": "false"
+      },
+      {
+        "input": "4\n-4 -3 -2 -1",
+        "output": "true"
+      },
+      {
+        "input": "4\n1 0 -1 -2",
+        "output": "false"
+      },
+      {
+        "input": "6\n1 2 3 3 4 5",
+        "output": "true"
+      }
+    ],
+    "timeLimit": 1000,
+    "memoryLimit": 256,
+    "xp": 10,
+    "estimatedTime": 8,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\ndef solve():\n    pass\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\n// code",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Sort Array By Parity",
+    "slug": "sort-array-by-parity",
+    "difficulty": "EASY",
+    "topic": "sorting",
+    "statement": "Given an integer array `nums`, move all even integers to the beginning and all odd integers to the end. Return any valid ordering.",
+    "constraints": "- `1 <= nums.length <= 5000`\n- `0 <= nums[i] <= 5000`",
+    "examples": [
+      {
+        "input": "4\n3 1 2 4",
+        "output": "2 4 3 1"
+      },
+      {
+        "input": "4\n0 2 1 3",
+        "output": "0 2 1 3"
+      }
+    ],
+    "hints": [
+      "Two-pointer: one from left (find odd), one from right (find even), swap."
+    ],
+    "tags": [
+      "Array",
+      "Two Pointers",
+      "Sorting"
+    ],
+    "companies": [
+      "Amazon",
+      "Adobe"
+    ],
+    "visibleTests": [
+      {
+        "input": "4\n3 1 2 4",
+        "output": "2 4 3 1"
+      },
+      {
+        "input": "4\n0 2 1 3",
+        "output": "0 2 1 3"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "1\n1",
+        "output": "1"
+      },
+      {
+        "input": "1\n2",
+        "output": "2"
+      },
+      {
+        "input": "4\n2 4 6 8",
+        "output": "2 4 6 8"
+      },
+      {
+        "input": "4\n1 3 5 7",
+        "output": "1 3 5 7"
+      },
+      {
+        "input": "5\n5 1 2 3 4",
+        "output": "2 4 5 1 3"
+      },
+      {
+        "input": "6\n0 1 2 3 4 5",
+        "output": "0 2 4 1 3 5"
+      },
+      {
+        "input": "4\n4 2 3 1",
+        "output": "4 2 3 1"
+      },
+      {
+        "input": "2\n1 2",
+        "output": "2 1"
+      },
+      {
+        "input": "3\n0 0 1",
+        "output": "0 0 1"
+      },
+      {
+        "input": "5\n1 0 1 0 1",
+        "output": "0 0 1 1 1"
+      }
+    ],
+    "timeLimit": 1000,
+    "memoryLimit": 256,
+    "xp": 10,
+    "estimatedTime": 10,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\ndef solve():\n    pass\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\n// code",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Minimum Swaps to Sort",
+    "slug": "minimum-swaps-to-sort",
+    "difficulty": "MEDIUM",
+    "topic": "sorting",
+    "statement": "Given an array of `n` distinct integers, find the minimum number of swaps to sort the array in ascending order.",
+    "constraints": "- `1 <= n <= 10^5`\n- `1 <= nums[i] <= 10^9`\n- All elements are distinct.",
+    "examples": [
+      {
+        "input": "5\n4 3 2 1 5",
+        "output": "2"
+      },
+      {
+        "input": "4\n3 4 2 1",
+        "output": "3"
+      }
+    ],
+    "hints": [
+      "Map each value to its target index.",
+      "Count cycles in the permutation. Swaps = n - number_of_cycles."
+    ],
+    "tags": [
+      "Array",
+      "Sorting",
+      "Graph",
+      "Union Find"
+    ],
+    "companies": [
+      "Amazon",
+      "Google",
+      "Flipkart"
+    ],
+    "visibleTests": [
+      {
+        "input": "5\n4 3 2 1 5",
+        "output": "2"
+      },
+      {
+        "input": "4\n3 4 2 1",
+        "output": "3"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "1\n1",
+        "output": "0"
+      },
+      {
+        "input": "3\n1 2 3",
+        "output": "0"
+      },
+      {
+        "input": "3\n3 2 1",
+        "output": "1"
+      },
+      {
+        "input": "4\n4 3 2 1",
+        "output": "2"
+      },
+      {
+        "input": "5\n5 4 3 2 1",
+        "output": "2"
+      },
+      {
+        "input": "6\n1 5 4 3 2 6",
+        "output": "2"
+      },
+      {
+        "input": "5\n2 3 4 5 1",
+        "output": "4"
+      },
+      {
+        "input": "4\n2 1 4 3",
+        "output": "2"
+      },
+      {
+        "input": "6\n3 1 2 6 4 5",
+        "output": "3"
+      },
+      {
+        "input": "5\n1 2 3 5 4",
+        "output": "1"
+      }
+    ],
+    "timeLimit": 2000,
+    "memoryLimit": 256,
+    "xp": 20,
+    "estimatedTime": 25,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "// code",
+      "java": "// code",
+      "cpp": "// code"
+    }
+  }
+]

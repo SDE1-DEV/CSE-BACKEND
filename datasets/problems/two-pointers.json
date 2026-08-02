@@ -7,32 +7,86 @@
     "statement": "A phrase is a palindrome if, after converting all uppercase letters into lowercase letters and removing all non-alphanumeric characters, it reads the same forward and backward. Alphanumeric characters include letters and numbers.\n\nGiven a string `s`, return `true` if it is a palindrome, or `false` otherwise.",
     "constraints": "- `1 <= s.length <= 2 * 10^5`\n- `s` consists only of printable ASCII characters.",
     "examples": [
-      { "input": "s = \"A man, a plan, a canal: Panama\"", "output": "true" },
-      { "input": "s = \"race a car\"", "output": "false" },
-      { "input": "s = \" \"", "output": "true" }
+      {
+        "input": "s = \"A man, a plan, a canal: Panama\"",
+        "output": "true"
+      },
+      {
+        "input": "s = \"race a car\"",
+        "output": "false"
+      },
+      {
+        "input": "s = \" \"",
+        "output": "true"
+      }
     ],
-    "hints": ["Use two pointers from both ends, skip non-alphanumeric."],
-    "tags": ["Two Pointers", "String"],
-    "companies": ["Google", "Amazon", "Microsoft"],
+    "hints": [
+      "Use two pointers from both ends, skip non-alphanumeric."
+    ],
+    "tags": [
+      "Two Pointers",
+      "String"
+    ],
+    "companies": [
+      "Google",
+      "Amazon",
+      "Microsoft"
+    ],
     "visibleTests": [
-      { "input": "A man, a plan, a canal: Panama", "output": "true" },
-      { "input": "race a car", "output": "false" }
+      {
+        "input": "A man, a plan, a canal: Panama",
+        "output": "true"
+      },
+      {
+        "input": "race a car",
+        "output": "false"
+      }
     ],
     "hiddenTests": [
-      { "input": " ", "output": "true" },
-      { "input": "a", "output": "true" },
-      { "input": "aba", "output": "true" },
-      { "input": "abba", "output": "true" },
-      { "input": "abc", "output": "false" },
-      { "input": "0P", "output": "false" },
-      { "input": ".,", "output": "true" },
-      { "input": "Was it a car or a cat I saw?", "output": "true" }
+      {
+        "input": " ",
+        "output": "true"
+      },
+      {
+        "input": "a",
+        "output": "true"
+      },
+      {
+        "input": "aba",
+        "output": "true"
+      },
+      {
+        "input": "abba",
+        "output": "true"
+      },
+      {
+        "input": "abc",
+        "output": "false"
+      },
+      {
+        "input": "0P",
+        "output": "false"
+      },
+      {
+        "input": ".,",
+        "output": "true"
+      },
+      {
+        "input": "Was it a car or a cat I saw?",
+        "output": "true"
+      }
     ],
     "timeLimit": 1000,
     "memoryLimit": 256,
     "xp": 10,
     "estimatedTime": 10,
-    "license": "ORIGINAL"
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
   },
   {
     "title": "Two Sum II - Input Array Is Sorted",
@@ -42,31 +96,1037 @@
     "statement": "Given a 1-indexed array of integers `numbers` that is already sorted in non-decreasing order, find two numbers such that they add up to a specific `target` number. Let these two numbers be `numbers[index1]` and `numbers[index2]` where `1 <= index1 < index2 <= numbers.length`.\n\nReturn the indices of the two numbers, `index1` and `index2`, added by one as an integer array `[index1, index2]` of length 2.\n\nYou may not use the same element twice.\n\nThe tests are generated such that there is exactly one solution.",
     "constraints": "- `2 <= numbers.length <= 3 * 10^4`\n- `-1000 <= numbers[i] <= 1000`\n- `numbers` is sorted in non-decreasing order.\n- `-1000 <= target <= 1000`\n- The tests are generated such that there is exactly one solution.",
     "examples": [
-      { "input": "numbers = [2,7,11,15], target = 9", "output": "[1,2]" },
-      { "input": "numbers = [2,3,4], target = 6", "output": "[1,3]" },
-      { "input": "numbers = [-1,0], target = -1", "output": "[1,2]" }
+      {
+        "input": "numbers = [2,7,11,15], target = 9",
+        "output": "[1,2]"
+      },
+      {
+        "input": "numbers = [2,3,4], target = 6",
+        "output": "[1,3]"
+      },
+      {
+        "input": "numbers = [-1,0], target = -1",
+        "output": "[1,2]"
+      }
     ],
-    "hints": ["Use two pointers from both ends.", "Move left pointer right if sum is too small, right pointer left if too large."],
-    "tags": ["Array", "Two Pointers", "Binary Search"],
-    "companies": ["Amazon", "Google"],
+    "hints": [
+      "Use two pointers from both ends.",
+      "Move left pointer right if sum is too small, right pointer left if too large."
+    ],
+    "tags": [
+      "Array",
+      "Two Pointers",
+      "Binary Search"
+    ],
+    "companies": [
+      "Amazon",
+      "Google"
+    ],
     "visibleTests": [
-      { "input": "4\n2 7 11 15\n9", "output": "1 2" },
-      { "input": "3\n2 3 4\n6", "output": "1 3" }
+      {
+        "input": "4\n2 7 11 15\n9",
+        "output": "1 2"
+      },
+      {
+        "input": "3\n2 3 4\n6",
+        "output": "1 3"
+      }
     ],
     "hiddenTests": [
-      { "input": "2\n-1 0\n-1", "output": "1 2" },
-      { "input": "2\n1 2\n3", "output": "1 2" },
-      { "input": "5\n1 2 3 4 5\n9", "output": "4 5" },
-      { "input": "4\n-4 -3 -1 1\n-4", "output": "1 3" },
-      { "input": "6\n1 3 4 5 7 11\n9", "output": "3 5" },
-      { "input": "3\n1 5 10\n11", "output": "2 3" },
-      { "input": "4\n0 0 3 4\n0", "output": "1 2" },
-      { "input": "5\n-1000 -1 0 1 1000\n0", "output": "2 4" }
+      {
+        "input": "2\n-1 0\n-1",
+        "output": "1 2"
+      },
+      {
+        "input": "2\n1 2\n3",
+        "output": "1 2"
+      },
+      {
+        "input": "5\n1 2 3 4 5\n9",
+        "output": "4 5"
+      },
+      {
+        "input": "4\n-4 -3 -1 1\n-4",
+        "output": "1 3"
+      },
+      {
+        "input": "6\n1 3 4 5 7 11\n9",
+        "output": "3 5"
+      },
+      {
+        "input": "3\n1 5 10\n11",
+        "output": "2 3"
+      },
+      {
+        "input": "4\n0 0 3 4\n0",
+        "output": "1 2"
+      },
+      {
+        "input": "5\n-1000 -1 0 1 1000\n0",
+        "output": "2 4"
+      }
     ],
     "timeLimit": 1000,
     "memoryLimit": 256,
     "xp": 20,
     "estimatedTime": 15,
-    "license": "ORIGINAL"
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Remove Duplicates from Sorted Array",
+    "slug": "remove-duplicates-sorted-array",
+    "difficulty": "EASY",
+    "topic": "two-pointers",
+    "statement": "Given a sorted array `nums`, remove duplicates in-place so each element appears only once. Print the number of unique elements followed by the unique elements in order.",
+    "constraints": "- `1 <= nums.length <= 3 * 10^4`\n- `-100 <= nums[i] <= 100`\n- `nums` is sorted in non-decreasing order.",
+    "examples": [
+      {
+        "input": "5\n1 1 2 3 3",
+        "output": "3\n1 2 3"
+      },
+      {
+        "input": "3\n1 2 3",
+        "output": "3\n1 2 3"
+      }
+    ],
+    "hints": [
+      "Use a write pointer `k` starting at 1.",
+      "Only copy nums[i] forward if it differs from the previous unique element."
+    ],
+    "tags": [
+      "Array",
+      "Two Pointers"
+    ],
+    "companies": [
+      "Amazon",
+      "Adobe",
+      "Google"
+    ],
+    "visibleTests": [
+      {
+        "input": "5\n1 1 2 3 3",
+        "output": "3\n1 2 3"
+      },
+      {
+        "input": "3\n1 2 3",
+        "output": "3\n1 2 3"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "1\n1",
+        "output": "1\n1"
+      },
+      {
+        "input": "5\n1 1 1 1 1",
+        "output": "1\n1"
+      },
+      {
+        "input": "6\n1 1 2 2 3 3",
+        "output": "3\n1 2 3"
+      },
+      {
+        "input": "4\n0 0 0 0",
+        "output": "1\n0"
+      },
+      {
+        "input": "5\n-3 -3 0 1 1",
+        "output": "3\n-3 0 1"
+      },
+      {
+        "input": "6\n1 2 3 4 5 6",
+        "output": "6\n1 2 3 4 5 6"
+      },
+      {
+        "input": "4\n-5 -4 -3 -2",
+        "output": "4\n-5 -4 -3 -2"
+      },
+      {
+        "input": "5\n0 0 0 1 1",
+        "output": "2\n0 1"
+      },
+      {
+        "input": "7\n1 1 2 3 3 4 5",
+        "output": "5\n1 2 3 4 5"
+      },
+      {
+        "input": "3\n5 5 5",
+        "output": "1\n5"
+      }
+    ],
+    "timeLimit": 1000,
+    "memoryLimit": 256,
+    "xp": 10,
+    "estimatedTime": 10,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\nlet idx = 0;\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Sort Array of 0s 1s and 2s",
+    "slug": "sort-array-0s-1s-2s",
+    "difficulty": "EASY",
+    "topic": "two-pointers",
+    "statement": "Given an array containing only 0s, 1s, and 2s, sort the array in a single traversal without using any sorting algorithm.\n\nPrint the sorted array.",
+    "constraints": "- `1 <= nums.length <= 10^5`\n- `nums[i]` is `0`, `1`, or `2`.",
+    "examples": [
+      {
+        "input": "5\n0 1 2 0 1",
+        "output": "0 0 1 1 2"
+      },
+      {
+        "input": "3\n2 1 0",
+        "output": "0 1 2"
+      }
+    ],
+    "hints": [
+      "Use three pointers: low=0, mid=0, high=n-1.",
+      "Swap to put 0s at front and 2s at back."
+    ],
+    "tags": [
+      "Array",
+      "Two Pointers",
+      "Sorting"
+    ],
+    "companies": [
+      "Amazon",
+      "Adobe",
+      "Samsung"
+    ],
+    "visibleTests": [
+      {
+        "input": "5\n0 1 2 0 1",
+        "output": "0 0 1 1 2"
+      },
+      {
+        "input": "3\n2 1 0",
+        "output": "0 1 2"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "1\n0",
+        "output": "0"
+      },
+      {
+        "input": "1\n2",
+        "output": "2"
+      },
+      {
+        "input": "3\n0 0 0",
+        "output": "0 0 0"
+      },
+      {
+        "input": "3\n2 2 2",
+        "output": "2 2 2"
+      },
+      {
+        "input": "3\n1 1 1",
+        "output": "1 1 1"
+      },
+      {
+        "input": "6\n2 0 2 1 1 0",
+        "output": "0 0 1 1 2 2"
+      },
+      {
+        "input": "5\n1 0 2 1 0",
+        "output": "0 0 1 1 2"
+      },
+      {
+        "input": "4\n2 2 0 0",
+        "output": "0 0 2 2"
+      },
+      {
+        "input": "7\n0 1 2 1 0 2 1",
+        "output": "0 0 1 1 1 2 2"
+      },
+      {
+        "input": "4\n1 2 0 1",
+        "output": "0 1 1 2"
+      }
+    ],
+    "timeLimit": 1000,
+    "memoryLimit": 256,
+    "xp": 10,
+    "estimatedTime": 12,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\nlet idx = 0;\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Squaring a Sorted Array",
+    "slug": "squaring-sorted-array",
+    "difficulty": "EASY",
+    "topic": "two-pointers",
+    "statement": "Given an integer array `nums` sorted in non-decreasing order, return an array of the **squares of each number** sorted in non-decreasing order.",
+    "constraints": "- `1 <= nums.length <= 10^4`\n- `-10^4 <= nums[i] <= 10^4`\n- `nums` is sorted in non-decreasing order.",
+    "examples": [
+      {
+        "input": "5\n-4 -1 0 3 10",
+        "output": "0 1 9 16 100"
+      },
+      {
+        "input": "4\n-7 -3 2 3",
+        "output": "4 9 9 49"
+      }
+    ],
+    "hints": [
+      "Use two pointers from both ends.",
+      "Compare absolute values and fill result from the back."
+    ],
+    "tags": [
+      "Array",
+      "Two Pointers",
+      "Sorting"
+    ],
+    "companies": [
+      "Google",
+      "Amazon"
+    ],
+    "visibleTests": [
+      {
+        "input": "5\n-4 -1 0 3 10",
+        "output": "0 1 9 16 100"
+      },
+      {
+        "input": "4\n-7 -3 2 3",
+        "output": "4 9 9 49"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "1\n0",
+        "output": "0"
+      },
+      {
+        "input": "1\n-3",
+        "output": "9"
+      },
+      {
+        "input": "3\n-3 -2 -1",
+        "output": "1 4 9"
+      },
+      {
+        "input": "3\n1 2 3",
+        "output": "1 4 9"
+      },
+      {
+        "input": "5\n-5 -3 -2 1 4",
+        "output": "1 4 9 16 25"
+      },
+      {
+        "input": "4\n-4 -3 3 4",
+        "output": "9 9 16 16"
+      },
+      {
+        "input": "5\n-1 -1 0 1 1",
+        "output": "0 1 1 1 1"
+      },
+      {
+        "input": "4\n0 0 0 0",
+        "output": "0 0 0 0"
+      },
+      {
+        "input": "5\n-100 -50 0 50 100",
+        "output": "0 2500 2500 10000 10000"
+      },
+      {
+        "input": "3\n-2 0 2",
+        "output": "0 4 4"
+      }
+    ],
+    "timeLimit": 1000,
+    "memoryLimit": 256,
+    "xp": 10,
+    "estimatedTime": 12,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\nlet idx = 0;\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Pair With Target Sum in Sorted Array",
+    "slug": "pair-target-sum-sorted",
+    "difficulty": "EASY",
+    "topic": "two-pointers",
+    "statement": "Given a sorted array and a target sum, find if there exists a pair of elements that add up to the target. Print `Yes` followed by the pair if found, otherwise print `No`.\n\nIf multiple pairs exist, print the one with the smallest first element.",
+    "constraints": "- `2 <= nums.length <= 10^5`\n- `-10^4 <= nums[i], target <= 10^4`",
+    "examples": [
+      {
+        "input": "5\n1 2 3 4 5\n7",
+        "output": "Yes\n3 4"
+      },
+      {
+        "input": "4\n1 2 3 4\n10",
+        "output": "No"
+      }
+    ],
+    "hints": [
+      "Use left and right pointers.",
+      "Move left right if sum < target, move right left if sum > target."
+    ],
+    "tags": [
+      "Array",
+      "Two Pointers"
+    ],
+    "companies": [
+      "Amazon",
+      "Adobe"
+    ],
+    "visibleTests": [
+      {
+        "input": "5\n1 2 3 4 5\n7",
+        "output": "Yes\n3 4"
+      },
+      {
+        "input": "4\n1 2 3 4\n10",
+        "output": "No"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "2\n1 2\n3",
+        "output": "Yes\n1 2"
+      },
+      {
+        "input": "2\n1 2\n4",
+        "output": "No"
+      },
+      {
+        "input": "4\n-5 -3 0 4\n-3",
+        "output": "Yes\n-3 0"
+      },
+      {
+        "input": "5\n1 2 3 4 5\n9",
+        "output": "Yes\n4 5"
+      },
+      {
+        "input": "4\n2 4 6 8\n10",
+        "output": "Yes\n2 8"
+      },
+      {
+        "input": "5\n1 1 1 1 1\n2",
+        "output": "Yes\n1 1"
+      },
+      {
+        "input": "4\n1 2 3 4\n7",
+        "output": "Yes\n3 4"
+      },
+      {
+        "input": "3\n0 0 0\n0",
+        "output": "Yes\n0 0"
+      },
+      {
+        "input": "5\n-10 -5 0 5 10\n0",
+        "output": "Yes\n-10 10"
+      },
+      {
+        "input": "4\n1 3 5 7\n10",
+        "output": "Yes\n3 7"
+      }
+    ],
+    "timeLimit": 1000,
+    "memoryLimit": 256,
+    "xp": 10,
+    "estimatedTime": 12,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\nlet idx = 0;\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Triplet Sum Zero",
+    "slug": "triplet-sum-zero",
+    "difficulty": "MEDIUM",
+    "topic": "two-pointers",
+    "statement": "Given an array of integers, find all unique triplets `[a, b, c]` such that `a + b + c = 0` and `a <= b <= c`.\n\nPrint each triplet on a separate line as three space-separated values. Print triplets in lexicographic order.",
+    "constraints": "- `3 <= nums.length <= 3000`\n- `-10^5 <= nums[i] <= 10^5`",
+    "examples": [
+      {
+        "input": "6\n-1 0 1 2 -1 -4",
+        "output": "-1 -1 2\n-1 0 1"
+      },
+      {
+        "input": "3\n0 0 0",
+        "output": "0 0 0"
+      }
+    ],
+    "hints": [
+      "Sort first. Fix one element, use two pointers for the rest.",
+      "Skip duplicates carefully."
+    ],
+    "tags": [
+      "Array",
+      "Two Pointers",
+      "Sorting"
+    ],
+    "companies": [
+      "Amazon",
+      "Google",
+      "Microsoft"
+    ],
+    "visibleTests": [
+      {
+        "input": "6\n-1 0 1 2 -1 -4",
+        "output": "-1 -1 2\n-1 0 1"
+      },
+      {
+        "input": "3\n0 0 0",
+        "output": "0 0 0"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "4\n1 2 3 4",
+        "output": ""
+      },
+      {
+        "input": "5\n-4 -1 -1 0 1 2",
+        "output": "-1 -1 2\n-1 0 1"
+      },
+      {
+        "input": "3\n1 2 -3",
+        "output": "-3 1 2"
+      },
+      {
+        "input": "4\n-2 0 1 1 2",
+        "output": "-2 0 2\n-2 1 1"
+      },
+      {
+        "input": "5\n-5 0 5 0 -5",
+        "output": "-5 0 5"
+      },
+      {
+        "input": "6\n-1 -1 -1 2 2 2",
+        "output": "-1 -1 2"
+      },
+      {
+        "input": "5\n0 0 0 0 0",
+        "output": "0 0 0"
+      },
+      {
+        "input": "6\n-4 -2 0 2 4 0",
+        "output": "-4 0 4\n-2 -2 4\n-4 2 2\n-2 0 2"
+      },
+      {
+        "input": "3\n1 -1 0",
+        "output": "-1 0 1"
+      },
+      {
+        "input": "5\n2 -2 0 1 -1",
+        "output": "-2 0 2\n-1 0 1"
+      }
+    ],
+    "timeLimit": 2000,
+    "memoryLimit": 256,
+    "xp": 20,
+    "estimatedTime": 25,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\nlet idx = 0;\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Container With Most Water II",
+    "slug": "container-most-water-ii",
+    "difficulty": "MEDIUM",
+    "topic": "two-pointers",
+    "statement": "You have `n` vertical towers. Tower `i` has height `h[i]`. You can pick any two towers at positions `i` and `j` (i < j). The amount of water held is `(j - i) * min(h[i], h[j])`.\n\nReturn the **maximum** amount of water that can be held.",
+    "constraints": "- `2 <= n <= 10^5`\n- `0 <= h[i] <= 10^4`",
+    "examples": [
+      {
+        "input": "5\n1 8 6 2 5",
+        "output": "16"
+      },
+      {
+        "input": "3\n3 3 3",
+        "output": "6"
+      }
+    ],
+    "hints": [
+      "Start with both pointers at the ends.",
+      "Always move the pointer with the smaller height inward."
+    ],
+    "tags": [
+      "Array",
+      "Two Pointers",
+      "Greedy"
+    ],
+    "companies": [
+      "Google",
+      "Amazon",
+      "Meta"
+    ],
+    "visibleTests": [
+      {
+        "input": "5\n1 8 6 2 5",
+        "output": "16"
+      },
+      {
+        "input": "3\n3 3 3",
+        "output": "6"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "2\n1 1",
+        "output": "1"
+      },
+      {
+        "input": "2\n0 5",
+        "output": "0"
+      },
+      {
+        "input": "4\n4 3 2 1",
+        "output": "4"
+      },
+      {
+        "input": "4\n1 2 3 4",
+        "output": "4"
+      },
+      {
+        "input": "5\n3 1 2 4 5",
+        "output": "12"
+      },
+      {
+        "input": "6\n1 7 2 5 4 7",
+        "output": "28"
+      },
+      {
+        "input": "4\n10 10 10 10",
+        "output": "30"
+      },
+      {
+        "input": "5\n1 1 1 1 10",
+        "output": "4"
+      },
+      {
+        "input": "3\n100 1 100",
+        "output": "200"
+      },
+      {
+        "input": "5\n0 0 0 0 0",
+        "output": "0"
+      }
+    ],
+    "timeLimit": 1000,
+    "memoryLimit": 256,
+    "xp": 20,
+    "estimatedTime": 20,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\nlet idx = 0;\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Four Sum",
+    "slug": "four-sum",
+    "difficulty": "MEDIUM",
+    "topic": "two-pointers",
+    "statement": "Given an integer array `nums` and a target, find all unique quadruplets `[a,b,c,d]` such that `a+b+c+d == target`. Print each in sorted order, one per line. Print quadruplets in lexicographic order.",
+    "constraints": "- `1 <= nums.length <= 200`\n- `-10^9 <= nums[i], target <= 10^9`",
+    "examples": [
+      {
+        "input": "4\n1 0 -1 0\n0",
+        "output": "-1 0 0 1"
+      },
+      {
+        "input": "5\n2 2 2 2 2\n8",
+        "output": "2 2 2 2"
+      }
+    ],
+    "hints": [
+      "Sort first. Fix first two elements, use two pointers for the rest.",
+      "Skip duplicates carefully."
+    ],
+    "tags": [
+      "Array",
+      "Two Pointers",
+      "Sorting",
+      "Hash Table"
+    ],
+    "companies": [
+      "Amazon",
+      "Google",
+      "Microsoft"
+    ],
+    "visibleTests": [
+      {
+        "input": "4\n1 0 -1 0\n0",
+        "output": "-1 0 0 1"
+      },
+      {
+        "input": "5\n2 2 2 2 2\n8",
+        "output": "2 2 2 2"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "4\n1 2 3 4\n10",
+        "output": "1 2 3 4"
+      },
+      {
+        "input": "4\n1 2 3 4\n11",
+        "output": ""
+      },
+      {
+        "input": "6\n-3 -2 -1 0 1 2\n0",
+        "output": "-3 -2 1 4\n-3 -1 0 4\n-2 -1 0 3"
+      },
+      {
+        "input": "6\n0 0 0 0 0 0\n0",
+        "output": "0 0 0 0"
+      },
+      {
+        "input": "5\n1 1 1 1 1\n4",
+        "output": "1 1 1 1"
+      },
+      {
+        "input": "4\n-4 -1 -1 0\n-6",
+        "output": "-4 -1 -1 0"
+      },
+      {
+        "input": "6\n-2 -1 0 0 1 2\n0",
+        "output": "-2 -1 1 2\n-2 0 0 2\n-1 0 0 1"
+      },
+      {
+        "input": "4\n5 5 5 5\n20",
+        "output": "5 5 5 5"
+      },
+      {
+        "input": "5\n1 2 3 4 5\n15",
+        "output": "1 4 5 5\n2 3 5 5"
+      },
+      {
+        "input": "4\n0 0 0 0\n0",
+        "output": "0 0 0 0"
+      }
+    ],
+    "timeLimit": 2000,
+    "memoryLimit": 256,
+    "xp": 20,
+    "estimatedTime": 30,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\ndef solve():\n    pass\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\n// code",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Longest Mountain in Array",
+    "slug": "longest-mountain-in-array",
+    "difficulty": "MEDIUM",
+    "topic": "two-pointers",
+    "statement": "A mountain subarray has at least 3 elements, strictly increases then strictly decreases. Find the length of the longest mountain subarray. If none, return 0.",
+    "constraints": "- `1 <= arr.length <= 10^4`\n- `0 <= arr[i] <= 10^4`",
+    "examples": [
+      {
+        "input": "8\n2 1 4 7 3 2 5",
+        "output": "5"
+      },
+      {
+        "input": "6\n2 2 2 2 2 2",
+        "output": "0"
+      }
+    ],
+    "hints": [
+      "Two-pass: find peak candidates (middle of increasing-decreasing).",
+      "Expand left and right from each peak."
+    ],
+    "tags": [
+      "Array",
+      "Two Pointers",
+      "Dynamic Programming",
+      "Enumeration"
+    ],
+    "companies": [
+      "Amazon",
+      "Google"
+    ],
+    "visibleTests": [
+      {
+        "input": "8\n2 1 4 7 3 2 5",
+        "output": "5"
+      },
+      {
+        "input": "6\n2 2 2 2 2 2",
+        "output": "0"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "5\n2 3 3 2 0",
+        "output": "0"
+      },
+      {
+        "input": "5\n0 2 0 2 0",
+        "output": "3"
+      },
+      {
+        "input": "7\n0 1 2 3 2 1 0",
+        "output": "7"
+      },
+      {
+        "input": "3\n1 2 1",
+        "output": "3"
+      },
+      {
+        "input": "3\n1 1 1",
+        "output": "0"
+      },
+      {
+        "input": "5\n1 3 5 4 2",
+        "output": "5"
+      },
+      {
+        "input": "6\n2 1 4 7 3 2",
+        "output": "6"
+      },
+      {
+        "input": "4\n0 1 2 1",
+        "output": "4"
+      },
+      {
+        "input": "4\n0 1 2 3",
+        "output": "0"
+      },
+      {
+        "input": "7\n1 3 1 3 1 3 1",
+        "output": "3"
+      }
+    ],
+    "timeLimit": 1000,
+    "memoryLimit": 256,
+    "xp": 20,
+    "estimatedTime": 20,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\ndef solve():\n    pass\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\n// code",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Trapping Rain Water Efficient",
+    "slug": "trapping-rain-water-efficient",
+    "difficulty": "MEDIUM",
+    "topic": "two-pointers",
+    "statement": "Given `n` non-negative integers representing an elevation map of width 1, compute how much water it can trap after raining. Use the O(n) two-pointer approach.",
+    "constraints": "- `n == height.length`\n- `1 <= n <= 2 * 10^4`\n- `0 <= height[i] <= 10^5`",
+    "examples": [
+      {
+        "input": "12\n0 1 0 2 1 0 1 3 2 1 2 1",
+        "output": "6"
+      },
+      {
+        "input": "6\n4 2 0 3 2 5",
+        "output": "9"
+      }
+    ],
+    "hints": [
+      "Two pointers from both ends.",
+      "Track max_left and max_right.",
+      "Water at i = min(max_left, max_right) - height[i]."
+    ],
+    "tags": [
+      "Array",
+      "Two Pointers",
+      "Dynamic Programming",
+      "Stack",
+      "Monotonic Stack"
+    ],
+    "companies": [
+      "Amazon",
+      "Google",
+      "Microsoft",
+      "Meta"
+    ],
+    "visibleTests": [
+      {
+        "input": "12\n0 1 0 2 1 0 1 3 2 1 2 1",
+        "output": "6"
+      },
+      {
+        "input": "6\n4 2 0 3 2 5",
+        "output": "9"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "1\n5",
+        "output": "0"
+      },
+      {
+        "input": "2\n3 0",
+        "output": "0"
+      },
+      {
+        "input": "3\n3 0 3",
+        "output": "3"
+      },
+      {
+        "input": "5\n1 2 3 4 5",
+        "output": "0"
+      },
+      {
+        "input": "5\n5 4 3 2 1",
+        "output": "0"
+      },
+      {
+        "input": "4\n3 1 2 4",
+        "output": "4"
+      },
+      {
+        "input": "6\n0 5 0 5 0 5",
+        "output": "10"
+      },
+      {
+        "input": "5\n2 0 2 0 2",
+        "output": "4"
+      },
+      {
+        "input": "8\n4 2 3 1 2 3 4 2",
+        "output": "10"
+      },
+      {
+        "input": "5\n0 1 2 1 0",
+        "output": "0"
+      }
+    ],
+    "timeLimit": 1000,
+    "memoryLimit": 256,
+    "xp": 20,
+    "estimatedTime": 25,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\ndef solve():\n    pass\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\n// code",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Container With Most Water Variant",
+    "slug": "container-most-water-variant",
+    "difficulty": "MEDIUM",
+    "topic": "two-pointers",
+    "statement": "Given `n` walls with heights, find the maximum area of water a container can hold. Container formed by two walls at positions i and j: area = (j-i) * min(h[i], h[j]).",
+    "constraints": "- `2 <= n <= 10^5`\n- `0 <= height[i] <= 10^4`",
+    "examples": [
+      {
+        "input": "9\n1 8 6 2 5 4 8 3 7",
+        "output": "49"
+      },
+      {
+        "input": "2\n1 1",
+        "output": "1"
+      }
+    ],
+    "hints": [
+      "Two pointers from both ends.",
+      "Always move the pointer with the smaller height."
+    ],
+    "tags": [
+      "Array",
+      "Two Pointers",
+      "Greedy"
+    ],
+    "companies": [
+      "Google",
+      "Amazon",
+      "Meta"
+    ],
+    "visibleTests": [
+      {
+        "input": "9\n1 8 6 2 5 4 8 3 7",
+        "output": "49"
+      },
+      {
+        "input": "2\n1 1",
+        "output": "1"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "2\n0 5",
+        "output": "0"
+      },
+      {
+        "input": "4\n4 3 2 1",
+        "output": "4"
+      },
+      {
+        "input": "4\n1 2 3 4",
+        "output": "4"
+      },
+      {
+        "input": "5\n3 1 2 4 5",
+        "output": "12"
+      },
+      {
+        "input": "6\n1 7 2 5 4 7",
+        "output": "28"
+      },
+      {
+        "input": "4\n10 10 10 10",
+        "output": "30"
+      },
+      {
+        "input": "5\n1 1 1 1 10",
+        "output": "4"
+      },
+      {
+        "input": "3\n100 1 100",
+        "output": "200"
+      },
+      {
+        "input": "5\n0 0 0 0 0",
+        "output": "0"
+      },
+      {
+        "input": "4\n5 3 2 4",
+        "output": "9"
+      }
+    ],
+    "timeLimit": 1000,
+    "memoryLimit": 256,
+    "xp": 20,
+    "estimatedTime": 20,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "// code",
+      "java": "// code",
+      "cpp": "// code"
+    }
   }
 ]

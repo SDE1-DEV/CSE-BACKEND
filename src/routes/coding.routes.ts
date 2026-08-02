@@ -36,7 +36,7 @@ import { createSubmissionSchema, getSubmissionsQuerySchema } from '../validators
 import { createDiscussionSchema, getDiscussionsQuerySchema } from '../validators/discussion.validator';
 
 import { prisma } from '../config/database';
-import { sendSuccess, buildPaginated } from '../utils/response';
+import { sendSuccess, sendCreated, buildPaginated } from '../utils/response';
 import { submissionRepository } from '../repositories/submission.repository';
 import { codingProblemRepository } from '../repositories/coding-problem.repository';
 
@@ -213,8 +213,8 @@ router.post('/run', authenticate, requireStudent, async (req: Request, res: Resp
     }
 
     // Validate language is a known ProgrammingLanguage enum value
-    const validLanguages: ProgrammingLanguage[] = ['C', 'CPP', 'JAVA', 'PYTHON', 'JAVASCRIPT', 'TYPESCRIPT', 'GO', 'RUST', 'CSHARP', 'KOTLIN'];
-    if (!validLanguages.includes(language)) {
+    const validLanguages = Object.values(ProgrammingLanguage) as string[];
+    if (!validLanguages.includes(language as string)) {
       res.status(400).json({ success: false, message: `Unsupported language: ${rawLang}. Supported: ${validLanguages.join(', ')}` });
       return;
     }
@@ -235,10 +235,10 @@ router.post('/run', authenticate, requireStudent, async (req: Request, res: Resp
       RUNTIME_ERROR: 'runtime_error', COMPILE_ERROR: 'compile_error',
     };
 
-    const detail = await prisma.submission.findUnique({
+    const detail = await (prisma.submission.findUnique as any)({
       where: { id: submission.id },
       include: { testResults: { select: { testCaseId: true, passed: true, actualOutput: true, expectedOutput: true, runtime: true } } },
-    });
+    }) as any;
 
     sendSuccess(res, 'Code executed', {
       submissionId: submission.id,
@@ -246,15 +246,67 @@ router.post('/run', authenticate, requireStudent, async (req: Request, res: Resp
       runtime: detail?.runtime ?? null,
       memoryUsed: detail?.memoryUsed ?? null,
       errorMessage: (detail as any)?.errorMessage ?? null,
-      testResults: (detail?.testResults ?? []),
+      testResults: ((detail as any)?.testResults ?? []),
     });
   } catch (err) {
     next(err);
   }
 });
 
-// ─── Submit Code ──────────────────────────────────────────────────────────────
-router.post('/submit', authenticate, requireStudent, validate(createSubmissionSchema), createSubmission);
+// ─── Submit Code (FPRD-19 Part 10 — Submit Bug Fix) ───────────────────────────
+// The submit endpoint normalizes language, validates schema, then calls
+// submissionService.submit() which handles all pipeline stages with full logging.
+router.post('/submit', authenticate, requireStudent, async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const userId = (req as any).user?.userId;
+    if (!userId) { res.status(401).json({ success: false, message: 'Unauthorized' }); return; }
+
+    const { problemId, sourceCode } = req.body ?? {};
+    // Normalize language: frontend may send 'python' or 'PYTHON'
+    const rawLang = req.body?.language ?? '';
+    const language = (typeof rawLang === 'string' ? rawLang.toUpperCase() : rawLang) as ProgrammingLanguage;
+
+    if (!problemId || !language || !sourceCode) {
+      res.status(400).json({
+        success: false,
+        message: 'problemId, language, and sourceCode are required',
+      });
+      return;
+    }
+
+    // Validate language enum
+    const validLanguages = Object.values(ProgrammingLanguage) as string[];
+    if (!validLanguages.includes(language as string)) {
+      res.status(400).json({
+        success: false,
+        message: `Unsupported language: ${rawLang}. Supported: ${validLanguages.join(', ')}`,
+      });
+      return;
+    }
+
+    // Validate problemId is a valid UUID
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(problemId)) {
+      res.status(400).json({ success: false, message: 'Invalid problem ID format' });
+      return;
+    }
+
+    const { submissionService } = await import('../services/submission.service');
+    const submission = await submissionService.submit(userId, {
+      problemId,
+      language,
+      sourceCode,
+    });
+
+    sendCreated(res, 'Solution submitted', {
+      submissionId: submission.id,
+      status: submission.status.toLowerCase(),
+      judgeStatus: (submission as any).judgeStatus?.toLowerCase() ?? 'queued',
+    });
+  } catch (err) {
+    next(err);
+  }
+});
 
 // ─── Analytics ────────────────────────────────────────────────────────────────
 router.get('/analytics', authenticate, requireStudent, async (req: Request, res: Response, next: NextFunction) => {

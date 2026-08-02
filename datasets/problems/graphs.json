@@ -3,102 +3,1316 @@
     "title": "Number of Islands",
     "slug": "number-of-islands",
     "difficulty": "MEDIUM",
-    "topic": "graph",
+    "topic": "graphs",
     "statement": "Given an `m x n` 2D binary grid `grid` which represents a map of `'1'`s (land) and `'0'`s (water), return the number of islands.\n\nAn island is surrounded by water and is formed by connecting adjacent lands horizontally or vertically. You may assume all four edges of the grid are all surrounded by water.",
     "constraints": "- `m == grid.length`\n- `n == grid[i].length`\n- `1 <= m, n <= 300`\n- `grid[i][j]` is `'0'` or `'1'`.",
     "examples": [
-      { "input": "grid = [[\"1\",\"1\",\"1\",\"1\",\"0\"],[\"1\",\"1\",\"0\",\"1\",\"0\"],[\"1\",\"1\",\"0\",\"0\",\"0\"],[\"0\",\"0\",\"0\",\"0\",\"0\"]]", "output": "1" },
-      { "input": "grid = [[\"1\",\"1\",\"0\",\"0\",\"0\"],[\"1\",\"1\",\"0\",\"0\",\"0\"],[\"0\",\"0\",\"1\",\"0\",\"0\"],[\"0\",\"0\",\"0\",\"1\",\"1\"]]", "output": "3" }
+      {
+        "input": "grid = [[\"1\",\"1\",\"1\",\"1\",\"0\"],[\"1\",\"1\",\"0\",\"1\",\"0\"],[\"1\",\"1\",\"0\",\"0\",\"0\"],[\"0\",\"0\",\"0\",\"0\",\"0\"]]",
+        "output": "1"
+      },
+      {
+        "input": "grid = [[\"1\",\"1\",\"0\",\"0\",\"0\"],[\"1\",\"1\",\"0\",\"0\",\"0\"],[\"0\",\"0\",\"1\",\"0\",\"0\"],[\"0\",\"0\",\"0\",\"1\",\"1\"]]",
+        "output": "3"
+      }
     ],
-    "hints": ["Use DFS/BFS from each unvisited '1'.", "Mark visited cells as '0' to avoid revisiting."],
-    "tags": ["Array", "Depth-First Search", "Breadth-First Search", "Union Find", "Matrix"],
-    "companies": ["Amazon", "Google", "Microsoft"],
+    "hints": [
+      "Use DFS/BFS from each unvisited '1'.",
+      "Mark visited cells as '0' to avoid revisiting."
+    ],
+    "tags": [
+      "Array",
+      "Depth-First Search",
+      "Breadth-First Search",
+      "Union Find",
+      "Matrix"
+    ],
+    "companies": [
+      "Amazon",
+      "Google",
+      "Microsoft"
+    ],
     "visibleTests": [
-      { "input": "4 5\n1 1 1 1 0\n1 1 0 1 0\n1 1 0 0 0\n0 0 0 0 0", "output": "1" },
-      { "input": "4 5\n1 1 0 0 0\n1 1 0 0 0\n0 0 1 0 0\n0 0 0 1 1", "output": "3" }
+      {
+        "input": "4 5\n1 1 1 1 0\n1 1 0 1 0\n1 1 0 0 0\n0 0 0 0 0",
+        "output": "1"
+      },
+      {
+        "input": "4 5\n1 1 0 0 0\n1 1 0 0 0\n0 0 1 0 0\n0 0 0 1 1",
+        "output": "3"
+      }
     ],
     "hiddenTests": [
-      { "input": "1 1\n1", "output": "1" },
-      { "input": "1 1\n0", "output": "0" },
-      { "input": "3 3\n1 1 1\n0 1 0\n1 1 1", "output": "1" },
-      { "input": "3 3\n1 0 1\n0 0 0\n1 0 1", "output": "4" },
-      { "input": "2 2\n1 1\n1 1", "output": "1" },
-      { "input": "2 2\n1 0\n0 1", "output": "2" },
-      { "input": "3 4\n1 1 0 0\n0 1 1 0\n0 0 0 1", "output": "2" },
-      { "input": "1 5\n1 0 1 0 1", "output": "3" }
+      {
+        "input": "1 1\n1",
+        "output": "1"
+      },
+      {
+        "input": "1 1\n0",
+        "output": "0"
+      },
+      {
+        "input": "3 3\n1 1 1\n0 1 0\n1 1 1",
+        "output": "1"
+      },
+      {
+        "input": "3 3\n1 0 1\n0 0 0\n1 0 1",
+        "output": "4"
+      },
+      {
+        "input": "2 2\n1 1\n1 1",
+        "output": "1"
+      },
+      {
+        "input": "2 2\n1 0\n0 1",
+        "output": "2"
+      },
+      {
+        "input": "3 4\n1 1 0 0\n0 1 1 0\n0 0 0 1",
+        "output": "2"
+      },
+      {
+        "input": "1 5\n1 0 1 0 1",
+        "output": "3"
+      }
     ],
     "timeLimit": 2000,
     "memoryLimit": 256,
     "xp": 20,
     "estimatedTime": 25,
-    "license": "ORIGINAL"
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
   },
   {
     "title": "Clone Graph",
     "slug": "clone-graph",
     "difficulty": "MEDIUM",
-    "topic": "graph",
+    "topic": "graphs",
     "statement": "Given a reference of a node in a connected undirected graph, return a deep copy (clone) of the graph.\n\nEach node in the graph contains a value (int) and a list (List[Node]) of its neighbors.\n\nInput: number of nodes, edges. Output: BFS traversal of the cloned graph.",
     "constraints": "- The number of nodes in the graph is in the range `[0, 100]`.\n- `1 <= Node.val <= 100`\n- `Node.val` is unique for each node.\n- There are no repeated edges and no self-loops in the graph.\n- The Graph is connected and all nodes can be visited starting from the given node.",
     "examples": [
-      { "input": "adjList = [[2,4],[1,3],[2,4],[1,3]]", "output": "[[2,4],[1,3],[2,4],[1,3]]" },
-      { "input": "adjList = [[]]", "output": "[[]]" }
+      {
+        "input": "adjList = [[2,4],[1,3],[2,4],[1,3]]",
+        "output": "[[2,4],[1,3],[2,4],[1,3]]"
+      },
+      {
+        "input": "adjList = [[]]",
+        "output": "[[]]"
+      }
     ],
-    "hints": ["Use DFS/BFS with a hash map to map original nodes to clones."],
-    "tags": ["Hash Table", "Depth-First Search", "Breadth-First Search", "Graph"],
-    "companies": ["Google", "Facebook"],
+    "hints": [
+      "Use DFS/BFS with a hash map to map original nodes to clones."
+    ],
+    "tags": [
+      "Hash Table",
+      "Depth-First Search",
+      "Breadth-First Search",
+      "Graph"
+    ],
+    "companies": [
+      "Google",
+      "Facebook"
+    ],
     "visibleTests": [
-      { "input": "4\n1 2\n1 4\n2 3\n3 4", "output": "1: 2 4\n2: 1 3\n3: 2 4\n4: 1 3" },
-      { "input": "1\n", "output": "1: " }
+      {
+        "input": "4\n1 2\n1 4\n2 3\n3 4",
+        "output": "1: 2 4\n2: 1 3\n3: 2 4\n4: 1 3"
+      },
+      {
+        "input": "1\n",
+        "output": "1: "
+      }
     ],
     "hiddenTests": [
-      { "input": "0\n", "output": "" },
-      { "input": "2\n1 2", "output": "1: 2\n2: 1" },
-      { "input": "3\n1 2\n2 3\n1 3", "output": "1: 2 3\n2: 1 3\n3: 2 1" },
-      { "input": "5\n1 2\n2 3\n3 4\n4 5\n5 1", "output": "1: 2 5\n2: 1 3\n3: 2 4\n4: 3 5\n5: 4 1" },
-      { "input": "3\n1 2\n1 3", "output": "1: 2 3\n2: 1\n3: 1" },
-      { "input": "4\n1 2\n2 3\n3 4", "output": "1: 2\n2: 1 3\n3: 2 4\n4: 3" },
-      { "input": "2\n1 2", "output": "1: 2\n2: 1" },
-      { "input": "4\n1 2\n1 3\n1 4", "output": "1: 2 3 4\n2: 1\n3: 1\n4: 1" }
+      {
+        "input": "0\n",
+        "output": ""
+      },
+      {
+        "input": "2\n1 2",
+        "output": "1: 2\n2: 1"
+      },
+      {
+        "input": "3\n1 2\n2 3\n1 3",
+        "output": "1: 2 3\n2: 1 3\n3: 2 1"
+      },
+      {
+        "input": "5\n1 2\n2 3\n3 4\n4 5\n5 1",
+        "output": "1: 2 5\n2: 1 3\n3: 2 4\n4: 3 5\n5: 4 1"
+      },
+      {
+        "input": "3\n1 2\n1 3",
+        "output": "1: 2 3\n2: 1\n3: 1"
+      },
+      {
+        "input": "4\n1 2\n2 3\n3 4",
+        "output": "1: 2\n2: 1 3\n3: 2 4\n4: 3"
+      },
+      {
+        "input": "2\n1 2",
+        "output": "1: 2\n2: 1"
+      },
+      {
+        "input": "4\n1 2\n1 3\n1 4",
+        "output": "1: 2 3 4\n2: 1\n3: 1\n4: 1"
+      }
     ],
     "timeLimit": 1000,
     "memoryLimit": 256,
     "xp": 20,
     "estimatedTime": 25,
-    "license": "ORIGINAL"
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
   },
   {
     "title": "Course Schedule",
     "slug": "course-schedule",
     "difficulty": "MEDIUM",
-    "topic": "graph",
+    "topic": "graphs",
     "statement": "There are a total of `numCourses` courses you have to take, labeled from `0` to `numCourses - 1`. You are given an array `prerequisites` where `prerequisites[i] = [ai, bi]` indicates that you must take course `bi` first if you want to take course `ai`.\n\nReturn `true` if you can finish all courses. Otherwise, return `false`.",
     "constraints": "- `1 <= numCourses <= 2000`\n- `0 <= prerequisites.length <= 5000`\n- `prerequisites[i].length == 2`\n- `0 <= ai, bi < numCourses`\n- All the pairs `prerequisites[i]` are unique.",
     "examples": [
-      { "input": "numCourses = 2, prerequisites = [[1,0]]", "output": "true" },
-      { "input": "numCourses = 2, prerequisites = [[1,0],[0,1]]", "output": "false" }
+      {
+        "input": "numCourses = 2, prerequisites = [[1,0]]",
+        "output": "true"
+      },
+      {
+        "input": "numCourses = 2, prerequisites = [[1,0],[0,1]]",
+        "output": "false"
+      }
     ],
-    "hints": ["This is a cycle detection problem in a directed graph.", "Use DFS with coloring: white=unvisited, grey=in-progress, black=done.", "Or use topological sort (Kahn's algorithm)."],
-    "tags": ["Depth-First Search", "Breadth-First Search", "Graph", "Topological Sort"],
-    "companies": ["Google", "Amazon", "Microsoft", "Apple"],
+    "hints": [
+      "This is a cycle detection problem in a directed graph.",
+      "Use DFS with coloring: white=unvisited, grey=in-progress, black=done.",
+      "Or use topological sort (Kahn's algorithm)."
+    ],
+    "tags": [
+      "Depth-First Search",
+      "Breadth-First Search",
+      "Graph",
+      "Topological Sort"
+    ],
+    "companies": [
+      "Google",
+      "Amazon",
+      "Microsoft",
+      "Apple"
+    ],
     "visibleTests": [
-      { "input": "2\n1\n1 0", "output": "true" },
-      { "input": "2\n2\n1 0\n0 1", "output": "false" }
+      {
+        "input": "2\n1\n1 0",
+        "output": "true"
+      },
+      {
+        "input": "2\n2\n1 0\n0 1",
+        "output": "false"
+      }
     ],
     "hiddenTests": [
-      { "input": "1\n0\n", "output": "true" },
-      { "input": "3\n2\n1 0\n2 1", "output": "true" },
-      { "input": "3\n3\n1 0\n2 1\n0 2", "output": "false" },
-      { "input": "4\n4\n1 0\n2 0\n3 1\n3 2", "output": "true" },
-      { "input": "5\n3\n1 0\n2 0\n4 3", "output": "true" },
-      { "input": "4\n3\n0 1\n1 2\n2 0", "output": "false" },
-      { "input": "6\n3\n3 0\n3 1\n4 1", "output": "true" },
-      { "input": "2\n0\n", "output": "true" }
+      {
+        "input": "1\n0\n",
+        "output": "true"
+      },
+      {
+        "input": "3\n2\n1 0\n2 1",
+        "output": "true"
+      },
+      {
+        "input": "3\n3\n1 0\n2 1\n0 2",
+        "output": "false"
+      },
+      {
+        "input": "4\n4\n1 0\n2 0\n3 1\n3 2",
+        "output": "true"
+      },
+      {
+        "input": "5\n3\n1 0\n2 0\n4 3",
+        "output": "true"
+      },
+      {
+        "input": "4\n3\n0 1\n1 2\n2 0",
+        "output": "false"
+      },
+      {
+        "input": "6\n3\n3 0\n3 1\n4 1",
+        "output": "true"
+      },
+      {
+        "input": "2\n0\n",
+        "output": "true"
+      }
     ],
     "timeLimit": 2000,
     "memoryLimit": 256,
     "xp": 20,
     "estimatedTime": 30,
-    "license": "ORIGINAL"
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "BFS Shortest Path in Grid",
+    "slug": "bfs-shortest-path-grid",
+    "difficulty": "MEDIUM",
+    "topic": "graphs",
+    "statement": "Given an n×n binary matrix `grid`, find the length of the shortest path from cell `(0, 0)` to cell `(n-1, n-1)` where you can only travel on cells with value `0`. You can move in 8 directions. Path length = number of cells visited. Return `-1` if no path exists.",
+    "constraints": "- `1 <= n <= 100`\n- `grid[i][j]` is `0` or `1`.",
+    "examples": [
+      {
+        "input": "3\n0 1 0\n0 0 0\n1 1 0",
+        "output": "4"
+      },
+      {
+        "input": "3\n1 0 0\n1 1 0\n1 1 0",
+        "output": "-1"
+      }
+    ],
+    "hints": [
+      "BFS from (0,0) tracking distance.",
+      "Move in all 8 directions if cell is 0 and unvisited."
+    ],
+    "tags": [
+      "Array",
+      "BFS",
+      "Matrix"
+    ],
+    "companies": [
+      "Amazon",
+      "Google",
+      "Microsoft"
+    ],
+    "visibleTests": [
+      {
+        "input": "3\n0 1 0\n0 0 0\n1 1 0",
+        "output": "4"
+      },
+      {
+        "input": "3\n1 0 0\n1 1 0\n1 1 0",
+        "output": "-1"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "1\n0",
+        "output": "1"
+      },
+      {
+        "input": "1\n1",
+        "output": "-1"
+      },
+      {
+        "input": "2\n0 0\n0 0",
+        "output": "2"
+      },
+      {
+        "input": "2\n0 1\n1 0",
+        "output": "-1"
+      },
+      {
+        "input": "4\n0 0 0 0\n1 1 1 0\n0 0 0 0\n0 1 1 0",
+        "output": "5"
+      },
+      {
+        "input": "3\n0 0 0\n0 1 0\n0 0 0",
+        "output": "3"
+      },
+      {
+        "input": "5\n0 1 0 0 0\n0 1 0 1 0\n0 1 0 1 0\n0 0 0 1 0\n1 1 1 1 0",
+        "output": "9"
+      },
+      {
+        "input": "2\n0 0\n1 0",
+        "output": "3"
+      },
+      {
+        "input": "3\n0 0 0\n0 0 0\n0 0 0",
+        "output": "3"
+      },
+      {
+        "input": "3\n0 1 1\n1 0 0\n1 0 0",
+        "output": "-1"
+      }
+    ],
+    "timeLimit": 2000,
+    "memoryLimit": 256,
+    "xp": 20,
+    "estimatedTime": 25,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\nlet idx = 0;\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Detect Cycle in Undirected Graph",
+    "slug": "detect-cycle-undirected",
+    "difficulty": "MEDIUM",
+    "topic": "graphs",
+    "statement": "Given an undirected graph with `V` vertices and `E` edges, determine if it contains a cycle. Return `true` if a cycle exists, `false` otherwise.",
+    "constraints": "- `1 <= V <= 10^5`\n- `0 <= E <= 10^5`",
+    "examples": [
+      {
+        "input": "4 4\n0 1\n1 2\n2 3\n3 0",
+        "output": "true"
+      },
+      {
+        "input": "3 2\n0 1\n1 2",
+        "output": "false"
+      }
+    ],
+    "hints": [
+      "DFS: track visited nodes and parent.",
+      "If a visited node is encountered that isn't the parent, a cycle exists."
+    ],
+    "tags": [
+      "DFS",
+      "BFS",
+      "Union Find",
+      "Graph"
+    ],
+    "companies": [
+      "Amazon",
+      "Google"
+    ],
+    "visibleTests": [
+      {
+        "input": "4 4\n0 1\n1 2\n2 3\n3 0",
+        "output": "true"
+      },
+      {
+        "input": "3 2\n0 1\n1 2",
+        "output": "false"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "1 0",
+        "output": "false"
+      },
+      {
+        "input": "2 1\n0 1",
+        "output": "false"
+      },
+      {
+        "input": "3 3\n0 1\n1 2\n2 0",
+        "output": "true"
+      },
+      {
+        "input": "4 3\n0 1\n1 2\n2 3",
+        "output": "false"
+      },
+      {
+        "input": "5 5\n0 1\n1 2\n2 3\n3 4\n4 0",
+        "output": "true"
+      },
+      {
+        "input": "4 4\n0 1\n0 2\n0 3\n1 3",
+        "output": "true"
+      },
+      {
+        "input": "6 5\n0 1\n1 2\n2 3\n3 4\n4 5",
+        "output": "false"
+      },
+      {
+        "input": "4 5\n0 1\n0 2\n1 2\n1 3\n2 3",
+        "output": "true"
+      },
+      {
+        "input": "5 4\n0 1\n1 2\n3 4\n4 3",
+        "output": "true"
+      },
+      {
+        "input": "5 4\n0 1\n1 2\n2 3\n3 4",
+        "output": "false"
+      }
+    ],
+    "timeLimit": 2000,
+    "memoryLimit": 256,
+    "xp": 20,
+    "estimatedTime": 25,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\nlet idx = 0;\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Flood Fill",
+    "slug": "flood-fill",
+    "difficulty": "EASY",
+    "topic": "graphs",
+    "statement": "Given an m×n image represented by a 2D integer array `image`, a starting pixel `(sr, sc)`, and a new color, perform a flood fill.\n\nReplace the color of `(sr,sc)` and all connected pixels of the same original color with the new color. Print the final image.",
+    "constraints": "- `1 <= m, n <= 50`\n- `0 <= image[i][j], newColor <= 65535`\n- `0 <= sr < m`, `0 <= sc < n`",
+    "examples": [
+      {
+        "input": "3 3 1 1 2\n1 1 1\n1 1 0\n1 0 1",
+        "output": "2 2 2\n2 2 0\n2 0 1"
+      },
+      {
+        "input": "2 2 0 0 0\n0 0\n0 0",
+        "output": "0 0\n0 0"
+      }
+    ],
+    "hints": [
+      "BFS or DFS from (sr, sc).",
+      "Only fill cells that have the same color as the original color at (sr, sc).",
+      "If new color equals original, no change needed."
+    ],
+    "tags": [
+      "Array",
+      "DFS",
+      "BFS",
+      "Matrix"
+    ],
+    "companies": [
+      "Amazon",
+      "Google",
+      "Apple"
+    ],
+    "visibleTests": [
+      {
+        "input": "3 3 1 1 2\n1 1 1\n1 1 0\n1 0 1",
+        "output": "2 2 2\n2 2 0\n2 0 1"
+      },
+      {
+        "input": "2 2 0 0 0\n0 0\n0 0",
+        "output": "0 0\n0 0"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "1 1 0 0 5\n1",
+        "output": "5"
+      },
+      {
+        "input": "1 3 0 0 3\n1 1 1",
+        "output": "3 3 3"
+      },
+      {
+        "input": "3 1 0 0 9\n0\n0\n0",
+        "output": "9\n9\n9"
+      },
+      {
+        "input": "3 3 0 0 2\n0 0 0\n0 1 0\n0 0 0",
+        "output": "2 2 2\n2 1 2\n2 2 2"
+      },
+      {
+        "input": "3 3 1 1 3\n1 1 1\n1 1 1\n1 1 1",
+        "output": "3 3 3\n3 3 3\n3 3 3"
+      },
+      {
+        "input": "3 3 0 0 1\n0 0 0\n0 0 0\n0 0 0",
+        "output": "1 1 1\n1 1 1\n1 1 1"
+      },
+      {
+        "input": "3 3 1 1 0\n1 1 1\n1 1 0\n1 0 1",
+        "output": "0 0 0\n0 0 0\n0 0 1"
+      },
+      {
+        "input": "2 3 0 1 9\n0 0 0\n0 0 0",
+        "output": "9 9 9\n9 9 9"
+      },
+      {
+        "input": "2 2 0 1 5\n0 1\n1 1",
+        "output": "0 5\n5 5"
+      },
+      {
+        "input": "3 4 2 0 5\n0 0 0 0\n0 0 0 0\n5 5 5 5",
+        "output": "5 5 5 5\n5 5 5 5\n5 5 5 5"
+      }
+    ],
+    "timeLimit": 1000,
+    "memoryLimit": 256,
+    "xp": 10,
+    "estimatedTime": 15,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\nlet idx = 0;\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Course Schedule I",
+    "slug": "course-schedule-i",
+    "difficulty": "MEDIUM",
+    "topic": "graphs",
+    "statement": "There are `numCourses` courses labeled `0` to `numCourses-1`. Some courses have prerequisites. Return `true` if you can finish all courses, `false` if there's a cycle.",
+    "constraints": "- `1 <= numCourses <= 2000`\n- `0 <= prerequisites.length <= 5000`",
+    "examples": [
+      {
+        "input": "2 1\n1 0",
+        "output": "true"
+      },
+      {
+        "input": "2 2\n1 0\n0 1",
+        "output": "false"
+      }
+    ],
+    "hints": [
+      "Build an adjacency list.",
+      "Topological sort via BFS (Kahn's algorithm) or DFS cycle detection."
+    ],
+    "tags": [
+      "DFS",
+      "BFS",
+      "Graph",
+      "Topological Sort"
+    ],
+    "companies": [
+      "Amazon",
+      "Google",
+      "Microsoft",
+      "Meta"
+    ],
+    "visibleTests": [
+      {
+        "input": "2 1\n1 0",
+        "output": "true"
+      },
+      {
+        "input": "2 2\n1 0\n0 1",
+        "output": "false"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "1 0",
+        "output": "true"
+      },
+      {
+        "input": "3 0",
+        "output": "true"
+      },
+      {
+        "input": "3 2\n1 0\n2 1",
+        "output": "true"
+      },
+      {
+        "input": "3 3\n1 0\n2 1\n0 2",
+        "output": "false"
+      },
+      {
+        "input": "4 4\n1 0\n2 1\n3 2\n1 3",
+        "output": "false"
+      },
+      {
+        "input": "5 4\n1 0\n2 0\n3 1\n3 2",
+        "output": "true"
+      },
+      {
+        "input": "4 3\n1 0\n2 1\n3 2",
+        "output": "true"
+      },
+      {
+        "input": "4 4\n0 1\n1 2\n2 3\n3 0",
+        "output": "false"
+      },
+      {
+        "input": "6 3\n1 0\n2 0\n3 0",
+        "output": "true"
+      },
+      {
+        "input": "3 2\n0 1\n0 2",
+        "output": "true"
+      }
+    ],
+    "timeLimit": 2000,
+    "memoryLimit": 256,
+    "xp": 20,
+    "estimatedTime": 25,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Word Ladder Length",
+    "slug": "word-ladder-length",
+    "difficulty": "MEDIUM",
+    "topic": "graphs",
+    "statement": "Given a `beginWord`, an `endWord`, and a word list, find the **length of the shortest transformation sequence** from `beginWord` to `endWord`, changing one letter at a time (each intermediate word must be in the list). Return 0 if no sequence exists.",
+    "constraints": "- `1 <= beginWord.length <= 10`\n- `endWord.length == beginWord.length`\n- `1 <= wordList.length <= 5000`\n- All words are lowercase English letters.",
+    "examples": [
+      {
+        "input": "hit\ncog\n6\nhot dot dog lot log cog",
+        "output": "5"
+      },
+      {
+        "input": "hit\ncog\n5\nhot dot dog lot log",
+        "output": "0"
+      }
+    ],
+    "hints": [
+      "BFS: each level = one transformation.",
+      "For each word, try changing each character to a-z and check if it's in the word set."
+    ],
+    "tags": [
+      "Hash Table",
+      "String",
+      "BFS"
+    ],
+    "companies": [
+      "Amazon",
+      "Google",
+      "Microsoft",
+      "Meta"
+    ],
+    "visibleTests": [
+      {
+        "input": "hit\ncog\n6\nhot dot dog lot log cog",
+        "output": "5"
+      },
+      {
+        "input": "hit\ncog\n5\nhot dot dog lot log",
+        "output": "0"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "a\nb\n2\na b",
+        "output": "2"
+      },
+      {
+        "input": "hot\ndot\n3\nhot dot dog",
+        "output": "2"
+      },
+      {
+        "input": "abc\nabc\n1\nabc",
+        "output": "1"
+      },
+      {
+        "input": "abc\nxyz\n3\nxbc ybc xyz",
+        "output": "4"
+      },
+      {
+        "input": "abc\ncba\n3\nabc acb cba",
+        "output": "3"
+      },
+      {
+        "input": "hit\ncog\n4\nhot dot dog cog",
+        "output": "5"
+      },
+      {
+        "input": "hot\ncog\n6\nhot dot dog lot log cog",
+        "output": "5"
+      },
+      {
+        "input": "abc\ndef\n2\nabc def",
+        "output": "0"
+      },
+      {
+        "input": "abc\nabd\n1\nabd",
+        "output": "2"
+      },
+      {
+        "input": "red\ntax\n4\nted tex tax tad",
+        "output": "4"
+      }
+    ],
+    "timeLimit": 3000,
+    "memoryLimit": 256,
+    "xp": 20,
+    "estimatedTime": 30,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Connected Components Count",
+    "slug": "connected-components-count",
+    "difficulty": "EASY",
+    "topic": "graphs",
+    "statement": "Given an undirected graph with `V` vertices and `E` edges, find the number of connected components.",
+    "constraints": "- `1 <= V <= 10^5`\n- `0 <= E <= 2 * 10^5`",
+    "examples": [
+      {
+        "input": "5 3\n0 1\n1 2\n3 4",
+        "output": "2"
+      },
+      {
+        "input": "4 0",
+        "output": "4"
+      }
+    ],
+    "hints": [
+      "BFS or DFS from each unvisited vertex.",
+      "Count how many times you start a new traversal."
+    ],
+    "tags": [
+      "DFS",
+      "BFS",
+      "Union Find",
+      "Graph"
+    ],
+    "companies": [
+      "Amazon",
+      "Google",
+      "Microsoft"
+    ],
+    "visibleTests": [
+      {
+        "input": "5 3\n0 1\n1 2\n3 4",
+        "output": "2"
+      },
+      {
+        "input": "4 0",
+        "output": "4"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "1 0",
+        "output": "1"
+      },
+      {
+        "input": "5 5\n0 1\n1 2\n2 3\n3 4\n4 0",
+        "output": "1"
+      },
+      {
+        "input": "6 3\n0 1\n2 3\n4 5",
+        "output": "3"
+      },
+      {
+        "input": "7 3\n0 1\n2 3\n5 6",
+        "output": "4"
+      },
+      {
+        "input": "5 4\n0 1\n0 2\n0 3\n0 4",
+        "output": "1"
+      },
+      {
+        "input": "6 0",
+        "output": "6"
+      },
+      {
+        "input": "4 2\n0 1\n2 3",
+        "output": "2"
+      },
+      {
+        "input": "10 4\n0 1\n2 3\n4 5\n6 7",
+        "output": "6"
+      },
+      {
+        "input": "3 3\n0 1\n1 2\n2 0",
+        "output": "1"
+      },
+      {
+        "input": "5 2\n0 1\n3 4",
+        "output": "3"
+      }
+    ],
+    "timeLimit": 2000,
+    "memoryLimit": 256,
+    "xp": 10,
+    "estimatedTime": 15,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\ndef solve():\n    pass\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\n// code",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Bipartite Graph Check",
+    "slug": "bipartite-graph-check",
+    "difficulty": "MEDIUM",
+    "topic": "graphs",
+    "statement": "Given an undirected graph with `V` vertices and `E` edges, determine if it is bipartite. A graph is bipartite if vertices can be colored with 2 colors such that no two adjacent vertices share the same color.",
+    "constraints": "- `1 <= V <= 10^5`\n- `0 <= E <= 2 * 10^5`",
+    "examples": [
+      {
+        "input": "4 4\n0 1\n1 2\n2 3\n3 0",
+        "output": "true"
+      },
+      {
+        "input": "3 3\n0 1\n1 2\n2 0",
+        "output": "false"
+      }
+    ],
+    "hints": [
+      "BFS/DFS with 2-coloring.",
+      "If adjacent vertices have same color, not bipartite."
+    ],
+    "tags": [
+      "DFS",
+      "BFS",
+      "Graph"
+    ],
+    "companies": [
+      "Amazon",
+      "Google",
+      "Microsoft"
+    ],
+    "visibleTests": [
+      {
+        "input": "4 4\n0 1\n1 2\n2 3\n3 0",
+        "output": "true"
+      },
+      {
+        "input": "3 3\n0 1\n1 2\n2 0",
+        "output": "false"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "1 0",
+        "output": "true"
+      },
+      {
+        "input": "2 1\n0 1",
+        "output": "true"
+      },
+      {
+        "input": "4 3\n0 1\n1 2\n2 3",
+        "output": "true"
+      },
+      {
+        "input": "5 5\n0 1\n1 2\n2 3\n3 4\n4 0",
+        "output": "false"
+      },
+      {
+        "input": "4 4\n0 1\n0 2\n0 3\n1 3",
+        "output": "false"
+      },
+      {
+        "input": "6 5\n0 1\n1 2\n2 3\n3 4\n4 5",
+        "output": "true"
+      },
+      {
+        "input": "4 4\n0 1\n1 3\n0 2\n2 3",
+        "output": "true"
+      },
+      {
+        "input": "5 4\n0 1\n0 2\n1 3\n2 4",
+        "output": "true"
+      },
+      {
+        "input": "5 5\n0 1\n1 2\n2 3\n3 4\n4 2",
+        "output": "false"
+      },
+      {
+        "input": "6 4\n0 1\n1 2\n3 4\n4 5",
+        "output": "true"
+      }
+    ],
+    "timeLimit": 2000,
+    "memoryLimit": 256,
+    "xp": 20,
+    "estimatedTime": 25,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\ndef solve():\n    pass\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\n// code",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Rotting Oranges",
+    "slug": "rotting-oranges",
+    "difficulty": "MEDIUM",
+    "topic": "graphs",
+    "statement": "You have a grid where `0`=empty, `1`=fresh orange, `2`=rotten orange. Each minute, fresh oranges adjacent to rotten ones become rotten. Return the minimum time until no fresh oranges remain, or `-1` if impossible.",
+    "constraints": "- `1 <= m, n <= 10`\n- `grid[i][j]` is `0`, `1`, or `2`.",
+    "examples": [
+      {
+        "input": "3 3\n2 1 1\n1 1 0\n0 1 1",
+        "output": "4"
+      },
+      {
+        "input": "3 3\n2 1 1\n0 1 1\n1 0 1",
+        "output": "-1"
+      }
+    ],
+    "hints": [
+      "BFS from all rotten oranges simultaneously.",
+      "Track time = BFS levels.",
+      "If fresh oranges remain, return -1."
+    ],
+    "tags": [
+      "Array",
+      "BFS",
+      "Matrix"
+    ],
+    "companies": [
+      "Amazon",
+      "Google",
+      "Microsoft"
+    ],
+    "visibleTests": [
+      {
+        "input": "3 3\n2 1 1\n1 1 0\n0 1 1",
+        "output": "4"
+      },
+      {
+        "input": "3 3\n2 1 1\n0 1 1\n1 0 1",
+        "output": "-1"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "1 1\n0",
+        "output": "0"
+      },
+      {
+        "input": "1 1\n1",
+        "output": "-1"
+      },
+      {
+        "input": "1 1\n2",
+        "output": "0"
+      },
+      {
+        "input": "1 2\n2 1",
+        "output": "1"
+      },
+      {
+        "input": "3 3\n0 2 0\n1 1 1\n0 2 0",
+        "output": "1"
+      },
+      {
+        "input": "2 2\n2 2\n0 0",
+        "output": "0"
+      },
+      {
+        "input": "3 3\n1 1 1\n1 1 1\n1 1 2",
+        "output": "4"
+      },
+      {
+        "input": "2 3\n1 2 1\n1 0 1",
+        "output": "2"
+      },
+      {
+        "input": "3 3\n2 1 0\n1 0 1\n0 1 2",
+        "output": "2"
+      },
+      {
+        "input": "2 2\n2 2\n2 2",
+        "output": "0"
+      }
+    ],
+    "timeLimit": 1000,
+    "memoryLimit": 256,
+    "xp": 20,
+    "estimatedTime": 20,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\ndef solve():\n    pass\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\n// code",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Shortest Bridge",
+    "slug": "shortest-bridge",
+    "difficulty": "MEDIUM",
+    "topic": "graphs",
+    "statement": "Given an n×n binary matrix, there are exactly two islands. Find the minimum number of `0`s to flip to connect the two islands (shortest bridge length).",
+    "constraints": "- `2 <= n <= 100`\n- `grid[i][j]` is `0` or `1`\n- There are exactly 2 islands.",
+    "examples": [
+      {
+        "input": "3\n0 1 0\n0 0 0\n0 0 1",
+        "output": "2"
+      },
+      {
+        "input": "3\n1 1 0\n0 0 0\n0 0 1",
+        "output": "2"
+      }
+    ],
+    "hints": [
+      "DFS to mark first island.",
+      "BFS from first island to reach second island — levels = bridge length."
+    ],
+    "tags": [
+      "Array",
+      "DFS",
+      "BFS",
+      "Matrix"
+    ],
+    "companies": [
+      "Amazon",
+      "Google"
+    ],
+    "visibleTests": [
+      {
+        "input": "3\n0 1 0\n0 0 0\n0 0 1",
+        "output": "2"
+      },
+      {
+        "input": "3\n1 1 0\n0 0 0\n0 0 1",
+        "output": "2"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "2\n0 1\n1 0",
+        "output": "1"
+      },
+      {
+        "input": "3\n1 1 0\n0 0 0\n0 1 1",
+        "output": "1"
+      },
+      {
+        "input": "4\n1 0 0 0\n0 0 0 0\n0 0 0 0\n0 0 0 1",
+        "output": "6"
+      },
+      {
+        "input": "3\n1 0 0\n0 0 0\n0 0 1",
+        "output": "4"
+      },
+      {
+        "input": "4\n0 1 0 0\n0 0 0 0\n0 0 0 0\n0 0 1 0",
+        "output": "4"
+      },
+      {
+        "input": "3\n1 1 0\n1 1 0\n0 0 1",
+        "output": "2"
+      },
+      {
+        "input": "4\n1 1 0 0\n0 0 0 0\n0 0 1 1\n0 0 0 0",
+        "output": "2"
+      },
+      {
+        "input": "3\n0 0 0\n0 1 0\n0 0 0",
+        "output": "1"
+      },
+      {
+        "input": "4\n1 0 0 1\n0 0 0 0\n0 0 0 0\n0 0 0 0",
+        "output": "2"
+      },
+      {
+        "input": "5\n1 1 0 0 0\n0 0 0 0 0\n0 0 0 0 0\n0 0 0 0 0\n0 0 0 1 1",
+        "output": "6"
+      }
+    ],
+    "timeLimit": 2000,
+    "memoryLimit": 256,
+    "xp": 20,
+    "estimatedTime": 30,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\ndef solve():\n    pass\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\n// code",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Minimum Spanning Tree Kruskal",
+    "slug": "minimum-spanning-tree-kruskal",
+    "difficulty": "MEDIUM",
+    "topic": "graphs",
+    "statement": "Given a weighted undirected graph with `V` vertices and `E` edges, find the total weight of its Minimum Spanning Tree using Kruskal's algorithm.",
+    "constraints": "- `2 <= V <= 1000`\n- `1 <= E <= 5000`\n- `1 <= weight <= 10^4`",
+    "examples": [
+      {
+        "input": "4 5\n0 1 10\n0 2 6\n0 3 5\n1 3 15\n2 3 4",
+        "output": "19"
+      },
+      {
+        "input": "3 3\n0 1 1\n1 2 2\n0 2 3",
+        "output": "3"
+      }
+    ],
+    "hints": [
+      "Sort edges by weight.",
+      "Union-Find: add edge if it connects two different components."
+    ],
+    "tags": [
+      "Union Find",
+      "Graph"
+    ],
+    "companies": [
+      "Amazon",
+      "Google",
+      "Microsoft"
+    ],
+    "visibleTests": [
+      {
+        "input": "4 5\n0 1 10\n0 2 6\n0 3 5\n1 3 15\n2 3 4",
+        "output": "19"
+      },
+      {
+        "input": "3 3\n0 1 1\n1 2 2\n0 2 3",
+        "output": "3"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "2 1\n0 1 5",
+        "output": "5"
+      },
+      {
+        "input": "4 4\n0 1 1\n1 2 2\n2 3 3\n3 0 4",
+        "output": "6"
+      },
+      {
+        "input": "5 7\n0 1 2\n0 3 6\n1 2 3\n1 3 8\n1 4 5\n2 4 7\n3 4 9",
+        "output": "16"
+      },
+      {
+        "input": "3 2\n0 1 100\n1 2 1",
+        "output": "101"
+      },
+      {
+        "input": "4 6\n0 1 5\n0 2 4\n0 3 3\n1 2 2\n1 3 1\n2 3 6",
+        "output": "8"
+      },
+      {
+        "input": "4 4\n0 1 3\n0 3 5\n1 2 1\n2 3 4",
+        "output": "9"
+      },
+      {
+        "input": "3 3\n0 1 10\n1 2 5\n0 2 8",
+        "output": "15"
+      },
+      {
+        "input": "5 6\n0 1 1\n0 2 2\n1 2 3\n2 3 4\n3 4 5\n1 3 6",
+        "output": "13"
+      },
+      {
+        "input": "4 5\n0 1 1\n1 2 1\n2 3 1\n3 0 1\n0 2 2",
+        "output": "3"
+      },
+      {
+        "input": "6 9\n0 1 4\n0 2 3\n1 2 1\n1 3 2\n2 4 4\n3 4 2\n3 5 3\n4 5 6\n2 3 5",
+        "output": "14"
+      }
+    ],
+    "timeLimit": 2000,
+    "memoryLimit": 256,
+    "xp": 20,
+    "estimatedTime": 25,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "// code",
+      "java": "// code",
+      "cpp": "// code"
+    }
+  },
+  {
+    "title": "Dijkstra Single Source",
+    "slug": "dijkstra-single-source",
+    "difficulty": "MEDIUM",
+    "topic": "graphs",
+    "statement": "Given a weighted directed graph with `V` vertices (0-indexed) and `E` edges, find the shortest distance from source vertex `0` to all other vertices. Print distances; print -1 if unreachable.",
+    "constraints": "- `1 <= V <= 1000`\n- `0 <= E <= 5000`\n- `1 <= weight <= 10^4`",
+    "examples": [
+      {
+        "input": "4 5\n0 1 4\n0 2 1\n2 1 2\n1 3 1\n2 3 5",
+        "output": "0 3 1 4"
+      },
+      {
+        "input": "3 2\n0 1 5\n1 2 3",
+        "output": "0 5 8"
+      }
+    ],
+    "hints": [
+      "Use a min-heap (priority queue).",
+      "Relax edges from the closest unvisited vertex."
+    ],
+    "tags": [
+      "Graph",
+      "Shortest Path",
+      "Heap"
+    ],
+    "companies": [
+      "Amazon",
+      "Google",
+      "Microsoft"
+    ],
+    "visibleTests": [
+      {
+        "input": "4 5\n0 1 4\n0 2 1\n2 1 2\n1 3 1\n2 3 5",
+        "output": "0 3 1 4"
+      },
+      {
+        "input": "3 2\n0 1 5\n1 2 3",
+        "output": "0 5 8"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "2 1\n0 1 7",
+        "output": "0 7"
+      },
+      {
+        "input": "3 0",
+        "output": "0 -1 -1"
+      },
+      {
+        "input": "4 4\n0 1 1\n0 2 4\n1 2 2\n2 3 1",
+        "output": "0 1 3 4"
+      },
+      {
+        "input": "5 6\n0 1 10\n0 3 5\n1 2 1\n2 3 2\n3 1 3\n3 4 2",
+        "output": "0 8 9 5 7"
+      },
+      {
+        "input": "4 3\n0 1 2\n1 2 3\n0 3 10",
+        "output": "0 2 5 10"
+      },
+      {
+        "input": "3 3\n0 1 100\n1 2 100\n0 2 1",
+        "output": "0 100 1"
+      },
+      {
+        "input": "4 4\n0 1 5\n0 2 3\n1 3 4\n2 3 6",
+        "output": "0 5 3 9"
+      },
+      {
+        "input": "5 4\n0 1 1\n1 2 1\n2 3 1\n3 4 1",
+        "output": "0 1 2 3 4"
+      },
+      {
+        "input": "3 2\n0 1 1000\n0 2 1",
+        "output": "0 1000 1"
+      },
+      {
+        "input": "4 5\n0 1 1\n0 2 4\n1 3 2\n2 3 1\n3 0 3",
+        "output": "0 1 4 3"
+      }
+    ],
+    "timeLimit": 3000,
+    "memoryLimit": 256,
+    "xp": 20,
+    "estimatedTime": 30,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "// code",
+      "java": "// code",
+      "cpp": "// code"
+    }
   }
 ]

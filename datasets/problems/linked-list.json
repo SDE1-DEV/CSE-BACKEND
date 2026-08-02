@@ -7,32 +7,88 @@
     "statement": "Given the head of a singly linked list, reverse the list, and return the reversed list.\n\nFor this problem, you are given the list as space-separated integers on a single line. Output the reversed list as space-separated integers.",
     "constraints": "- The number of nodes in the list is in the range `[0, 5000]`.\n- `-5000 <= Node.val <= 5000`",
     "examples": [
-      { "input": "head = [1,2,3,4,5]", "output": "[5,4,3,2,1]" },
-      { "input": "head = [1,2]", "output": "[2,1]" },
-      { "input": "head = []", "output": "[]" }
+      {
+        "input": "head = [1,2,3,4,5]",
+        "output": "[5,4,3,2,1]"
+      },
+      {
+        "input": "head = [1,2]",
+        "output": "[2,1]"
+      },
+      {
+        "input": "head = []",
+        "output": "[]"
+      }
     ],
-    "hints": ["Use three pointers: prev, curr, next.", "Iteratively reverse the next pointers."],
-    "tags": ["Linked List", "Recursion"],
-    "companies": ["Amazon", "Google", "Microsoft", "Apple"],
+    "hints": [
+      "Use three pointers: prev, curr, next.",
+      "Iteratively reverse the next pointers."
+    ],
+    "tags": [
+      "Linked List",
+      "Recursion"
+    ],
+    "companies": [
+      "Amazon",
+      "Google",
+      "Microsoft",
+      "Apple"
+    ],
     "visibleTests": [
-      { "input": "5\n1 2 3 4 5", "output": "5 4 3 2 1" },
-      { "input": "2\n1 2", "output": "2 1" }
+      {
+        "input": "5\n1 2 3 4 5",
+        "output": "5 4 3 2 1"
+      },
+      {
+        "input": "2\n1 2",
+        "output": "2 1"
+      }
     ],
     "hiddenTests": [
-      { "input": "0\n", "output": "" },
-      { "input": "1\n1", "output": "1" },
-      { "input": "3\n1 2 3", "output": "3 2 1" },
-      { "input": "4\n4 3 2 1", "output": "1 2 3 4" },
-      { "input": "6\n1 2 3 4 5 6", "output": "6 5 4 3 2 1" },
-      { "input": "3\n-1 0 1", "output": "1 0 -1" },
-      { "input": "5\n5000 -5000 0 1 -1", "output": "-1 1 0 -5000 5000" },
-      { "input": "4\n1 1 1 1", "output": "1 1 1 1" }
+      {
+        "input": "0\n",
+        "output": ""
+      },
+      {
+        "input": "1\n1",
+        "output": "1"
+      },
+      {
+        "input": "3\n1 2 3",
+        "output": "3 2 1"
+      },
+      {
+        "input": "4\n4 3 2 1",
+        "output": "1 2 3 4"
+      },
+      {
+        "input": "6\n1 2 3 4 5 6",
+        "output": "6 5 4 3 2 1"
+      },
+      {
+        "input": "3\n-1 0 1",
+        "output": "1 0 -1"
+      },
+      {
+        "input": "5\n5000 -5000 0 1 -1",
+        "output": "-1 1 0 -5000 5000"
+      },
+      {
+        "input": "4\n1 1 1 1",
+        "output": "1 1 1 1"
+      }
     ],
     "timeLimit": 1000,
     "memoryLimit": 256,
     "xp": 10,
     "estimatedTime": 15,
-    "license": "ORIGINAL"
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
   },
   {
     "title": "Merge Two Sorted Lists",
@@ -42,32 +98,87 @@
     "statement": "You are given the heads of two sorted linked lists `list1` and `list2`.\n\nMerge the two lists into one sorted list. The list should be made by splicing together the nodes of the first two lists.\n\nReturn the head of the merged linked list.\n\nInput format: First line is the length of list1, second line is list1 values, third line is length of list2, fourth line is list2 values.",
     "constraints": "- The number of nodes in both lists is in the range `[0, 50]`.\n- `-100 <= Node.val <= 100`\n- Both `list1` and `list2` are sorted in non-decreasing order.",
     "examples": [
-      { "input": "list1 = [1,2,4], list2 = [1,3,4]", "output": "[1,1,2,3,4,4]" },
-      { "input": "list1 = [], list2 = []", "output": "[]" },
-      { "input": "list1 = [], list2 = [0]", "output": "[0]" }
+      {
+        "input": "list1 = [1,2,4], list2 = [1,3,4]",
+        "output": "[1,1,2,3,4,4]"
+      },
+      {
+        "input": "list1 = [], list2 = []",
+        "output": "[]"
+      },
+      {
+        "input": "list1 = [], list2 = [0]",
+        "output": "[0]"
+      }
     ],
-    "hints": ["Use two pointers and compare values.", "Recursively merge."],
-    "tags": ["Linked List", "Recursion"],
-    "companies": ["Amazon", "Google", "Microsoft"],
+    "hints": [
+      "Use two pointers and compare values.",
+      "Recursively merge."
+    ],
+    "tags": [
+      "Linked List",
+      "Recursion"
+    ],
+    "companies": [
+      "Amazon",
+      "Google",
+      "Microsoft"
+    ],
     "visibleTests": [
-      { "input": "3\n1 2 4\n3\n1 3 4", "output": "1 1 2 3 4 4" },
-      { "input": "0\n\n0\n", "output": "" }
+      {
+        "input": "3\n1 2 4\n3\n1 3 4",
+        "output": "1 1 2 3 4 4"
+      },
+      {
+        "input": "0\n\n0\n",
+        "output": ""
+      }
     ],
     "hiddenTests": [
-      { "input": "0\n\n1\n0", "output": "0" },
-      { "input": "1\n1\n1\n2", "output": "1 2" },
-      { "input": "3\n1 3 5\n3\n2 4 6", "output": "1 2 3 4 5 6" },
-      { "input": "3\n1 1 1\n3\n1 1 1", "output": "1 1 1 1 1 1" },
-      { "input": "1\n5\n3\n1 2 3", "output": "1 2 3 5" },
-      { "input": "3\n-3 -2 -1\n3\n-6 -5 -4", "output": "-6 -5 -4 -3 -2 -1" },
-      { "input": "2\n1 2\n2\n3 4", "output": "1 2 3 4" },
-      { "input": "4\n1 2 3 4\n1\n5", "output": "1 2 3 4 5" }
+      {
+        "input": "0\n\n1\n0",
+        "output": "0"
+      },
+      {
+        "input": "1\n1\n1\n2",
+        "output": "1 2"
+      },
+      {
+        "input": "3\n1 3 5\n3\n2 4 6",
+        "output": "1 2 3 4 5 6"
+      },
+      {
+        "input": "3\n1 1 1\n3\n1 1 1",
+        "output": "1 1 1 1 1 1"
+      },
+      {
+        "input": "1\n5\n3\n1 2 3",
+        "output": "1 2 3 5"
+      },
+      {
+        "input": "3\n-3 -2 -1\n3\n-6 -5 -4",
+        "output": "-6 -5 -4 -3 -2 -1"
+      },
+      {
+        "input": "2\n1 2\n2\n3 4",
+        "output": "1 2 3 4"
+      },
+      {
+        "input": "4\n1 2 3 4\n1\n5",
+        "output": "1 2 3 4 5"
+      }
     ],
     "timeLimit": 1000,
     "memoryLimit": 256,
     "xp": 10,
     "estimatedTime": 15,
-    "license": "ORIGINAL"
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
   },
   {
     "title": "Linked List Cycle",
@@ -77,32 +188,88 @@
     "statement": "Given head, the head of a linked list, determine if the linked list has a cycle in it.\n\nThere is a cycle in a linked list if there is some node in the list that can be reached again by continuously following the next pointer.\n\nFor this problem, input is given as a list of values followed by the position (0-indexed) where the tail connects. `-1` means no cycle.",
     "constraints": "- The number of the nodes in the list is in the range `[0, 10^4]`.\n- `-10^5 <= Node.val <= 10^5`\n- `pos` is `-1` or a valid index in the linked-list.",
     "examples": [
-      { "input": "head = [3,2,0,-4], pos = 1", "output": "true" },
-      { "input": "head = [1,2], pos = 0", "output": "true" },
-      { "input": "head = [1], pos = -1", "output": "false" }
+      {
+        "input": "head = [3,2,0,-4], pos = 1",
+        "output": "true"
+      },
+      {
+        "input": "head = [1,2], pos = 0",
+        "output": "true"
+      },
+      {
+        "input": "head = [1], pos = -1",
+        "output": "false"
+      }
     ],
-    "hints": ["Use Floyd's tortoise and hare algorithm.", "Slow pointer moves 1 step, fast pointer moves 2 steps."],
-    "tags": ["Hash Table", "Linked List", "Two Pointers"],
-    "companies": ["Amazon", "Google", "Microsoft"],
+    "hints": [
+      "Use Floyd's tortoise and hare algorithm.",
+      "Slow pointer moves 1 step, fast pointer moves 2 steps."
+    ],
+    "tags": [
+      "Hash Table",
+      "Linked List",
+      "Two Pointers"
+    ],
+    "companies": [
+      "Amazon",
+      "Google",
+      "Microsoft"
+    ],
     "visibleTests": [
-      { "input": "4\n3 2 0 -4\n1", "output": "true" },
-      { "input": "1\n1\n-1", "output": "false" }
+      {
+        "input": "4\n3 2 0 -4\n1",
+        "output": "true"
+      },
+      {
+        "input": "1\n1\n-1",
+        "output": "false"
+      }
     ],
     "hiddenTests": [
-      { "input": "2\n1 2\n0", "output": "true" },
-      { "input": "3\n1 2 3\n-1", "output": "false" },
-      { "input": "5\n1 2 3 4 5\n2", "output": "true" },
-      { "input": "5\n1 2 3 4 5\n-1", "output": "false" },
-      { "input": "0\n\n-1", "output": "false" },
-      { "input": "4\n1 2 3 4\n3", "output": "true" },
-      { "input": "1\n5\n0", "output": "true" },
-      { "input": "6\n1 2 3 4 5 6\n-1", "output": "false" }
+      {
+        "input": "2\n1 2\n0",
+        "output": "true"
+      },
+      {
+        "input": "3\n1 2 3\n-1",
+        "output": "false"
+      },
+      {
+        "input": "5\n1 2 3 4 5\n2",
+        "output": "true"
+      },
+      {
+        "input": "5\n1 2 3 4 5\n-1",
+        "output": "false"
+      },
+      {
+        "input": "0\n\n-1",
+        "output": "false"
+      },
+      {
+        "input": "4\n1 2 3 4\n3",
+        "output": "true"
+      },
+      {
+        "input": "1\n5\n0",
+        "output": "true"
+      },
+      {
+        "input": "6\n1 2 3 4 5 6\n-1",
+        "output": "false"
+      }
     ],
     "timeLimit": 1000,
     "memoryLimit": 256,
     "xp": 10,
     "estimatedTime": 15,
-    "license": "ORIGINAL"
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
   },
   {
     "title": "Reorder List",
@@ -112,30 +279,836 @@
     "statement": "You are given the head of a singly linked-list: L0 → L1 → ... → Ln-1 → Ln\n\nReorder it to: L0 → Ln → L1 → Ln-1 → L2 → Ln-2 → ...\n\nYou may not modify the values in the list's nodes. Only nodes themselves may be changed.",
     "constraints": "- The number of nodes in the list is in the range `[1, 5 * 10^4]`.\n- `1 <= Node.val <= 1000`",
     "examples": [
-      { "input": "head = [1,2,3,4]", "output": "[1,4,2,3]" },
-      { "input": "head = [1,2,3,4,5]", "output": "[1,5,2,4,3]" }
+      {
+        "input": "head = [1,2,3,4]",
+        "output": "[1,4,2,3]"
+      },
+      {
+        "input": "head = [1,2,3,4,5]",
+        "output": "[1,5,2,4,3]"
+      }
     ],
-    "hints": ["Find the middle, reverse the second half, then merge."],
-    "tags": ["Linked List", "Two Pointers", "Stack", "Recursion"],
-    "companies": ["Google", "Amazon"],
+    "hints": [
+      "Find the middle, reverse the second half, then merge."
+    ],
+    "tags": [
+      "Linked List",
+      "Two Pointers",
+      "Stack",
+      "Recursion"
+    ],
+    "companies": [
+      "Google",
+      "Amazon"
+    ],
     "visibleTests": [
-      { "input": "4\n1 2 3 4", "output": "1 4 2 3" },
-      { "input": "5\n1 2 3 4 5", "output": "1 5 2 4 3" }
+      {
+        "input": "4\n1 2 3 4",
+        "output": "1 4 2 3"
+      },
+      {
+        "input": "5\n1 2 3 4 5",
+        "output": "1 5 2 4 3"
+      }
     ],
     "hiddenTests": [
-      { "input": "1\n1", "output": "1" },
-      { "input": "2\n1 2", "output": "1 2" },
-      { "input": "3\n1 2 3", "output": "1 3 2" },
-      { "input": "6\n1 2 3 4 5 6", "output": "1 6 2 5 3 4" },
-      { "input": "7\n1 2 3 4 5 6 7", "output": "1 7 2 6 3 5 4" },
-      { "input": "4\n4 3 2 1", "output": "4 1 3 2" },
-      { "input": "5\n5 4 3 2 1", "output": "5 1 4 2 3" },
-      { "input": "3\n10 20 30", "output": "10 30 20" }
+      {
+        "input": "1\n1",
+        "output": "1"
+      },
+      {
+        "input": "2\n1 2",
+        "output": "1 2"
+      },
+      {
+        "input": "3\n1 2 3",
+        "output": "1 3 2"
+      },
+      {
+        "input": "6\n1 2 3 4 5 6",
+        "output": "1 6 2 5 3 4"
+      },
+      {
+        "input": "7\n1 2 3 4 5 6 7",
+        "output": "1 7 2 6 3 5 4"
+      },
+      {
+        "input": "4\n4 3 2 1",
+        "output": "4 1 3 2"
+      },
+      {
+        "input": "5\n5 4 3 2 1",
+        "output": "5 1 4 2 3"
+      },
+      {
+        "input": "3\n10 20 30",
+        "output": "10 30 20"
+      }
     ],
     "timeLimit": 1000,
     "memoryLimit": 256,
     "xp": 20,
     "estimatedTime": 30,
-    "license": "ORIGINAL"
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Find Middle of Linked List",
+    "slug": "find-middle-linked-list",
+    "difficulty": "EASY",
+    "topic": "linked-list",
+    "statement": "Given a linked list (as an array), return the value of the **middle node**. If there are two middle nodes, return the second one.",
+    "constraints": "- `1 <= nums.length <= 100`\n- `1 <= nums[i] <= 100`",
+    "examples": [
+      {
+        "input": "5\n1 2 3 4 5",
+        "output": "3"
+      },
+      {
+        "input": "6\n1 2 3 4 5 6",
+        "output": "4"
+      }
+    ],
+    "hints": [
+      "Use slow and fast pointers.",
+      "When fast reaches the end, slow is at the middle."
+    ],
+    "tags": [
+      "Linked List",
+      "Two Pointers"
+    ],
+    "companies": [
+      "Amazon",
+      "Google",
+      "Adobe"
+    ],
+    "visibleTests": [
+      {
+        "input": "5\n1 2 3 4 5",
+        "output": "3"
+      },
+      {
+        "input": "6\n1 2 3 4 5 6",
+        "output": "4"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "1\n5",
+        "output": "5"
+      },
+      {
+        "input": "2\n1 2",
+        "output": "2"
+      },
+      {
+        "input": "3\n1 2 3",
+        "output": "2"
+      },
+      {
+        "input": "4\n1 2 3 4",
+        "output": "3"
+      },
+      {
+        "input": "7\n1 2 3 4 5 6 7",
+        "output": "4"
+      },
+      {
+        "input": "8\n1 2 3 4 5 6 7 8",
+        "output": "5"
+      },
+      {
+        "input": "3\n10 20 30",
+        "output": "20"
+      },
+      {
+        "input": "5\n5 4 3 2 1",
+        "output": "3"
+      },
+      {
+        "input": "9\n1 2 3 4 5 6 7 8 9",
+        "output": "5"
+      },
+      {
+        "input": "10\n1 2 3 4 5 6 7 8 9 10",
+        "output": "6"
+      }
+    ],
+    "timeLimit": 1000,
+    "memoryLimit": 256,
+    "xp": 10,
+    "estimatedTime": 10,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\nlet idx = 0;\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Merge Two Sorted Linked Lists",
+    "slug": "merge-two-sorted-linked-lists",
+    "difficulty": "EASY",
+    "topic": "linked-list",
+    "statement": "Given two sorted linked lists (as sorted arrays), merge them and print the resulting sorted array.",
+    "constraints": "- `0 <= l1.length, l2.length <= 50`\n- `-100 <= l1[i], l2[i] <= 100`",
+    "examples": [
+      {
+        "input": "3\n1 2 4\n3\n1 3 4",
+        "output": "1 1 2 3 4 4"
+      },
+      {
+        "input": "0\n\n0\n",
+        "output": ""
+      }
+    ],
+    "hints": [
+      "Use two pointers: pick the smaller element at each step."
+    ],
+    "tags": [
+      "Linked List",
+      "Recursion"
+    ],
+    "companies": [
+      "Amazon",
+      "Google",
+      "Microsoft"
+    ],
+    "visibleTests": [
+      {
+        "input": "3\n1 2 4\n3\n1 3 4",
+        "output": "1 1 2 3 4 4"
+      },
+      {
+        "input": "0\n\n0\n",
+        "output": ""
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "1\n1\n1\n2",
+        "output": "1 2"
+      },
+      {
+        "input": "3\n1 3 5\n3\n2 4 6",
+        "output": "1 2 3 4 5 6"
+      },
+      {
+        "input": "3\n1 2 3\n0\n",
+        "output": "1 2 3"
+      },
+      {
+        "input": "0\n\n3\n1 2 3",
+        "output": "1 2 3"
+      },
+      {
+        "input": "3\n1 1 1\n3\n1 1 1",
+        "output": "1 1 1 1 1 1"
+      },
+      {
+        "input": "4\n-5 -3 0 2\n3\n-4 -1 3",
+        "output": "-5 -4 -3 -1 0 2 3"
+      },
+      {
+        "input": "2\n5 10\n2\n3 8",
+        "output": "3 5 8 10"
+      },
+      {
+        "input": "3\n1 2 3\n3\n4 5 6",
+        "output": "1 2 3 4 5 6"
+      },
+      {
+        "input": "2\n0 0\n2\n0 0",
+        "output": "0 0 0 0"
+      },
+      {
+        "input": "3\n100 200 300\n3\n150 250 350",
+        "output": "100 150 200 250 300 350"
+      }
+    ],
+    "timeLimit": 1000,
+    "memoryLimit": 256,
+    "xp": 10,
+    "estimatedTime": 12,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\nlet idx = 0;\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Linked List Palindrome Check",
+    "slug": "linked-list-palindrome-check",
+    "difficulty": "MEDIUM",
+    "topic": "linked-list",
+    "statement": "Given a linked list (as an array), return `true` if it is a palindrome, `false` otherwise.",
+    "constraints": "- `1 <= nums.length <= 10^5`\n- `0 <= nums[i] <= 9`",
+    "examples": [
+      {
+        "input": "4\n1 2 2 1",
+        "output": "true"
+      },
+      {
+        "input": "4\n1 2 3 4",
+        "output": "false"
+      }
+    ],
+    "hints": [
+      "Find the middle, reverse the second half, compare with the first half."
+    ],
+    "tags": [
+      "Linked List",
+      "Two Pointers",
+      "Recursion"
+    ],
+    "companies": [
+      "Amazon",
+      "Microsoft",
+      "Google"
+    ],
+    "visibleTests": [
+      {
+        "input": "4\n1 2 2 1",
+        "output": "true"
+      },
+      {
+        "input": "4\n1 2 3 4",
+        "output": "false"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "1\n1",
+        "output": "true"
+      },
+      {
+        "input": "2\n1 1",
+        "output": "true"
+      },
+      {
+        "input": "2\n1 2",
+        "output": "false"
+      },
+      {
+        "input": "5\n1 2 3 2 1",
+        "output": "true"
+      },
+      {
+        "input": "5\n1 2 3 4 5",
+        "output": "false"
+      },
+      {
+        "input": "6\n1 2 3 3 2 1",
+        "output": "true"
+      },
+      {
+        "input": "3\n1 2 1",
+        "output": "true"
+      },
+      {
+        "input": "4\n0 0 0 0",
+        "output": "true"
+      },
+      {
+        "input": "5\n9 8 7 8 9",
+        "output": "true"
+      },
+      {
+        "input": "6\n1 2 3 4 5 6",
+        "output": "false"
+      }
+    ],
+    "timeLimit": 1000,
+    "memoryLimit": 256,
+    "xp": 20,
+    "estimatedTime": 20,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\nlet idx = 0;\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Remove Nth Node From End",
+    "slug": "remove-nth-from-end",
+    "difficulty": "MEDIUM",
+    "topic": "linked-list",
+    "statement": "Given a linked list (as an array) and an integer `n`, remove the `n`th node **from the end** and print the resulting array.",
+    "constraints": "- `1 <= nums.length <= 30`\n- `0 <= nums[i] <= 100`\n- `1 <= n <= nums.length`",
+    "examples": [
+      {
+        "input": "5 2\n1 2 3 4 5",
+        "output": "1 2 3 5"
+      },
+      {
+        "input": "1 1\n1",
+        "output": ""
+      }
+    ],
+    "hints": [
+      "Use two pointers: advance the first pointer n steps, then move both until first reaches the end.",
+      "The second pointer will be at the node just before the one to remove."
+    ],
+    "tags": [
+      "Linked List",
+      "Two Pointers"
+    ],
+    "companies": [
+      "Amazon",
+      "Google",
+      "Microsoft"
+    ],
+    "visibleTests": [
+      {
+        "input": "5 2\n1 2 3 4 5",
+        "output": "1 2 3 5"
+      },
+      {
+        "input": "1 1\n1",
+        "output": ""
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "5 1\n1 2 3 4 5",
+        "output": "1 2 3 4"
+      },
+      {
+        "input": "5 5\n1 2 3 4 5",
+        "output": "2 3 4 5"
+      },
+      {
+        "input": "2 1\n1 2",
+        "output": "1"
+      },
+      {
+        "input": "2 2\n1 2",
+        "output": "2"
+      },
+      {
+        "input": "4 2\n1 2 3 4",
+        "output": "1 2 4"
+      },
+      {
+        "input": "3 2\n1 2 3",
+        "output": "1 3"
+      },
+      {
+        "input": "6 3\n1 2 3 4 5 6",
+        "output": "1 2 3 5 6"
+      },
+      {
+        "input": "4 1\n1 2 3 4",
+        "output": "1 2 3"
+      },
+      {
+        "input": "3 1\n5 10 15",
+        "output": "5 10"
+      },
+      {
+        "input": "5 3\n10 20 30 40 50",
+        "output": "10 20 40 50"
+      }
+    ],
+    "timeLimit": 1000,
+    "memoryLimit": 256,
+    "xp": 20,
+    "estimatedTime": 20,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\nlet idx = 0;\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Add Two Numbers as Linked Lists",
+    "slug": "add-two-numbers-linked-lists",
+    "difficulty": "MEDIUM",
+    "topic": "linked-list",
+    "statement": "Two non-negative integers are represented as reversed linked lists (least significant digit first). Add them and return the result as a reversed linked list.",
+    "constraints": "- `1 <= l1.length, l2.length <= 100`\n- `0 <= l1[i], l2[i] <= 9`\n- Neither list has leading zeros (except the number 0 itself).",
+    "examples": [
+      {
+        "input": "3\n2 4 3\n3\n5 6 4",
+        "output": "7 0 8"
+      },
+      {
+        "input": "1\n0\n1\n0",
+        "output": "0"
+      }
+    ],
+    "hints": [
+      "Simulate addition digit by digit using a carry.",
+      "Continue while either list has digits or carry > 0."
+    ],
+    "tags": [
+      "Linked List",
+      "Math",
+      "Recursion"
+    ],
+    "companies": [
+      "Amazon",
+      "Google",
+      "Microsoft",
+      "Meta"
+    ],
+    "visibleTests": [
+      {
+        "input": "3\n2 4 3\n3\n5 6 4",
+        "output": "7 0 8"
+      },
+      {
+        "input": "1\n0\n1\n0",
+        "output": "0"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "1\n1\n1\n9",
+        "output": "0 1"
+      },
+      {
+        "input": "2\n9 9\n2\n9 9",
+        "output": "8 9 1"
+      },
+      {
+        "input": "3\n9 9 9\n3\n9 9 9",
+        "output": "8 9 9 1"
+      },
+      {
+        "input": "1\n5\n1\n5",
+        "output": "0 1"
+      },
+      {
+        "input": "3\n1 0 0\n3\n9 9 9",
+        "output": "0 0 0 1"
+      },
+      {
+        "input": "2\n2 4\n2\n5 6",
+        "output": "7 0 1"
+      },
+      {
+        "input": "4\n1 0 0 0\n1\n9",
+        "output": "0 1 0 0"
+      },
+      {
+        "input": "3\n1 2 3\n2\n4 5",
+        "output": "5 7 3"
+      },
+      {
+        "input": "1\n9\n1\n1",
+        "output": "0 1"
+      },
+      {
+        "input": "3\n0 0 1\n3\n0 0 9",
+        "output": "0 0 0 1"
+      }
+    ],
+    "timeLimit": 1000,
+    "memoryLimit": 256,
+    "xp": 20,
+    "estimatedTime": 20,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\ndef solve():\n    pass\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\n// code",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Rotate Linked List",
+    "slug": "rotate-linked-list",
+    "difficulty": "MEDIUM",
+    "topic": "linked-list",
+    "statement": "Given a linked list (as an array) and integer `k`, rotate the list to the right by `k` places.",
+    "constraints": "- `0 <= list.length <= 500`\n- `-100 <= list[i] <= 100`\n- `0 <= k <= 2 * 10^9`",
+    "examples": [
+      {
+        "input": "5 2\n1 2 3 4 5",
+        "output": "4 5 1 2 3"
+      },
+      {
+        "input": "3 4\n0 1 2",
+        "output": "2 0 1"
+      }
+    ],
+    "hints": [
+      "Find new tail at position (n - k%n - 1).",
+      "Connect tail to head, break after new tail."
+    ],
+    "tags": [
+      "Linked List",
+      "Two Pointers"
+    ],
+    "companies": [
+      "Amazon",
+      "Google",
+      "Microsoft"
+    ],
+    "visibleTests": [
+      {
+        "input": "5 2\n1 2 3 4 5",
+        "output": "4 5 1 2 3"
+      },
+      {
+        "input": "3 4\n0 1 2",
+        "output": "2 0 1"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "1 0\n1",
+        "output": "1"
+      },
+      {
+        "input": "2 1\n1 2",
+        "output": "2 1"
+      },
+      {
+        "input": "5 0\n1 2 3 4 5",
+        "output": "1 2 3 4 5"
+      },
+      {
+        "input": "5 5\n1 2 3 4 5",
+        "output": "1 2 3 4 5"
+      },
+      {
+        "input": "5 10\n1 2 3 4 5",
+        "output": "1 2 3 4 5"
+      },
+      {
+        "input": "4 3\n1 2 3 4",
+        "output": "2 3 4 1"
+      },
+      {
+        "input": "3 2\n1 2 3",
+        "output": "2 3 1"
+      },
+      {
+        "input": "5 1\n1 2 3 4 5",
+        "output": "5 1 2 3 4"
+      },
+      {
+        "input": "4 2\n3 4 1 2",
+        "output": "1 2 3 4"
+      },
+      {
+        "input": "3 3\n1 2 3",
+        "output": "1 2 3"
+      }
+    ],
+    "timeLimit": 1000,
+    "memoryLimit": 256,
+    "xp": 20,
+    "estimatedTime": 20,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\ndef solve():\n    pass\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\n// code",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Intersection of Two Linked Lists",
+    "slug": "intersection-two-linked-lists",
+    "difficulty": "MEDIUM",
+    "topic": "linked-list",
+    "statement": "Two linked lists intersect at some node. Given the two arrays and the intersection index (0-based from start of list A), find the intersection node value.\n\nIf no intersection, print -1.",
+    "constraints": "- `0 <= listA.length, listB.length <= 3 * 10^4`\n- `-10^5 <= Node.val <= 10^5`",
+    "examples": [
+      {
+        "input": "5 3 2\n4 1 8 4 5\n5 6 1 8 4 5\n2",
+        "output": "8"
+      },
+      {
+        "input": "3 0 3\n2 6 4\n1 5 3",
+        "output": "-1"
+      }
+    ],
+    "hints": [
+      "Advance the longer list by the difference in lengths.",
+      "Then advance both until they meet or both reach null."
+    ],
+    "tags": [
+      "Hash Table",
+      "Linked List",
+      "Two Pointers"
+    ],
+    "companies": [
+      "Amazon",
+      "Google",
+      "Microsoft",
+      "Meta"
+    ],
+    "visibleTests": [
+      {
+        "input": "5 3 2\n4 1 8 4 5\n5 6 1 8 4 5\n2",
+        "output": "8"
+      },
+      {
+        "input": "3 0 3\n2 6 4\n1 5 3",
+        "output": "-1"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "1 1 0\n1\n1\n0",
+        "output": "1"
+      },
+      {
+        "input": "4 2 3\n1 2 3 4\n5 6 3 4\n2",
+        "output": "3"
+      },
+      {
+        "input": "3 3 1\n1 2 3\n4 2 3\n1",
+        "output": "2"
+      },
+      {
+        "input": "5 5 4\n1 2 3 4 5\n6 7 8 4 5\n3",
+        "output": "4"
+      },
+      {
+        "input": "2 0 2\n1 2\n3 4",
+        "output": "-1"
+      },
+      {
+        "input": "3 0 3\n1 2 3\n4 5 6",
+        "output": "-1"
+      },
+      {
+        "input": "4 4 2\n1 2 8 4\n3 2 8 4\n2",
+        "output": "8"
+      },
+      {
+        "input": "6 3 3\n1 2 3 4 5 6\n7 8 4 5 6\n3",
+        "output": "4"
+      },
+      {
+        "input": "2 2 0\n1 2\n3 2\n1",
+        "output": "2"
+      },
+      {
+        "input": "3 2 2\n1 2 3\n4 2 3\n1",
+        "output": "2"
+      }
+    ],
+    "timeLimit": 1000,
+    "memoryLimit": 256,
+    "xp": 20,
+    "estimatedTime": 20,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\ndef solve():\n    pass\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\n// code",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Maximum Twin Sum in Linked List",
+    "slug": "max-twin-sum-linked-list",
+    "difficulty": "MEDIUM",
+    "topic": "linked-list",
+    "statement": "In a linked list of even length `n`, the twin of node `i` is node `n-1-i`. Given as array, find the maximum twin sum (nums[i] + nums[n-1-i]).",
+    "constraints": "- `2 <= n <= 10^5`\n- `n` is even\n- `1 <= node.val <= 10^5`",
+    "examples": [
+      {
+        "input": "4\n5 4 2 1",
+        "output": "6"
+      },
+      {
+        "input": "4\n4 2 2 3",
+        "output": "7"
+      }
+    ],
+    "hints": [
+      "Find middle, reverse second half, compute twin sums with two pointers."
+    ],
+    "tags": [
+      "Linked List",
+      "Two Pointers",
+      "Stack"
+    ],
+    "companies": [
+      "Amazon",
+      "Google"
+    ],
+    "visibleTests": [
+      {
+        "input": "4\n5 4 2 1",
+        "output": "6"
+      },
+      {
+        "input": "4\n4 2 2 3",
+        "output": "7"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "2\n1 1",
+        "output": "2"
+      },
+      {
+        "input": "6\n1 2 3 4 5 6",
+        "output": "7"
+      },
+      {
+        "input": "4\n5 5 5 5",
+        "output": "10"
+      },
+      {
+        "input": "6\n5 4 3 2 1 6",
+        "output": "11"
+      },
+      {
+        "input": "4\n100 1 1 100",
+        "output": "200"
+      },
+      {
+        "input": "8\n1 2 3 4 5 6 7 8",
+        "output": "9"
+      },
+      {
+        "input": "4\n1 1000 1000 1",
+        "output": "1001"
+      },
+      {
+        "input": "6\n3 1 4 1 5 9",
+        "output": "12"
+      },
+      {
+        "input": "4\n0 1 2 3",
+        "output": "3"
+      },
+      {
+        "input": "6\n10 20 30 30 20 10",
+        "output": "40"
+      }
+    ],
+    "timeLimit": 1000,
+    "memoryLimit": 256,
+    "xp": 20,
+    "estimatedTime": 15,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "// code",
+      "java": "// code",
+      "cpp": "// code"
+    }
   }
 ]

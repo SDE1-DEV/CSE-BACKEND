@@ -7,32 +7,86 @@
     "statement": "You are given an integer array `prices` where `prices[i]` is the price of a given stock on the `i`th day.\n\nOn each day, you may decide to buy and/or sell the stock. You can only hold at most one share of the stock at any time. However, you can buy it then immediately sell it on the same day.\n\nFind and return the maximum profit you can achieve.",
     "constraints": "- `1 <= prices.length <= 3 * 10^4`\n- `0 <= prices[i] <= 10^4`",
     "examples": [
-      { "input": "prices = [7,1,5,3,6,4]", "output": "7", "explanation": "Buy on day 2 (price=1), sell on day 3 (price=5). Buy on day 4 (price=3), sell on day 5 (price=6). Total profit = (5-1) + (6-3) = 7." },
-      { "input": "prices = [1,2,3,4,5]", "output": "4" },
-      { "input": "prices = [7,6,4,3,1]", "output": "0" }
+      {
+        "input": "prices = [7,1,5,3,6,4]",
+        "output": "7",
+        "explanation": "Buy on day 2 (price=1), sell on day 3 (price=5). Buy on day 4 (price=3), sell on day 5 (price=6). Total profit = (5-1) + (6-3) = 7."
+      },
+      {
+        "input": "prices = [1,2,3,4,5]",
+        "output": "4"
+      },
+      {
+        "input": "prices = [7,6,4,3,1]",
+        "output": "0"
+      }
     ],
-    "hints": ["Sum all positive differences (price[i] - price[i-1]) when price[i] > price[i-1]."],
-    "tags": ["Array", "Greedy"],
-    "companies": ["Amazon", "Microsoft"],
+    "hints": [
+      "Sum all positive differences (price[i] - price[i-1]) when price[i] > price[i-1]."
+    ],
+    "tags": [
+      "Array",
+      "Greedy"
+    ],
+    "companies": [
+      "Amazon",
+      "Microsoft"
+    ],
     "visibleTests": [
-      { "input": "6\n7 1 5 3 6 4", "output": "7" },
-      { "input": "5\n1 2 3 4 5", "output": "4" }
+      {
+        "input": "6\n7 1 5 3 6 4",
+        "output": "7"
+      },
+      {
+        "input": "5\n1 2 3 4 5",
+        "output": "4"
+      }
     ],
     "hiddenTests": [
-      { "input": "5\n7 6 4 3 1", "output": "0" },
-      { "input": "1\n5", "output": "0" },
-      { "input": "2\n1 5", "output": "4" },
-      { "input": "5\n1 7 2 3 6", "output": "10" },
-      { "input": "6\n6 1 3 2 4 7", "output": "9" },
-      { "input": "3\n3 3 3", "output": "0" },
-      { "input": "4\n1 2 3 0", "output": "2" },
-      { "input": "5\n2 1 4 5 2", "output": "6" }
+      {
+        "input": "5\n7 6 4 3 1",
+        "output": "0"
+      },
+      {
+        "input": "1\n5",
+        "output": "0"
+      },
+      {
+        "input": "2\n1 5",
+        "output": "4"
+      },
+      {
+        "input": "5\n1 7 2 3 6",
+        "output": "10"
+      },
+      {
+        "input": "6\n6 1 3 2 4 7",
+        "output": "9"
+      },
+      {
+        "input": "3\n3 3 3",
+        "output": "0"
+      },
+      {
+        "input": "4\n1 2 3 0",
+        "output": "2"
+      },
+      {
+        "input": "5\n2 1 4 5 2",
+        "output": "6"
+      }
     ],
     "timeLimit": 1000,
     "memoryLimit": 256,
     "xp": 20,
     "estimatedTime": 15,
-    "license": "ORIGINAL"
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
   },
   {
     "title": "Permutation in String",
@@ -42,64 +96,1116 @@
     "statement": "Given two strings `s1` and `s2`, return `true` if `s2` contains a permutation of `s1`, or `false` otherwise.\n\nIn other words, return `true` if one of `s1`'s permutations is the substring of `s2`.",
     "constraints": "- `1 <= s1.length, s2.length <= 10^4`\n- `s1` and `s2` consist of lowercase English letters.",
     "examples": [
-      { "input": "s1 = \"ab\", s2 = \"eidbaooo\"", "output": "true" },
-      { "input": "s1 = \"ab\", s2 = \"eidboaoo\"", "output": "false" }
+      {
+        "input": "s1 = \"ab\", s2 = \"eidbaooo\"",
+        "output": "true"
+      },
+      {
+        "input": "s1 = \"ab\", s2 = \"eidboaoo\"",
+        "output": "false"
+      }
     ],
-    "hints": ["Use a sliding window of size len(s1) over s2.", "Compare character frequency maps."],
-    "tags": ["Hash Table", "Two Pointers", "String", "Sliding Window"],
-    "companies": ["Amazon", "Google", "Microsoft"],
+    "hints": [
+      "Use a sliding window of size len(s1) over s2.",
+      "Compare character frequency maps."
+    ],
+    "tags": [
+      "Hash Table",
+      "Two Pointers",
+      "String",
+      "Sliding Window"
+    ],
+    "companies": [
+      "Amazon",
+      "Google",
+      "Microsoft"
+    ],
     "visibleTests": [
-      { "input": "ab\neidbaooo", "output": "true" },
-      { "input": "ab\neidboaoo", "output": "false" }
+      {
+        "input": "ab\neidbaooo",
+        "output": "true"
+      },
+      {
+        "input": "ab\neidboaoo",
+        "output": "false"
+      }
     ],
     "hiddenTests": [
-      { "input": "a\nb", "output": "false" },
-      { "input": "a\na", "output": "true" },
-      { "input": "ab\nba", "output": "true" },
-      { "input": "abc\ncbaebabacd", "output": "true" },
-      { "input": "adc\ndcda", "output": "true" },
-      { "input": "abcd\nab", "output": "false" },
-      { "input": "abc\ndefghi", "output": "false" },
-      { "input": "hello\nooolleoooleh", "output": "false" }
+      {
+        "input": "a\nb",
+        "output": "false"
+      },
+      {
+        "input": "a\na",
+        "output": "true"
+      },
+      {
+        "input": "ab\nba",
+        "output": "true"
+      },
+      {
+        "input": "abc\ncbaebabacd",
+        "output": "true"
+      },
+      {
+        "input": "adc\ndcda",
+        "output": "true"
+      },
+      {
+        "input": "abcd\nab",
+        "output": "false"
+      },
+      {
+        "input": "abc\ndefghi",
+        "output": "false"
+      },
+      {
+        "input": "hello\nooolleoooleh",
+        "output": "false"
+      }
     ],
     "timeLimit": 1000,
     "memoryLimit": 256,
     "xp": 20,
     "estimatedTime": 25,
-    "license": "ORIGINAL"
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
   },
   {
     "title": "Sliding Window Maximum",
     "slug": "sliding-window-maximum",
-    "difficulty": "HARD",
+    "difficulty": "MEDIUM",
     "topic": "sliding-window",
     "statement": "You are given an array of integers `nums`, there is a sliding window of size `k` which is moving from the very left of the array to the very right. You can only see the `k` numbers in the window. Each time the sliding window moves right by one position.\n\nReturn the max sliding window.",
     "constraints": "- `1 <= nums.length <= 10^5`\n- `-10^4 <= nums[i] <= 10^4`\n- `1 <= k <= nums.length`",
     "examples": [
-      { "input": "nums = [1,3,-1,-3,5,3,6,7], k = 3", "output": "[3,3,5,5,6,7]" },
-      { "input": "nums = [1], k = 1", "output": "[1]" }
+      {
+        "input": "nums = [1,3,-1,-3,5,3,6,7], k = 3",
+        "output": "[3,3,5,5,6,7]"
+      },
+      {
+        "input": "nums = [1], k = 1",
+        "output": "[1]"
+      }
     ],
-    "hints": ["Use a deque (monotonic decreasing) to track max in the window.", "Remove elements outside the window from front, smaller elements from back."],
-    "tags": ["Array", "Queue", "Sliding Window", "Heap (Priority Queue)", "Monotonic Queue"],
-    "companies": ["Google", "Amazon"],
+    "hints": [
+      "Use a deque (monotonic decreasing) to track max in the window.",
+      "Remove elements outside the window from front, smaller elements from back."
+    ],
+    "tags": [
+      "Array",
+      "Queue",
+      "Sliding Window",
+      "Heap (Priority Queue)",
+      "Monotonic Queue"
+    ],
+    "companies": [
+      "Google",
+      "Amazon"
+    ],
     "visibleTests": [
-      { "input": "8 3\n1 3 -1 -3 5 3 6 7", "output": "3 3 5 5 6 7" },
-      { "input": "1 1\n1", "output": "1" }
+      {
+        "input": "8 3\n1 3 -1 -3 5 3 6 7",
+        "output": "3 3 5 5 6 7"
+      },
+      {
+        "input": "1 1\n1",
+        "output": "1"
+      }
     ],
     "hiddenTests": [
-      { "input": "4 2\n2 1 5 3", "output": "2 5 5" },
-      { "input": "5 3\n1 2 3 4 5", "output": "3 4 5" },
-      { "input": "5 3\n5 4 3 2 1", "output": "5 4 3" },
-      { "input": "3 3\n1 2 3", "output": "3" },
-      { "input": "6 4\n7 2 4 3 5 6", "output": "7 5 6" },
-      { "input": "5 2\n-5 -3 -1 -4 -2", "output": "-3 -1 -1 -2" },
-      { "input": "4 1\n4 3 2 1", "output": "4 3 2 1" },
-      { "input": "6 3\n3 1 2 5 0 4", "output": "3 5 5 5" }
+      {
+        "input": "4 2\n2 1 5 3",
+        "output": "2 5 5"
+      },
+      {
+        "input": "5 3\n1 2 3 4 5",
+        "output": "3 4 5"
+      },
+      {
+        "input": "5 3\n5 4 3 2 1",
+        "output": "5 4 3"
+      },
+      {
+        "input": "3 3\n1 2 3",
+        "output": "3"
+      },
+      {
+        "input": "6 4\n7 2 4 3 5 6",
+        "output": "7 5 6"
+      },
+      {
+        "input": "5 2\n-5 -3 -1 -4 -2",
+        "output": "-3 -1 -1 -2"
+      },
+      {
+        "input": "4 1\n4 3 2 1",
+        "output": "4 3 2 1"
+      },
+      {
+        "input": "6 3\n3 1 2 5 0 4",
+        "output": "3 5 5 5"
+      }
     ],
     "timeLimit": 1000,
     "memoryLimit": 256,
-    "xp": 30,
+    "xp": 20,
     "estimatedTime": 40,
-    "license": "ORIGINAL"
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Maximum Sum Subarray of Size K",
+    "slug": "max-sum-subarray-size-k",
+    "difficulty": "EASY",
+    "topic": "sliding-window",
+    "statement": "Given an array of integers and a number `k`, find the **maximum sum** of any contiguous subarray of size exactly `k`.",
+    "constraints": "- `1 <= k <= nums.length <= 10^5`\n- `-10^4 <= nums[i] <= 10^4`",
+    "examples": [
+      {
+        "input": "7 3\n2 1 5 1 3 2 1",
+        "output": "9"
+      },
+      {
+        "input": "5 2\n2 3 4 1 5",
+        "output": "7"
+      }
+    ],
+    "hints": [
+      "Compute the sum of the first window, then slide by adding new element and removing old."
+    ],
+    "tags": [
+      "Array",
+      "Sliding Window"
+    ],
+    "companies": [
+      "Amazon",
+      "Google"
+    ],
+    "visibleTests": [
+      {
+        "input": "7 3\n2 1 5 1 3 2 1",
+        "output": "9"
+      },
+      {
+        "input": "5 2\n2 3 4 1 5",
+        "output": "7"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "1 1\n5",
+        "output": "5"
+      },
+      {
+        "input": "4 4\n1 2 3 4",
+        "output": "10"
+      },
+      {
+        "input": "5 2\n-1 -2 -3 -4 -5",
+        "output": "-3"
+      },
+      {
+        "input": "6 3\n1 1 1 1 1 1",
+        "output": "3"
+      },
+      {
+        "input": "5 3\n5 5 5 5 5",
+        "output": "15"
+      },
+      {
+        "input": "8 4\n1 2 3 4 5 6 7 8",
+        "output": "26"
+      },
+      {
+        "input": "5 1\n3 1 4 1 5",
+        "output": "5"
+      },
+      {
+        "input": "6 3\n-1 2 -1 2 -1 2",
+        "output": "3"
+      },
+      {
+        "input": "4 2\n10 20 30 40",
+        "output": "70"
+      },
+      {
+        "input": "5 3\n1 -1 1 -1 1",
+        "output": "1"
+      }
+    ],
+    "timeLimit": 1000,
+    "memoryLimit": 256,
+    "xp": 10,
+    "estimatedTime": 12,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\nlet idx = 0;\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Fruits Into Baskets",
+    "slug": "fruits-into-baskets",
+    "difficulty": "MEDIUM",
+    "topic": "sliding-window",
+    "statement": "You have `n` trees and two baskets. Each basket can hold only one type of fruit. Given an array `fruits` where `fruits[i]` is the type of fruit on tree `i`, find the **length of the longest subarray** you can pick using at most 2 distinct fruit types.",
+    "constraints": "- `1 <= fruits.length <= 10^5`\n- `0 <= fruits[i] < fruits.length`",
+    "examples": [
+      {
+        "input": "4\n1 2 1 2",
+        "output": "4"
+      },
+      {
+        "input": "5\n0 1 2 2 0",
+        "output": "3"
+      }
+    ],
+    "hints": [
+      "Use a sliding window tracking at most 2 distinct values.",
+      "When the window has > 2 distinct types, shrink from the left."
+    ],
+    "tags": [
+      "Array",
+      "Sliding Window",
+      "Hash Table"
+    ],
+    "companies": [
+      "Amazon",
+      "Google"
+    ],
+    "visibleTests": [
+      {
+        "input": "4\n1 2 1 2",
+        "output": "4"
+      },
+      {
+        "input": "5\n0 1 2 2 0",
+        "output": "3"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "1\n1",
+        "output": "1"
+      },
+      {
+        "input": "5\n3 3 3 1 2",
+        "output": "4"
+      },
+      {
+        "input": "7\n1 2 3 2 2 1 4",
+        "output": "4"
+      },
+      {
+        "input": "5\n1 1 1 1 1",
+        "output": "5"
+      },
+      {
+        "input": "8\n0 1 2 2 2 1 0 3",
+        "output": "6"
+      },
+      {
+        "input": "6\n1 0 1 4 1 4",
+        "output": "5"
+      },
+      {
+        "input": "5\n0 0 1 1 2",
+        "output": "4"
+      },
+      {
+        "input": "4\n3 3 3 3",
+        "output": "4"
+      },
+      {
+        "input": "7\n1 2 1 2 1 2 1",
+        "output": "7"
+      },
+      {
+        "input": "6\n1 2 3 4 5 6",
+        "output": "2"
+      }
+    ],
+    "timeLimit": 1000,
+    "memoryLimit": 256,
+    "xp": 20,
+    "estimatedTime": 20,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\nlet idx = 0;\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Count Distinct Elements in Every Window",
+    "slug": "count-distinct-in-window",
+    "difficulty": "MEDIUM",
+    "topic": "sliding-window",
+    "statement": "Given an array of `n` integers and a window size `k`, print the count of distinct elements in each window of size `k`.\n\nPrint `n - k + 1` space-separated values.",
+    "constraints": "- `1 <= k <= n <= 10^5`\n- `1 <= nums[i] <= 10^5`",
+    "examples": [
+      {
+        "input": "7 3\n1 2 1 3 4 2 3",
+        "output": "2 3 3 2 2"
+      },
+      {
+        "input": "5 2\n1 2 3 4 5",
+        "output": "2 2 2 2"
+      }
+    ],
+    "hints": [
+      "Use a sliding hash map: add new element, remove old element as window slides."
+    ],
+    "tags": [
+      "Array",
+      "Sliding Window",
+      "Hash Table"
+    ],
+    "companies": [
+      "Microsoft",
+      "Oracle"
+    ],
+    "visibleTests": [
+      {
+        "input": "7 3\n1 2 1 3 4 2 3",
+        "output": "2 3 3 2 2"
+      },
+      {
+        "input": "5 2\n1 2 3 4 5",
+        "output": "2 2 2 2"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "5 5\n1 2 3 4 5",
+        "output": "5"
+      },
+      {
+        "input": "5 1\n1 2 2 3 3",
+        "output": "1 1 1 1 1"
+      },
+      {
+        "input": "6 3\n1 1 1 1 1 1",
+        "output": "1 1 1 1"
+      },
+      {
+        "input": "6 2\n1 2 1 2 1 2",
+        "output": "2 2 2 2 2"
+      },
+      {
+        "input": "4 4\n1 2 3 4",
+        "output": "4"
+      },
+      {
+        "input": "7 3\n1 1 2 2 3 3 4",
+        "output": "1 2 2 2 2"
+      },
+      {
+        "input": "5 3\n3 3 3 3 3",
+        "output": "1 1 1"
+      },
+      {
+        "input": "8 4\n1 2 3 4 1 2 3 4",
+        "output": "4 4 4 4 4"
+      },
+      {
+        "input": "5 2\n5 5 5 5 5",
+        "output": "1 1 1 1"
+      },
+      {
+        "input": "6 3\n1 2 3 1 2 3",
+        "output": "3 3 3 3"
+      }
+    ],
+    "timeLimit": 1000,
+    "memoryLimit": 256,
+    "xp": 20,
+    "estimatedTime": 20,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\nlet idx = 0;\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Minimum Size Subarray Sum",
+    "slug": "minimum-size-subarray-sum",
+    "difficulty": "MEDIUM",
+    "topic": "sliding-window",
+    "statement": "Given an array of positive integers and a positive integer `target`, return the **length of the smallest contiguous subarray** whose sum is at least `target`. If no such subarray exists, return `0`.",
+    "constraints": "- `1 <= target <= 10^9`\n- `1 <= nums.length <= 10^5`\n- `1 <= nums[i] <= 10^5`",
+    "examples": [
+      {
+        "input": "7\n2 3 1 2 4 3\n7",
+        "output": "2"
+      },
+      {
+        "input": "3\n1 4 4\n4",
+        "output": "1"
+      }
+    ],
+    "hints": [
+      "Use a variable-size sliding window.",
+      "Expand right; when sum >= target, shrink from left and update answer."
+    ],
+    "tags": [
+      "Array",
+      "Sliding Window",
+      "Binary Search"
+    ],
+    "companies": [
+      "Amazon",
+      "Google",
+      "Microsoft"
+    ],
+    "visibleTests": [
+      {
+        "input": "6\n2 3 1 2 4 3\n7",
+        "output": "2"
+      },
+      {
+        "input": "3\n1 4 4\n4",
+        "output": "1"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "3\n1 1 1 1 1 1 1\n11",
+        "output": "0"
+      },
+      {
+        "input": "1\n100\n4",
+        "output": "1"
+      },
+      {
+        "input": "4\n1 2 3 4\n10",
+        "output": "4"
+      },
+      {
+        "input": "5\n5 1 3 5 10\n15",
+        "output": "2"
+      },
+      {
+        "input": "4\n2 2 2 2\n8",
+        "output": "4"
+      },
+      {
+        "input": "5\n1 2 3 4 5\n5",
+        "output": "1"
+      },
+      {
+        "input": "5\n1 1 1 1 10\n10",
+        "output": "1"
+      },
+      {
+        "input": "6\n3 1 4 1 5 9\n8",
+        "output": "2"
+      },
+      {
+        "input": "5\n1 2 3 4 5\n11",
+        "output": "3"
+      },
+      {
+        "input": "4\n1 1 1 1\n5",
+        "output": "0"
+      }
+    ],
+    "timeLimit": 1000,
+    "memoryLimit": 256,
+    "xp": 20,
+    "estimatedTime": 20,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\nlet idx = 0;\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Longest Repeating Character Replacement",
+    "slug": "longest-repeating-char-replacement",
+    "difficulty": "MEDIUM",
+    "topic": "sliding-window",
+    "statement": "Given a string `s` and an integer `k`, you can replace any character with any letter at most `k` times. Return the length of the **longest substring** containing only one distinct character you can obtain.",
+    "constraints": "- `1 <= s.length <= 10^5`\n- `0 <= k <= s.length`\n- `s` consists of uppercase English letters.",
+    "examples": [
+      {
+        "input": "ABAB 2",
+        "output": "4"
+      },
+      {
+        "input": "AABABBA 1",
+        "output": "4"
+      }
+    ],
+    "hints": [
+      "Maintain a sliding window and track the frequency of the most common character.",
+      "If (window size - max freq) > k, shrink the window from the left."
+    ],
+    "tags": [
+      "String",
+      "Sliding Window"
+    ],
+    "companies": [
+      "Amazon",
+      "Google",
+      "Meta"
+    ],
+    "visibleTests": [
+      {
+        "input": "ABAB 2",
+        "output": "4"
+      },
+      {
+        "input": "AABABBA 1",
+        "output": "4"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "A 0",
+        "output": "1"
+      },
+      {
+        "input": "AAAA 2",
+        "output": "4"
+      },
+      {
+        "input": "ABCD 0",
+        "output": "1"
+      },
+      {
+        "input": "ABCD 4",
+        "output": "4"
+      },
+      {
+        "input": "AAAB 0",
+        "output": "3"
+      },
+      {
+        "input": "BAAAB 2",
+        "output": "5"
+      },
+      {
+        "input": "AABABBA 0",
+        "output": "2"
+      },
+      {
+        "input": "KKKK 1",
+        "output": "4"
+      },
+      {
+        "input": "ABCDE 2",
+        "output": "3"
+      },
+      {
+        "input": "EEEEBA 0",
+        "output": "4"
+      }
+    ],
+    "timeLimit": 1000,
+    "memoryLimit": 256,
+    "xp": 20,
+    "estimatedTime": 25,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\nlet idx = 0;\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Number of Subarrays with Product Less Than K",
+    "slug": "subarrays-product-less-than-k",
+    "difficulty": "MEDIUM",
+    "topic": "sliding-window",
+    "statement": "Given an array of positive integers `nums` and an integer `k`, return the number of **contiguous subarrays** where the product of all elements is strictly less than `k`.",
+    "constraints": "- `1 <= nums.length <= 3 * 10^4`\n- `1 <= nums[i] <= 1000`\n- `0 <= k <= 10^6`",
+    "examples": [
+      {
+        "input": "4\n10 5 2 6\n100",
+        "output": "8"
+      },
+      {
+        "input": "4\n1 2 3\n0",
+        "output": "0"
+      }
+    ],
+    "hints": [
+      "Use a sliding window: expand right, if product >= k shrink from left.",
+      "Each time you add a new element at index `right`, you can form (right - left + 1) valid subarrays."
+    ],
+    "tags": [
+      "Array",
+      "Sliding Window"
+    ],
+    "companies": [
+      "Amazon",
+      "Google"
+    ],
+    "visibleTests": [
+      {
+        "input": "4\n10 5 2 6\n100",
+        "output": "8"
+      },
+      {
+        "input": "3\n1 2 3\n0",
+        "output": "0"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "3\n1 2 3\n100",
+        "output": "6"
+      },
+      {
+        "input": "5\n1 1 1 1 1\n2",
+        "output": "15"
+      },
+      {
+        "input": "4\n3 1 2 4\n10",
+        "output": "7"
+      },
+      {
+        "input": "3\n10 10 10\n10",
+        "output": "0"
+      },
+      {
+        "input": "2\n5 2\n10",
+        "output": "1"
+      },
+      {
+        "input": "5\n2 2 2 2 2\n8",
+        "output": "5"
+      },
+      {
+        "input": "4\n1 1 1 1\n2",
+        "output": "10"
+      },
+      {
+        "input": "3\n100 100 100\n1000000",
+        "output": "6"
+      },
+      {
+        "input": "5\n1 2 3 4 5\n5",
+        "output": "4"
+      },
+      {
+        "input": "4\n6 7 8 9\n100",
+        "output": "2"
+      }
+    ],
+    "timeLimit": 1000,
+    "memoryLimit": 256,
+    "xp": 20,
+    "estimatedTime": 25,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\nlet idx = 0;\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Longest Substring With At Most K Distinct Characters",
+    "slug": "longest-substr-at-most-k-distinct",
+    "difficulty": "MEDIUM",
+    "topic": "sliding-window",
+    "statement": "Given a string `s` and an integer `k`, return the length of the **longest substring** that contains at most `k` distinct characters.",
+    "constraints": "- `1 <= s.length <= 5 * 10^4`\n- `0 <= k <= 50`\n- `s` consists of lowercase English letters.",
+    "examples": [
+      {
+        "input": "eceba 2",
+        "output": "3"
+      },
+      {
+        "input": "aa 1",
+        "output": "2"
+      }
+    ],
+    "hints": [
+      "Sliding window with a frequency map.",
+      "When distinct chars > k, shrink from left until distinct count <= k."
+    ],
+    "tags": [
+      "String",
+      "Sliding Window",
+      "Hash Table"
+    ],
+    "companies": [
+      "Amazon",
+      "Google",
+      "Meta"
+    ],
+    "visibleTests": [
+      {
+        "input": "eceba 2",
+        "output": "3"
+      },
+      {
+        "input": "aa 1",
+        "output": "2"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "a 1",
+        "output": "1"
+      },
+      {
+        "input": "aaa 0",
+        "output": "0"
+      },
+      {
+        "input": "abcdef 6",
+        "output": "6"
+      },
+      {
+        "input": "aab 1",
+        "output": "2"
+      },
+      {
+        "input": "aabc 2",
+        "output": "3"
+      },
+      {
+        "input": "abcba 2",
+        "output": "3"
+      },
+      {
+        "input": "abab 2",
+        "output": "4"
+      },
+      {
+        "input": "aabbc 3",
+        "output": "5"
+      },
+      {
+        "input": "abcde 2",
+        "output": "2"
+      },
+      {
+        "input": "aaabbb 3",
+        "output": "6"
+      }
+    ],
+    "timeLimit": 1000,
+    "memoryLimit": 256,
+    "xp": 20,
+    "estimatedTime": 25,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\nlet idx = 0;\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Max Average Subarray I",
+    "slug": "max-average-subarray-i",
+    "difficulty": "EASY",
+    "topic": "sliding-window",
+    "statement": "Given an integer array `nums` and an integer `k`, find the contiguous subarray of length `k` with the maximum average. Print the average with exactly 5 decimal places.",
+    "constraints": "- `n == nums.length`\n- `1 <= k <= n <= 10^5`\n- `-10^4 <= nums[i] <= 10^4`",
+    "examples": [
+      {
+        "input": "5 4\n1 12 -5 -6 50 3",
+        "output": "12.75000"
+      },
+      {
+        "input": "4 2\n5 5 5 5",
+        "output": "5.00000"
+      }
+    ],
+    "hints": [
+      "Compute sum of first window, then slide.",
+      "Print sum/k with 5 decimal places."
+    ],
+    "tags": [
+      "Array",
+      "Sliding Window"
+    ],
+    "companies": [
+      "Amazon",
+      "Google"
+    ],
+    "visibleTests": [
+      {
+        "input": "6 4\n1 12 -5 -6 50 3",
+        "output": "12.75000"
+      },
+      {
+        "input": "4 2\n5 5 5 5",
+        "output": "5.00000"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "1 1\n5",
+        "output": "5.00000"
+      },
+      {
+        "input": "3 3\n1 2 3",
+        "output": "2.00000"
+      },
+      {
+        "input": "5 2\n1 2 3 4 5",
+        "output": "4.50000"
+      },
+      {
+        "input": "4 1\n-10 -5 0 5",
+        "output": "5.00000"
+      },
+      {
+        "input": "5 3\n5 5 5 5 5",
+        "output": "5.00000"
+      },
+      {
+        "input": "5 2\n0 0 0 0 0",
+        "output": "0.00000"
+      },
+      {
+        "input": "5 3\n-1 -2 -3 -4 -5",
+        "output": "-2.00000"
+      },
+      {
+        "input": "6 3\n1 2 3 4 5 6",
+        "output": "5.00000"
+      },
+      {
+        "input": "4 2\n10 20 30 40",
+        "output": "35.00000"
+      },
+      {
+        "input": "5 4\n-4 -3 -2 -1 0",
+        "output": "-1.50000"
+      }
+    ],
+    "timeLimit": 1000,
+    "memoryLimit": 256,
+    "xp": 10,
+    "estimatedTime": 10,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Max Consecutive Ones III",
+    "slug": "max-consecutive-ones-iii",
+    "difficulty": "MEDIUM",
+    "topic": "sliding-window",
+    "statement": "Given a binary array `nums` and an integer `k`, return the maximum number of consecutive 1s if you can flip at most `k` 0s.",
+    "constraints": "- `1 <= nums.length <= 10^5`\n- `nums[i]` is `0` or `1`\n- `0 <= k <= nums.length`",
+    "examples": [
+      {
+        "input": "10 2\n1 1 1 0 0 0 1 1 1 1",
+        "output": "6"
+      },
+      {
+        "input": "6 0\n0 0 1 1 0 0",
+        "output": "2"
+      }
+    ],
+    "hints": [
+      "Sliding window: expand right, track zeros count.",
+      "When zeros > k, shrink from left."
+    ],
+    "tags": [
+      "Array",
+      "Binary Search",
+      "Sliding Window",
+      "Prefix Sum"
+    ],
+    "companies": [
+      "Amazon",
+      "Google",
+      "Meta"
+    ],
+    "visibleTests": [
+      {
+        "input": "10 2\n1 1 1 0 0 0 1 1 1 1",
+        "output": "6"
+      },
+      {
+        "input": "6 0\n0 0 1 1 0 0",
+        "output": "2"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "5 0\n1 1 1 1 1",
+        "output": "5"
+      },
+      {
+        "input": "5 5\n0 0 0 0 0",
+        "output": "5"
+      },
+      {
+        "input": "1 0\n0",
+        "output": "0"
+      },
+      {
+        "input": "1 1\n0",
+        "output": "1"
+      },
+      {
+        "input": "7 1\n0 0 1 1 0 0 1",
+        "output": "4"
+      },
+      {
+        "input": "8 2\n1 0 0 1 1 0 1 0",
+        "output": "6"
+      },
+      {
+        "input": "6 2\n0 1 0 1 0 1",
+        "output": "4"
+      },
+      {
+        "input": "5 3\n1 1 1 1 1",
+        "output": "5"
+      },
+      {
+        "input": "5 2\n0 0 0 1 1",
+        "output": "4"
+      },
+      {
+        "input": "7 3\n0 0 0 1 0 0 0",
+        "output": "6"
+      }
+    ],
+    "timeLimit": 1000,
+    "memoryLimit": 256,
+    "xp": 20,
+    "estimatedTime": 20,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\ndef solve():\n    pass\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\n// code",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Minimum Window to Sort",
+    "slug": "minimum-window-to-sort",
+    "difficulty": "MEDIUM",
+    "topic": "sliding-window",
+    "statement": "Given an integer array `nums`, find the shortest contiguous subarray that, when sorted, makes the entire array sorted. Return its length. If already sorted, return 0.",
+    "constraints": "- `1 <= nums.length <= 10^4`\n- `-10^5 <= nums[i] <= 10^5`",
+    "examples": [
+      {
+        "input": "8\n2 6 4 8 10 9 15 1",
+        "output": "5"
+      },
+      {
+        "input": "3\n1 2 3",
+        "output": "0"
+      }
+    ],
+    "hints": [
+      "Find leftmost element out of order (> element to its right).",
+      "Find rightmost element out of order (< element to its left).",
+      "The window must include all elements between min/max of window."
+    ],
+    "tags": [
+      "Array",
+      "Two Pointers",
+      "Stack",
+      "Greedy",
+      "Sorting",
+      "Monotonic Stack"
+    ],
+    "companies": [
+      "Amazon",
+      "Google",
+      "Microsoft"
+    ],
+    "visibleTests": [
+      {
+        "input": "8\n2 6 4 8 10 9 15 1",
+        "output": "5"
+      },
+      {
+        "input": "3\n1 2 3",
+        "output": "0"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "1\n1",
+        "output": "0"
+      },
+      {
+        "input": "5\n5 4 3 2 1",
+        "output": "5"
+      },
+      {
+        "input": "5\n1 2 3 4 5",
+        "output": "0"
+      },
+      {
+        "input": "4\n3 2 1 4",
+        "output": "3"
+      },
+      {
+        "input": "6\n1 5 3 4 2 6",
+        "output": "4"
+      },
+      {
+        "input": "5\n1 2 5 3 4",
+        "output": "3"
+      },
+      {
+        "input": "5\n1 3 2 4 5",
+        "output": "2"
+      },
+      {
+        "input": "6\n1 2 4 3 6 5",
+        "output": "4"
+      },
+      {
+        "input": "5\n2 3 3 2 4",
+        "output": "3"
+      },
+      {
+        "input": "5\n1 2 3 3 3",
+        "output": "0"
+      }
+    ],
+    "timeLimit": 1000,
+    "memoryLimit": 256,
+    "xp": 20,
+    "estimatedTime": 25,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "// code",
+      "java": "// code",
+      "cpp": "// code"
+    }
   }
 ]

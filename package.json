@@ -11,6 +11,8 @@
     "import:dataset": "ts-node scripts/import-dataset.ts --publish",
     "import:dataset:dry": "ts-node scripts/import-dataset.ts --dry-run",
     "publish:problems": "ts-node scripts/publish-all.ts",
+    "link:related": "ts-node scripts/link-related-problems.ts",
+    "validate:dataset": "node scripts/validate-dataset.js",
     "lint": "eslint src --ext .ts",
     "lint:fix": "eslint src --ext .ts --fix",
     "format": "prettier --write src/**/*.ts",

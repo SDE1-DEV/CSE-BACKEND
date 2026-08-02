@@ -7,31 +7,83 @@
     "statement": "Given two strings `s` and `t`, return `true` if `t` is an anagram of `s`, and `false` otherwise.\n\nAn anagram is a word or phrase formed by rearranging the letters of a different word or phrase, using all the original letters exactly once.",
     "constraints": "- `1 <= s.length, t.length <= 5 * 10^4`\n- `s` and `t` consist of lowercase English letters.",
     "examples": [
-      { "input": "s = \"anagram\", t = \"nagaram\"", "output": "true" },
-      { "input": "s = \"rat\", t = \"car\"", "output": "false" }
+      {
+        "input": "s = \"anagram\", t = \"nagaram\"",
+        "output": "true"
+      },
+      {
+        "input": "s = \"rat\", t = \"car\"",
+        "output": "false"
+      }
     ],
-    "hints": ["Sort both strings and compare.", "Or use a frequency count map."],
-    "tags": ["Hash Table", "String", "Sorting"],
-    "companies": ["Amazon", "Google"],
+    "hints": [
+      "Sort both strings and compare.",
+      "Or use a frequency count map."
+    ],
+    "tags": [
+      "Hash Table",
+      "String",
+      "Sorting"
+    ],
+    "companies": [
+      "Amazon",
+      "Google"
+    ],
     "visibleTests": [
-      { "input": "anagram\nnagaram", "output": "true" },
-      { "input": "rat\ncar", "output": "false" }
+      {
+        "input": "anagram\nnagaram",
+        "output": "true"
+      },
+      {
+        "input": "rat\ncar",
+        "output": "false"
+      }
     ],
     "hiddenTests": [
-      { "input": "a\na", "output": "true" },
-      { "input": "ab\nba", "output": "true" },
-      { "input": "abc\ncba", "output": "true" },
-      { "input": "abc\nabc", "output": "true" },
-      { "input": "abc\nabcd", "output": "false" },
-      { "input": "aab\naba", "output": "true" },
-      { "input": "silent\nlisten", "output": "true" },
-      { "input": "hello\nworld", "output": "false" }
+      {
+        "input": "a\na",
+        "output": "true"
+      },
+      {
+        "input": "ab\nba",
+        "output": "true"
+      },
+      {
+        "input": "abc\ncba",
+        "output": "true"
+      },
+      {
+        "input": "abc\nabc",
+        "output": "true"
+      },
+      {
+        "input": "abc\nabcd",
+        "output": "false"
+      },
+      {
+        "input": "aab\naba",
+        "output": "true"
+      },
+      {
+        "input": "silent\nlisten",
+        "output": "true"
+      },
+      {
+        "input": "hello\nworld",
+        "output": "false"
+      }
     ],
     "timeLimit": 1000,
     "memoryLimit": 256,
     "xp": 10,
     "estimatedTime": 10,
-    "license": "ORIGINAL"
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
   },
   {
     "title": "Valid Parentheses",
@@ -41,32 +93,87 @@
     "statement": "Given a string `s` containing just the characters `'('`, `')'`, `'{'`, `'}'`, `'['` and `']'`, determine if the input string is valid.\n\nAn input string is valid if:\n1. Open brackets must be closed by the same type of brackets.\n2. Open brackets must be closed in the correct order.\n3. Every close bracket has a corresponding open bracket of the same type.",
     "constraints": "- `1 <= s.length <= 10^4`\n- `s` consists of parentheses only `'()[]{}'`.",
     "examples": [
-      { "input": "s = \"()\"", "output": "true" },
-      { "input": "s = \"()[]{}\"", "output": "true" },
-      { "input": "s = \"(]\"", "output": "false" }
+      {
+        "input": "s = \"()\"",
+        "output": "true"
+      },
+      {
+        "input": "s = \"()[]{}\"",
+        "output": "true"
+      },
+      {
+        "input": "s = \"(]\"",
+        "output": "false"
+      }
     ],
-    "hints": ["Use a stack to match brackets."],
-    "tags": ["String", "Stack"],
-    "companies": ["Google", "Amazon", "Microsoft", "Meta"],
+    "hints": [
+      "Use a stack to match brackets."
+    ],
+    "tags": [
+      "String",
+      "Stack"
+    ],
+    "companies": [
+      "Google",
+      "Amazon",
+      "Microsoft",
+      "Meta"
+    ],
     "visibleTests": [
-      { "input": "()", "output": "true" },
-      { "input": "()[]{}", "output": "true" }
+      {
+        "input": "()",
+        "output": "true"
+      },
+      {
+        "input": "()[]{}",
+        "output": "true"
+      }
     ],
     "hiddenTests": [
-      { "input": "(]", "output": "false" },
-      { "input": "([)]", "output": "false" },
-      { "input": "{[]}", "output": "true" },
-      { "input": "(", "output": "false" },
-      { "input": ")", "output": "false" },
-      { "input": "((()))", "output": "true" },
-      { "input": "{[()]}", "output": "true" },
-      { "input": "]", "output": "false" }
+      {
+        "input": "(]",
+        "output": "false"
+      },
+      {
+        "input": "([)]",
+        "output": "false"
+      },
+      {
+        "input": "{[]}",
+        "output": "true"
+      },
+      {
+        "input": "(",
+        "output": "false"
+      },
+      {
+        "input": ")",
+        "output": "false"
+      },
+      {
+        "input": "((()))",
+        "output": "true"
+      },
+      {
+        "input": "{[()]}",
+        "output": "true"
+      },
+      {
+        "input": "]",
+        "output": "false"
+      }
     ],
     "timeLimit": 1000,
     "memoryLimit": 256,
     "xp": 10,
     "estimatedTime": 15,
-    "license": "ORIGINAL"
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
   },
   {
     "title": "Longest Substring Without Repeating Characters",
@@ -76,32 +183,92 @@
     "statement": "Given a string `s`, find the length of the longest substring without repeating characters.",
     "constraints": "- `0 <= s.length <= 5 * 10^4`\n- `s` consists of English letters, digits, symbols, and spaces.",
     "examples": [
-      { "input": "s = \"abcabcbb\"", "output": "3", "explanation": "The answer is 'abc', with the length of 3." },
-      { "input": "s = \"bbbbb\"", "output": "1", "explanation": "The answer is 'b', with length 1." },
-      { "input": "s = \"pwwkew\"", "output": "3", "explanation": "The answer is 'wke', with length 3." }
+      {
+        "input": "s = \"abcabcbb\"",
+        "output": "3",
+        "explanation": "The answer is 'abc', with the length of 3."
+      },
+      {
+        "input": "s = \"bbbbb\"",
+        "output": "1",
+        "explanation": "The answer is 'b', with length 1."
+      },
+      {
+        "input": "s = \"pwwkew\"",
+        "output": "3",
+        "explanation": "The answer is 'wke', with length 3."
+      }
     ],
-    "hints": ["Use sliding window with a hash set.", "Move the left pointer when a duplicate is found."],
-    "tags": ["Hash Table", "String", "Sliding Window"],
-    "companies": ["Amazon", "Microsoft", "Google", "Adobe"],
+    "hints": [
+      "Use sliding window with a hash set.",
+      "Move the left pointer when a duplicate is found."
+    ],
+    "tags": [
+      "Hash Table",
+      "String",
+      "Sliding Window"
+    ],
+    "companies": [
+      "Amazon",
+      "Microsoft",
+      "Google",
+      "Adobe"
+    ],
     "visibleTests": [
-      { "input": "abcabcbb", "output": "3" },
-      { "input": "bbbbb", "output": "1" }
+      {
+        "input": "abcabcbb",
+        "output": "3"
+      },
+      {
+        "input": "bbbbb",
+        "output": "1"
+      }
     ],
     "hiddenTests": [
-      { "input": "pwwkew", "output": "3" },
-      { "input": "", "output": "0" },
-      { "input": " ", "output": "1" },
-      { "input": "dvdf", "output": "3" },
-      { "input": "aab", "output": "2" },
-      { "input": "abcdefgh", "output": "8" },
-      { "input": "aaaaaa", "output": "1" },
-      { "input": "tmmzuxt", "output": "5" }
+      {
+        "input": "pwwkew",
+        "output": "3"
+      },
+      {
+        "input": "",
+        "output": "0"
+      },
+      {
+        "input": " ",
+        "output": "1"
+      },
+      {
+        "input": "dvdf",
+        "output": "3"
+      },
+      {
+        "input": "aab",
+        "output": "2"
+      },
+      {
+        "input": "abcdefgh",
+        "output": "8"
+      },
+      {
+        "input": "aaaaaa",
+        "output": "1"
+      },
+      {
+        "input": "tmmzuxt",
+        "output": "5"
+      }
     ],
     "timeLimit": 1000,
     "memoryLimit": 256,
     "xp": 20,
     "estimatedTime": 20,
-    "license": "ORIGINAL"
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
   },
   {
     "title": "Longest Palindromic Substring",
@@ -111,31 +278,84 @@
     "statement": "Given a string `s`, return the longest palindromic substring in `s`.",
     "constraints": "- `1 <= s.length <= 1000`\n- `s` consists of only digits and English letters.",
     "examples": [
-      { "input": "s = \"babad\"", "output": "bab", "explanation": "\"aba\" is also a valid answer." },
-      { "input": "s = \"cbbd\"", "output": "bb" }
+      {
+        "input": "s = \"babad\"",
+        "output": "bab",
+        "explanation": "\"aba\" is also a valid answer."
+      },
+      {
+        "input": "s = \"cbbd\"",
+        "output": "bb"
+      }
     ],
-    "hints": ["Expand around center for each character.", "Consider both odd and even length palindromes."],
-    "tags": ["String", "Dynamic Programming"],
-    "companies": ["Amazon", "Microsoft", "Apple"],
+    "hints": [
+      "Expand around center for each character.",
+      "Consider both odd and even length palindromes."
+    ],
+    "tags": [
+      "String",
+      "Dynamic Programming"
+    ],
+    "companies": [
+      "Amazon",
+      "Microsoft",
+      "Apple"
+    ],
     "visibleTests": [
-      { "input": "babad", "output": "bab" },
-      { "input": "cbbd", "output": "bb" }
+      {
+        "input": "babad",
+        "output": "bab"
+      },
+      {
+        "input": "cbbd",
+        "output": "bb"
+      }
     ],
     "hiddenTests": [
-      { "input": "a", "output": "a" },
-      { "input": "ac", "output": "a" },
-      { "input": "racecar", "output": "racecar" },
-      { "input": "aacabdkacaa", "output": "aca" },
-      { "input": "aaaa", "output": "aaaa" },
-      { "input": "abcba", "output": "abcba" },
-      { "input": "abcd", "output": "a" },
-      { "input": "ccc", "output": "ccc" }
+      {
+        "input": "a",
+        "output": "a"
+      },
+      {
+        "input": "ac",
+        "output": "a"
+      },
+      {
+        "input": "racecar",
+        "output": "racecar"
+      },
+      {
+        "input": "aacabdkacaa",
+        "output": "aca"
+      },
+      {
+        "input": "aaaa",
+        "output": "aaaa"
+      },
+      {
+        "input": "abcba",
+        "output": "abcba"
+      },
+      {
+        "input": "abcd",
+        "output": "a"
+      },
+      {
+        "input": "ccc",
+        "output": "ccc"
+      }
     ],
     "timeLimit": 2000,
     "memoryLimit": 256,
     "xp": 20,
     "estimatedTime": 30,
-    "license": "ORIGINAL"
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
   },
   {
     "title": "Group Anagrams",
@@ -145,66 +365,1688 @@
     "statement": "Given an array of strings `strs`, group the anagrams together. You can return the answer in any order.\n\nAn Anagram is a word or phrase formed by rearranging the letters of a different word or phrase, typically using all the original letters exactly once.",
     "constraints": "- `1 <= strs.length <= 10^4`\n- `0 <= strs[i].length <= 100`\n- `strs[i]` consists of lowercase English letters.",
     "examples": [
-      { "input": "strs = [\"eat\",\"tea\",\"tan\",\"ate\",\"nat\",\"bat\"]", "output": "[[\"bat\"],[\"nat\",\"tan\"],[\"ate\",\"eat\",\"tea\"]]" },
-      { "input": "strs = [\"\"]", "output": "[[\"\"]]" },
-      { "input": "strs = [\"a\"]", "output": "[[\"a\"]]" }
+      {
+        "input": "strs = [\"eat\",\"tea\",\"tan\",\"ate\",\"nat\",\"bat\"]",
+        "output": "[[\"bat\"],[\"nat\",\"tan\"],[\"ate\",\"eat\",\"tea\"]]"
+      },
+      {
+        "input": "strs = [\"\"]",
+        "output": "[[\"\"]]"
+      },
+      {
+        "input": "strs = [\"a\"]",
+        "output": "[[\"a\"]]"
+      }
     ],
-    "hints": ["Use a sorted version of each string as a hash map key."],
-    "tags": ["Hash Table", "String", "Sorting"],
-    "companies": ["Amazon", "Google", "Uber"],
+    "hints": [
+      "Use a sorted version of each string as a hash map key."
+    ],
+    "tags": [
+      "Hash Table",
+      "String",
+      "Sorting"
+    ],
+    "companies": [
+      "Amazon",
+      "Google",
+      "Uber"
+    ],
     "visibleTests": [
-      { "input": "6\neat tea tan ate nat bat", "output": "bat\nnat tan\neat tea ate" },
-      { "input": "1\n", "output": "" }
+      {
+        "input": "6\neat tea tan ate nat bat",
+        "output": "bat\nnat tan\neat tea ate"
+      },
+      {
+        "input": "1\n",
+        "output": ""
+      }
     ],
     "hiddenTests": [
-      { "input": "1\na", "output": "a" },
-      { "input": "3\nabc bca cab", "output": "abc bca cab" },
-      { "input": "4\nabc def ghi jkl", "output": "abc\ndef\nghi\njkl" },
-      { "input": "2\nab ba", "output": "ab ba" },
-      { "input": "5\naa bb cc aa bb", "output": "aa aa\nbb bb\ncc" },
-      { "input": "3\nabc abc abc", "output": "abc abc abc" },
-      { "input": "2\naz za", "output": "az za" },
-      { "input": "4\nkite kite site kite", "output": "kite kite kite\nsite" }
+      {
+        "input": "1\na",
+        "output": "a"
+      },
+      {
+        "input": "3\nabc bca cab",
+        "output": "abc bca cab"
+      },
+      {
+        "input": "4\nabc def ghi jkl",
+        "output": "abc\ndef\nghi\njkl"
+      },
+      {
+        "input": "2\nab ba",
+        "output": "ab ba"
+      },
+      {
+        "input": "5\naa bb cc aa bb",
+        "output": "aa aa\nbb bb\ncc"
+      },
+      {
+        "input": "3\nabc abc abc",
+        "output": "abc abc abc"
+      },
+      {
+        "input": "2\naz za",
+        "output": "az za"
+      },
+      {
+        "input": "4\nkite kite site kite",
+        "output": "kite kite kite\nsite"
+      }
     ],
     "timeLimit": 2000,
     "memoryLimit": 256,
     "xp": 20,
     "estimatedTime": 25,
-    "license": "ORIGINAL"
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
   },
   {
     "title": "Minimum Window Substring",
     "slug": "minimum-window-substring",
-    "difficulty": "HARD",
+    "difficulty": "MEDIUM",
     "topic": "strings",
     "statement": "Given two strings `s` and `t` of lengths `m` and `n` respectively, return the minimum window substring of `s` such that every character in `t` (including duplicates) is included in the window. If there is no such substring, return the empty string `\"\"`.\n\nThe testcases will be generated such that the answer is unique.",
     "constraints": "- `m == s.length`\n- `n == t.length`\n- `1 <= m, n <= 10^5`\n- `s` and `t` consist of uppercase and lowercase English letters.",
     "examples": [
-      { "input": "s = \"ADOBECODEBANC\", t = \"ABC\"", "output": "BANC" },
-      { "input": "s = \"a\", t = \"a\"", "output": "a" },
-      { "input": "s = \"a\", t = \"aa\"", "output": "" }
+      {
+        "input": "s = \"ADOBECODEBANC\", t = \"ABC\"",
+        "output": "BANC"
+      },
+      {
+        "input": "s = \"a\", t = \"a\"",
+        "output": "a"
+      },
+      {
+        "input": "s = \"a\", t = \"aa\"",
+        "output": ""
+      }
     ],
-    "hints": ["Use sliding window with two frequency maps.", "Expand right pointer until all characters of t are covered.", "Then shrink left pointer to minimize window."],
-    "tags": ["Hash Table", "String", "Sliding Window"],
-    "companies": ["Google", "Amazon", "Meta", "Snapchat"],
+    "hints": [
+      "Use sliding window with two frequency maps.",
+      "Expand right pointer until all characters of t are covered.",
+      "Then shrink left pointer to minimize window."
+    ],
+    "tags": [
+      "Hash Table",
+      "String",
+      "Sliding Window"
+    ],
+    "companies": [
+      "Google",
+      "Amazon",
+      "Meta",
+      "Snapchat"
+    ],
     "visibleTests": [
-      { "input": "ADOBECODEBANC\nABC", "output": "BANC" },
-      { "input": "a\na", "output": "a" }
+      {
+        "input": "ADOBECODEBANC\nABC",
+        "output": "BANC"
+      },
+      {
+        "input": "a\na",
+        "output": "a"
+      }
     ],
     "hiddenTests": [
-      { "input": "a\naa", "output": "" },
-      { "input": "aa\naa", "output": "aa" },
-      { "input": "bba\nab", "output": "ba" },
-      { "input": "cabwefgewcwaefgcf\ncae", "output": "cwae" },
-      { "input": "aaflslflsldkalskaaa\naaa", "output": "aaa" },
-      { "input": "abc\nb", "output": "b" },
-      { "input": "abc\nabc", "output": "abc" },
-      { "input": "xyz\nabc", "output": "" }
+      {
+        "input": "a\naa",
+        "output": ""
+      },
+      {
+        "input": "aa\naa",
+        "output": "aa"
+      },
+      {
+        "input": "bba\nab",
+        "output": "ba"
+      },
+      {
+        "input": "cabwefgewcwaefgcf\ncae",
+        "output": "cwae"
+      },
+      {
+        "input": "aaflslflsldkalskaaa\naaa",
+        "output": "aaa"
+      },
+      {
+        "input": "abc\nb",
+        "output": "b"
+      },
+      {
+        "input": "abc\nabc",
+        "output": "abc"
+      },
+      {
+        "input": "xyz\nabc",
+        "output": ""
+      }
     ],
     "timeLimit": 1000,
     "memoryLimit": 256,
-    "xp": 30,
+    "xp": 20,
     "estimatedTime": 45,
-    "license": "ORIGINAL"
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Reverse Words in a String",
+    "slug": "reverse-words-in-string",
+    "difficulty": "EASY",
+    "topic": "strings",
+    "statement": "Given a string `s`, reverse the order of words. A word is a sequence of non-space characters. Remove extra spaces between words.",
+    "constraints": "- `1 <= s.length <= 10^4`\n- `s` contains printable ASCII characters.\n- There may be multiple spaces between words.",
+    "examples": [
+      {
+        "input": "the sky is blue",
+        "output": "blue is sky the"
+      },
+      {
+        "input": "  hello world  ",
+        "output": "world hello"
+      }
+    ],
+    "hints": [
+      "Split on whitespace, filter empty strings, reverse the list."
+    ],
+    "tags": [
+      "String",
+      "Two Pointers"
+    ],
+    "companies": [
+      "Amazon",
+      "Google",
+      "Microsoft"
+    ],
+    "visibleTests": [
+      {
+        "input": "the sky is blue",
+        "output": "blue is sky the"
+      },
+      {
+        "input": "  hello world  ",
+        "output": "world hello"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "a",
+        "output": "a"
+      },
+      {
+        "input": "a good   example",
+        "output": "example good a"
+      },
+      {
+        "input": "  Bob    Loves  Alice   ",
+        "output": "Alice Loves Bob"
+      },
+      {
+        "input": "Alice does not even like bob",
+        "output": "bob like even not does Alice"
+      },
+      {
+        "input": "hello",
+        "output": "hello"
+      },
+      {
+        "input": "  spaces  ",
+        "output": "spaces"
+      },
+      {
+        "input": "one two three",
+        "output": "three two one"
+      },
+      {
+        "input": "x y z",
+        "output": "z y x"
+      },
+      {
+        "input": "ab cd ef gh",
+        "output": "gh ef cd ab"
+      },
+      {
+        "input": "coding is fun",
+        "output": "fun is coding"
+      }
+    ],
+    "timeLimit": 1000,
+    "memoryLimit": 256,
+    "xp": 10,
+    "estimatedTime": 12,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\nlet idx = 0;\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "String Compression",
+    "slug": "string-compression",
+    "difficulty": "EASY",
+    "topic": "strings",
+    "statement": "Given a string consisting of lowercase letters, compress it using run-length encoding. For each group of consecutive same characters, write the character followed by the count (only if count > 1).\n\nReturn the compressed string.",
+    "constraints": "- `1 <= s.length <= 10^4`\n- `s` consists of lowercase English letters.",
+    "examples": [
+      {
+        "input": "aaabbc",
+        "output": "a3b2c"
+      },
+      {
+        "input": "abcd",
+        "output": "abcd"
+      }
+    ],
+    "hints": [
+      "Scan with two pointers or a running count.",
+      "Append char then count only if count > 1."
+    ],
+    "tags": [
+      "String",
+      "Two Pointers"
+    ],
+    "companies": [
+      "Amazon",
+      "Google"
+    ],
+    "visibleTests": [
+      {
+        "input": "aaabbc",
+        "output": "a3b2c"
+      },
+      {
+        "input": "abcd",
+        "output": "abcd"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "a",
+        "output": "a"
+      },
+      {
+        "input": "aaa",
+        "output": "a3"
+      },
+      {
+        "input": "aabb",
+        "output": "a2b2"
+      },
+      {
+        "input": "aaabbbccc",
+        "output": "a3b3c3"
+      },
+      {
+        "input": "abc",
+        "output": "abc"
+      },
+      {
+        "input": "zzzzzz",
+        "output": "z6"
+      },
+      {
+        "input": "aab",
+        "output": "a2b"
+      },
+      {
+        "input": "aaabba",
+        "output": "a3b2a"
+      },
+      {
+        "input": "a",
+        "output": "a"
+      },
+      {
+        "input": "ab",
+        "output": "ab"
+      }
+    ],
+    "timeLimit": 1000,
+    "memoryLimit": 256,
+    "xp": 10,
+    "estimatedTime": 10,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\nlet idx = 0;\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Check Rotation of String",
+    "slug": "check-rotation-of-string",
+    "difficulty": "EASY",
+    "topic": "strings",
+    "statement": "Given two strings `s1` and `s2` of the same length, check if `s2` is a rotation of `s1`. Return `true` or `false`.",
+    "constraints": "- `1 <= s1.length, s2.length <= 10^4`\n- Both strings consist of lowercase English letters.",
+    "examples": [
+      {
+        "input": "abcde\ncdeab",
+        "output": "true"
+      },
+      {
+        "input": "abcde\nabced",
+        "output": "false"
+      }
+    ],
+    "hints": [
+      "s2 is a rotation of s1 if s2 is a substring of s1+s1."
+    ],
+    "tags": [
+      "String"
+    ],
+    "companies": [
+      "Amazon",
+      "Adobe"
+    ],
+    "visibleTests": [
+      {
+        "input": "abcde\ncdeab",
+        "output": "true"
+      },
+      {
+        "input": "abcde\nabced",
+        "output": "false"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "a\na",
+        "output": "true"
+      },
+      {
+        "input": "abc\nabc",
+        "output": "true"
+      },
+      {
+        "input": "abc\nbca",
+        "output": "true"
+      },
+      {
+        "input": "ab\nba",
+        "output": "true"
+      },
+      {
+        "input": "abc\ncab",
+        "output": "true"
+      },
+      {
+        "input": "abcd\ndabc",
+        "output": "true"
+      },
+      {
+        "input": "abcde\nbcade",
+        "output": "false"
+      },
+      {
+        "input": "hello\nllheo",
+        "output": "false"
+      },
+      {
+        "input": "xyz\nzxy",
+        "output": "true"
+      },
+      {
+        "input": "ab\nab",
+        "output": "true"
+      }
+    ],
+    "timeLimit": 1000,
+    "memoryLimit": 256,
+    "xp": 10,
+    "estimatedTime": 10,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\nlet idx = 0;\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Count Palindromic Substrings",
+    "slug": "count-palindromic-substrings",
+    "difficulty": "MEDIUM",
+    "topic": "strings",
+    "statement": "Given a string `s`, return the number of substrings of `s` that are palindromes (including single characters).",
+    "constraints": "- `1 <= s.length <= 1000`\n- `s` consists of lowercase English letters.",
+    "examples": [
+      {
+        "input": "abc",
+        "output": "3"
+      },
+      {
+        "input": "aaa",
+        "output": "6"
+      }
+    ],
+    "hints": [
+      "For each center (character or between two characters), expand outward.",
+      "Count palindromes with both odd and even length."
+    ],
+    "tags": [
+      "String",
+      "Dynamic Programming"
+    ],
+    "companies": [
+      "Amazon",
+      "Google",
+      "Apple"
+    ],
+    "visibleTests": [
+      {
+        "input": "abc",
+        "output": "3"
+      },
+      {
+        "input": "aaa",
+        "output": "6"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "a",
+        "output": "1"
+      },
+      {
+        "input": "ab",
+        "output": "2"
+      },
+      {
+        "input": "aa",
+        "output": "3"
+      },
+      {
+        "input": "abba",
+        "output": "6"
+      },
+      {
+        "input": "abcba",
+        "output": "7"
+      },
+      {
+        "input": "racecar",
+        "output": "10"
+      },
+      {
+        "input": "abcd",
+        "output": "4"
+      },
+      {
+        "input": "aabb",
+        "output": "6"
+      },
+      {
+        "input": "abacaba",
+        "output": "14"
+      },
+      {
+        "input": "aaaa",
+        "output": "10"
+      }
+    ],
+    "timeLimit": 1000,
+    "memoryLimit": 256,
+    "xp": 20,
+    "estimatedTime": 25,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\nlet idx = 0;\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Count and Say",
+    "slug": "count-and-say",
+    "difficulty": "EASY",
+    "topic": "strings",
+    "statement": "The count-and-say sequence is generated as follows:\n- Start with \"1\"\n- Each term is produced by reading the previous term aloud (counting consecutive same digits)\n\nGiven `n`, return the `n`th term of the sequence.",
+    "constraints": "- `1 <= n <= 30`",
+    "examples": [
+      {
+        "input": "4",
+        "output": "1211",
+        "explanation": "1 -> 11 -> 21 -> 1211"
+      },
+      {
+        "input": "1",
+        "output": "1"
+      }
+    ],
+    "hints": [
+      "Iterate from 1 to n, building each term by reading the previous.",
+      "Use a loop counting consecutive same characters."
+    ],
+    "tags": [
+      "String"
+    ],
+    "companies": [
+      "Amazon",
+      "Google"
+    ],
+    "visibleTests": [
+      {
+        "input": "4",
+        "output": "1211"
+      },
+      {
+        "input": "1",
+        "output": "1"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "2",
+        "output": "11"
+      },
+      {
+        "input": "3",
+        "output": "21"
+      },
+      {
+        "input": "5",
+        "output": "111221"
+      },
+      {
+        "input": "6",
+        "output": "312211"
+      },
+      {
+        "input": "7",
+        "output": "13112221"
+      },
+      {
+        "input": "8",
+        "output": "1113213211"
+      },
+      {
+        "input": "10",
+        "output": "13211311123113112211"
+      },
+      {
+        "input": "9",
+        "output": "31131211131221"
+      },
+      {
+        "input": "15",
+        "output": "11131221131211132221232112111312211312113211"
+      },
+      {
+        "input": "30",
+        "output": "3113112221131112311332111213122112311311123112111331121113122112132113121113222112311311222113111221131221"
+      }
+    ],
+    "timeLimit": 2000,
+    "memoryLimit": 256,
+    "xp": 10,
+    "estimatedTime": 15,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\nlet idx = 0;\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Zigzag Conversion",
+    "slug": "zigzag-conversion",
+    "difficulty": "MEDIUM",
+    "topic": "strings",
+    "statement": "The string `PAYPALISHIRING` is written in a zigzag pattern on a given number of rows. The reading pattern (left to right, top to bottom) produces a new string. Given a string and number of rows, return the zigzag-read string.",
+    "constraints": "- `1 <= s.length <= 1000`\n- `s` consists of English letters, commas and periods.\n- `1 <= numRows <= 1000`",
+    "examples": [
+      {
+        "input": "PAYPALISHIRING 3",
+        "output": "PAHNAPLSIIGYIR"
+      },
+      {
+        "input": "PAYPALISHIRING 4",
+        "output": "PINALSIGYAHRPI"
+      }
+    ],
+    "hints": [
+      "Simulate the zigzag fill across rows.",
+      "Track direction (down or up) as you iterate."
+    ],
+    "tags": [
+      "String"
+    ],
+    "companies": [
+      "Amazon",
+      "Google"
+    ],
+    "visibleTests": [
+      {
+        "input": "PAYPALISHIRING 3",
+        "output": "PAHNAPLSIIGYIR"
+      },
+      {
+        "input": "PAYPALISHIRING 4",
+        "output": "PINALSIGYAHRPI"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "A 1",
+        "output": "A"
+      },
+      {
+        "input": "AB 1",
+        "output": "AB"
+      },
+      {
+        "input": "ABCD 2",
+        "output": "ACBD"
+      },
+      {
+        "input": "ABCDEFGH 3",
+        "output": "AEBDFHCG"
+      },
+      {
+        "input": "hello 2",
+        "output": "hloel"
+      },
+      {
+        "input": "ABCDEFG 1",
+        "output": "ABCDEFG"
+      },
+      {
+        "input": "AB 2",
+        "output": "AB"
+      },
+      {
+        "input": "ABCD 3",
+        "output": "ABDC"
+      },
+      {
+        "input": "coding 3",
+        "output": "cniogd"
+      },
+      {
+        "input": "ABC 2",
+        "output": "ABC"
+      }
+    ],
+    "timeLimit": 1000,
+    "memoryLimit": 256,
+    "xp": 20,
+    "estimatedTime": 20,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\nlet idx = 0;\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Minimum Deletions to Make String Balanced",
+    "slug": "min-deletions-balanced-string",
+    "difficulty": "MEDIUM",
+    "topic": "strings",
+    "statement": "You are given a string `s` consisting only of characters `a` and `b`. In one step, you can delete one character from `s`. Return the **minimum number of deletions** needed to make `s` balanced (all `a`s come before all `b`s).",
+    "constraints": "- `1 <= s.length <= 10^5`\n- `s[i]` is either `a` or `b`.",
+    "examples": [
+      {
+        "input": "aababbab",
+        "output": "2"
+      },
+      {
+        "input": "bbaaaaabb",
+        "output": "2"
+      }
+    ],
+    "hints": [
+      "For each split point i, cost = number of b's on the left + number of a's on the right.",
+      "Use prefix sums or a single pass tracking b count seen so far."
+    ],
+    "tags": [
+      "String",
+      "Dynamic Programming"
+    ],
+    "companies": [
+      "Amazon",
+      "Google"
+    ],
+    "visibleTests": [
+      {
+        "input": "aababbab",
+        "output": "2"
+      },
+      {
+        "input": "bbaaaaabb",
+        "output": "2"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "a",
+        "output": "0"
+      },
+      {
+        "input": "b",
+        "output": "0"
+      },
+      {
+        "input": "ab",
+        "output": "0"
+      },
+      {
+        "input": "ba",
+        "output": "1"
+      },
+      {
+        "input": "aaa",
+        "output": "0"
+      },
+      {
+        "input": "bbb",
+        "output": "0"
+      },
+      {
+        "input": "bbaa",
+        "output": "2"
+      },
+      {
+        "input": "ababab",
+        "output": "2"
+      },
+      {
+        "input": "babababa",
+        "output": "3"
+      },
+      {
+        "input": "aaabbb",
+        "output": "0"
+      }
+    ],
+    "timeLimit": 1000,
+    "memoryLimit": 256,
+    "xp": 20,
+    "estimatedTime": 20,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\nlet idx = 0;\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Roman to Integer",
+    "slug": "roman-to-integer",
+    "difficulty": "EASY",
+    "topic": "strings",
+    "statement": "Given a roman numeral string, convert it to an integer.\n\nSymbols: I=1, V=5, X=10, L=50, C=100, D=500, M=1000\nSubtraction: IV=4, IX=9, XL=40, XC=90, CD=400, CM=900",
+    "constraints": "- `1 <= s.length <= 15`\n- `s` consists of `I`, `V`, `X`, `L`, `C`, `D`, `M`.\n- It is guaranteed to be a valid roman numeral in the range `[1, 3999]`.",
+    "examples": [
+      {
+        "input": "III",
+        "output": "3"
+      },
+      {
+        "input": "MCMXCIV",
+        "output": "1994"
+      }
+    ],
+    "hints": [
+      "Map each symbol to its value.",
+      "If current value < next value, subtract current; else add."
+    ],
+    "tags": [
+      "Hash Table",
+      "Math",
+      "String"
+    ],
+    "companies": [
+      "Amazon",
+      "Google",
+      "Microsoft",
+      "Meta"
+    ],
+    "visibleTests": [
+      {
+        "input": "III",
+        "output": "3"
+      },
+      {
+        "input": "MCMXCIV",
+        "output": "1994"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "I",
+        "output": "1"
+      },
+      {
+        "input": "IV",
+        "output": "4"
+      },
+      {
+        "input": "IX",
+        "output": "9"
+      },
+      {
+        "input": "LVIII",
+        "output": "58"
+      },
+      {
+        "input": "MMCMXCIX",
+        "output": "2999"
+      },
+      {
+        "input": "MMMCMXCIX",
+        "output": "3999"
+      },
+      {
+        "input": "CMXCIX",
+        "output": "999"
+      },
+      {
+        "input": "DCCCXCIX",
+        "output": "899"
+      },
+      {
+        "input": "M",
+        "output": "1000"
+      },
+      {
+        "input": "CDXLIV",
+        "output": "444"
+      }
+    ],
+    "timeLimit": 1000,
+    "memoryLimit": 256,
+    "xp": 10,
+    "estimatedTime": 10,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Integer to Roman",
+    "slug": "integer-to-roman",
+    "difficulty": "MEDIUM",
+    "topic": "strings",
+    "statement": "Given an integer, convert it to a roman numeral.",
+    "constraints": "- `1 <= num <= 3999`",
+    "examples": [
+      {
+        "input": "3",
+        "output": "III"
+      },
+      {
+        "input": "1994",
+        "output": "MCMXCIV"
+      }
+    ],
+    "hints": [
+      "Use a greedy approach: repeatedly subtract the largest possible value.",
+      "Keep a list of value-symbol pairs sorted descending."
+    ],
+    "tags": [
+      "Hash Table",
+      "Math",
+      "String"
+    ],
+    "companies": [
+      "Amazon",
+      "Google",
+      "Microsoft"
+    ],
+    "visibleTests": [
+      {
+        "input": "3",
+        "output": "III"
+      },
+      {
+        "input": "1994",
+        "output": "MCMXCIV"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "1",
+        "output": "I"
+      },
+      {
+        "input": "4",
+        "output": "IV"
+      },
+      {
+        "input": "9",
+        "output": "IX"
+      },
+      {
+        "input": "58",
+        "output": "LVIII"
+      },
+      {
+        "input": "1000",
+        "output": "M"
+      },
+      {
+        "input": "3999",
+        "output": "MMMCMXCIX"
+      },
+      {
+        "input": "58",
+        "output": "LVIII"
+      },
+      {
+        "input": "444",
+        "output": "CDXLIV"
+      },
+      {
+        "input": "1776",
+        "output": "MDCCLXXVI"
+      },
+      {
+        "input": "2024",
+        "output": "MMXXIV"
+      }
+    ],
+    "timeLimit": 1000,
+    "memoryLimit": 256,
+    "xp": 20,
+    "estimatedTime": 15,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Decode String",
+    "slug": "decode-string",
+    "difficulty": "MEDIUM",
+    "topic": "strings",
+    "statement": "Given an encoded string, decode it. The encoding rule is `k[encoded_string]`, where `encoded_string` inside the brackets is to be repeated `k` times.",
+    "constraints": "- `1 <= s.length <= 30`\n- `s` consists of lowercase English letters, digits, and square brackets.\n- `k` is guaranteed to be a positive integer and at most 300.",
+    "examples": [
+      {
+        "input": "3[a]2[bc]",
+        "output": "aaabcbc"
+      },
+      {
+        "input": "3[a2[c]]",
+        "output": "accaccacc"
+      }
+    ],
+    "hints": [
+      "Use a stack. When you see `[`, push current string and multiplier.",
+      "When you see `]`, pop and multiply."
+    ],
+    "tags": [
+      "String",
+      "Stack",
+      "Recursion"
+    ],
+    "companies": [
+      "Amazon",
+      "Google",
+      "Microsoft"
+    ],
+    "visibleTests": [
+      {
+        "input": "3[a]2[bc]",
+        "output": "aaabcbc"
+      },
+      {
+        "input": "3[a2[c]]",
+        "output": "accaccacc"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "2[abc]3[cd]ef",
+        "output": "abcabccdcdcdef"
+      },
+      {
+        "input": "abc3[cd]xyz",
+        "output": "abccdcdcdxyz"
+      },
+      {
+        "input": "100[a]",
+        "output": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      {
+        "input": "2[3[a]b]",
+        "output": "aaabaaab"
+      },
+      {
+        "input": "1[a]",
+        "output": "a"
+      },
+      {
+        "input": "10[a]",
+        "output": "aaaaaaaaaa"
+      },
+      {
+        "input": "2[ab]",
+        "output": "abab"
+      },
+      {
+        "input": "3[2[a]]",
+        "output": "aaaaaa"
+      },
+      {
+        "input": "ab2[c]",
+        "output": "abcc"
+      },
+      {
+        "input": "2[a2[b]]",
+        "output": "abbabb"
+      }
+    ],
+    "timeLimit": 1000,
+    "memoryLimit": 256,
+    "xp": 20,
+    "estimatedTime": 20,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Find All Anagram Positions",
+    "slug": "find-all-anagram-positions",
+    "difficulty": "MEDIUM",
+    "topic": "strings",
+    "statement": "Given a string `s` and a non-empty string `p`, find all **starting indices** of `p`'s anagrams in `s`. Print them space-separated in ascending order.",
+    "constraints": "- `1 <= s.length, p.length <= 3 * 10^4`\n- Both strings consist of lowercase English letters.",
+    "examples": [
+      {
+        "input": "cbaebabacd\nabc",
+        "output": "0 6"
+      },
+      {
+        "input": "abab\nab",
+        "output": "0 1 2"
+      }
+    ],
+    "hints": [
+      "Use a sliding window of size p.length.",
+      "Maintain frequency maps and compare."
+    ],
+    "tags": [
+      "Hash Table",
+      "String",
+      "Sliding Window"
+    ],
+    "companies": [
+      "Amazon",
+      "Google",
+      "Meta"
+    ],
+    "visibleTests": [
+      {
+        "input": "cbaebabacd\nabc",
+        "output": "0 6"
+      },
+      {
+        "input": "abab\nab",
+        "output": "0 1 2"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "aa\nb",
+        "output": ""
+      },
+      {
+        "input": "baa\naa",
+        "output": "1"
+      },
+      {
+        "input": "abaacbaab\naab",
+        "output": "1 5 6"
+      },
+      {
+        "input": "abcabc\nabc",
+        "output": "0 1 2 3"
+      },
+      {
+        "input": "aaab\nab",
+        "output": "2"
+      },
+      {
+        "input": "abc\nabc",
+        "output": "0"
+      },
+      {
+        "input": "abcd\ndc",
+        "output": "2"
+      },
+      {
+        "input": "aaaaa\naa",
+        "output": "0 1 2 3"
+      },
+      {
+        "input": "abcdef\nfed",
+        "output": "3"
+      },
+      {
+        "input": "aaaaaaaaa\naaaa",
+        "output": "0 1 2 3 4 5"
+      }
+    ],
+    "timeLimit": 2000,
+    "memoryLimit": 256,
+    "xp": 20,
+    "estimatedTime": 25,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Longest Common Prefix",
+    "slug": "longest-common-prefix",
+    "difficulty": "EASY",
+    "topic": "strings",
+    "statement": "Given an array of strings, find the longest common prefix string. If none exists, return an empty string.",
+    "constraints": "- `1 <= strs.length <= 200`\n- `0 <= strs[i].length <= 200`\n- `strs[i]` consists of lowercase English letters.",
+    "examples": [
+      {
+        "input": "3\nflower flow flight",
+        "output": "fl"
+      },
+      {
+        "input": "3\ndog racecar car",
+        "output": ""
+      }
+    ],
+    "hints": [
+      "Sort the array and compare first and last strings only.",
+      "Or vertically scan character by character."
+    ],
+    "tags": [
+      "String",
+      "Trie"
+    ],
+    "companies": [
+      "Amazon",
+      "Google",
+      "Microsoft"
+    ],
+    "visibleTests": [
+      {
+        "input": "3\nflower flow flight",
+        "output": "fl"
+      },
+      {
+        "input": "3\ndog racecar car",
+        "output": ""
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "1\na",
+        "output": "a"
+      },
+      {
+        "input": "3\nabc abc abc",
+        "output": "abc"
+      },
+      {
+        "input": "2\na ab",
+        "output": "a"
+      },
+      {
+        "input": "3\nab abc abcd",
+        "output": "ab"
+      },
+      {
+        "input": "3\na b c",
+        "output": ""
+      },
+      {
+        "input": "4\ninterviews interview inter internal",
+        "output": "inter"
+      },
+      {
+        "input": "2\ngeek geezer",
+        "output": "gee"
+      },
+      {
+        "input": "3\nprefix\nprefab\nprecious",
+        "output": "pre"
+      },
+      {
+        "input": "2\nhello world",
+        "output": ""
+      },
+      {
+        "input": "4\nreflect reflect reflect reflect",
+        "output": "reflect"
+      }
+    ],
+    "timeLimit": 1000,
+    "memoryLimit": 256,
+    "xp": 10,
+    "estimatedTime": 10,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\ndef solve():\n    pass\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\n// code",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Valid Parenthesis String",
+    "slug": "valid-parenthesis-string",
+    "difficulty": "MEDIUM",
+    "topic": "strings",
+    "statement": "Given a string `s` containing `(`, `)`, and `*` (which can be empty, `(`, or `)`), return `true` if it can be made valid.",
+    "constraints": "- `1 <= s.length <= 100`\n- `s[i]` is `(`, `)`, or `*`.",
+    "examples": [
+      {
+        "input": "()",
+        "output": "true"
+      },
+      {
+        "input": "(*)",
+        "output": "true"
+      },
+      {
+        "input": "(*))",
+        "output": "true"
+      }
+    ],
+    "hints": [
+      "Track the range [lo, hi] of possible open-bracket counts.",
+      "lo = max(0, lo-1 or lo+1); hi = hi+1.",
+      "If hi < 0 return false; if lo > 0 at end, false."
+    ],
+    "tags": [
+      "String",
+      "Greedy",
+      "Stack",
+      "Dynamic Programming"
+    ],
+    "companies": [
+      "Amazon",
+      "Google"
+    ],
+    "visibleTests": [
+      {
+        "input": "()",
+        "output": "true"
+      },
+      {
+        "input": "(*)",
+        "output": "true"
+      },
+      {
+        "input": "(*))",
+        "output": "true"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "",
+        "output": "true"
+      },
+      {
+        "input": "*",
+        "output": "true"
+      },
+      {
+        "input": "(",
+        "output": "false"
+      },
+      {
+        "input": ")",
+        "output": "false"
+      },
+      {
+        "input": "**",
+        "output": "true"
+      },
+      {
+        "input": "(*(*",
+        "output": "false"
+      },
+      {
+        "input": "(*()",
+        "output": "true"
+      },
+      {
+        "input": "(())",
+        "output": "true"
+      },
+      {
+        "input": "(**)",
+        "output": "true"
+      },
+      {
+        "input": "*)()",
+        "output": "false"
+      }
+    ],
+    "timeLimit": 1000,
+    "memoryLimit": 256,
+    "xp": 20,
+    "estimatedTime": 20,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\ndef solve():\n    pass\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\n// code",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Minimum Window Substring Length",
+    "slug": "minimum-window-substring-length",
+    "difficulty": "MEDIUM",
+    "topic": "strings",
+    "statement": "Given strings `s` and `t`, return the length of the minimum window in `s` that contains all characters of `t`. Return 0 if no such window.",
+    "constraints": "- `1 <= s.length <= 10^5`\n- `1 <= t.length <= 10^4`",
+    "examples": [
+      {
+        "input": "ADOBECODEBANC\nABC",
+        "output": "4"
+      },
+      {
+        "input": "a\na",
+        "output": "1"
+      }
+    ],
+    "hints": [
+      "Sliding window with two frequency maps.",
+      "Expand right, shrink left when all covered."
+    ],
+    "tags": [
+      "Hash Table",
+      "String",
+      "Sliding Window"
+    ],
+    "companies": [
+      "Amazon",
+      "Google",
+      "Meta",
+      "Microsoft"
+    ],
+    "visibleTests": [
+      {
+        "input": "ADOBECODEBANC\nABC",
+        "output": "4"
+      },
+      {
+        "input": "a\na",
+        "output": "1"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "a\nb",
+        "output": "0"
+      },
+      {
+        "input": "aa\naa",
+        "output": "2"
+      },
+      {
+        "input": "AABB\nAB",
+        "output": "2"
+      },
+      {
+        "input": "AAAB\nAAB",
+        "output": "3"
+      },
+      {
+        "input": "abc\ncba",
+        "output": "3"
+      },
+      {
+        "input": "abcdef\ndef",
+        "output": "3"
+      },
+      {
+        "input": "ABCB\nBC",
+        "output": "2"
+      },
+      {
+        "input": "xyz\nx",
+        "output": "1"
+      },
+      {
+        "input": "bbaa\naba",
+        "output": "4"
+      },
+      {
+        "input": "aXbc\nabc",
+        "output": "4"
+      }
+    ],
+    "timeLimit": 1000,
+    "memoryLimit": 256,
+    "xp": 20,
+    "estimatedTime": 30,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\ndef solve():\n    pass\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\n// code",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "String to Integer",
+    "slug": "string-to-integer-atoi",
+    "difficulty": "MEDIUM",
+    "topic": "strings",
+    "statement": "Implement `atoi`: skip leading whitespace, read optional sign, read digits, clamp to 32-bit signed integer range `[-2^31, 2^31-1]`.",
+    "constraints": "- `0 <= s.length <= 200`\n- `s` consists of printable ASCII characters.",
+    "examples": [
+      {
+        "input": "42",
+        "output": "42"
+      },
+      {
+        "input": "-91283472332",
+        "output": "-2147483648"
+      }
+    ],
+    "hints": [
+      "Strip whitespace. Read sign. Accumulate digits. Stop at non-digit. Clamp result."
+    ],
+    "tags": [
+      "String"
+    ],
+    "companies": [
+      "Amazon",
+      "Google",
+      "Microsoft"
+    ],
+    "visibleTests": [
+      {
+        "input": "42",
+        "output": "42"
+      },
+      {
+        "input": "-91283472332",
+        "output": "-2147483648"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "  -42",
+        "output": "-42"
+      },
+      {
+        "input": "4193 with words",
+        "output": "4193"
+      },
+      {
+        "input": "words and 987",
+        "output": "0"
+      },
+      {
+        "input": "",
+        "output": "0"
+      },
+      {
+        "input": "+1",
+        "output": "1"
+      },
+      {
+        "input": "2147483646",
+        "output": "2147483646"
+      },
+      {
+        "input": "2147483648",
+        "output": "2147483647"
+      },
+      {
+        "input": "-2147483648",
+        "output": "-2147483648"
+      },
+      {
+        "input": "-2147483649",
+        "output": "-2147483648"
+      },
+      {
+        "input": "  +  413",
+        "output": "0"
+      }
+    ],
+    "timeLimit": 1000,
+    "memoryLimit": 256,
+    "xp": 20,
+    "estimatedTime": 15,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "// code",
+      "java": "// code",
+      "cpp": "// code"
+    }
+  },
+  {
+    "title": "Bulls and Cows",
+    "slug": "bulls-and-cows",
+    "difficulty": "MEDIUM",
+    "topic": "strings",
+    "statement": "Given a secret number and a guess (same-length digit strings), return `xAyB` where x=bulls (correct digit, correct position) and y=cows (correct digit, wrong position).",
+    "constraints": "- `1 <= secret.length == guess.length <= 1000`\n- Both strings consist of digits.",
+    "examples": [
+      {
+        "input": "1807\n7810",
+        "output": "1A3B"
+      },
+      {
+        "input": "1123\n0111",
+        "output": "1A1B"
+      }
+    ],
+    "hints": [
+      "First pass: count exact matches (bulls). Second pass: use freq maps for non-bull positions."
+    ],
+    "tags": [
+      "Hash Table",
+      "String",
+      "Counting"
+    ],
+    "companies": [
+      "Amazon",
+      "Google"
+    ],
+    "visibleTests": [
+      {
+        "input": "1807\n7810",
+        "output": "1A3B"
+      },
+      {
+        "input": "1123\n0111",
+        "output": "1A1B"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "1\n1",
+        "output": "1A0B"
+      },
+      {
+        "input": "1\n2",
+        "output": "0A0B"
+      },
+      {
+        "input": "1122\n2211",
+        "output": "0A4B"
+      },
+      {
+        "input": "1122\n1122",
+        "output": "4A0B"
+      },
+      {
+        "input": "1234\n4321",
+        "output": "0A4B"
+      },
+      {
+        "input": "0000\n1111",
+        "output": "0A0B"
+      },
+      {
+        "input": "1111\n0100",
+        "output": "1A0B"
+      },
+      {
+        "input": "1234\n1234",
+        "output": "4A0B"
+      },
+      {
+        "input": "1234\n0000",
+        "output": "0A0B"
+      },
+      {
+        "input": "1111\n1111",
+        "output": "4A0B"
+      }
+    ],
+    "timeLimit": 1000,
+    "memoryLimit": 256,
+    "xp": 20,
+    "estimatedTime": 20,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "// code",
+      "java": "// code",
+      "cpp": "// code"
+    }
   }
 ]

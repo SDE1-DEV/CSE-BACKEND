@@ -7,29 +7,79 @@
     "statement": "Design a stack that supports push, pop, top, and retrieving the minimum element in constant time.\n\nImplement the `MinStack` class:\n- `MinStack()` initializes the stack object.\n- `void push(int val)` pushes the element `val` onto the stack.\n- `void pop()` removes the element on the top of the stack.\n- `int top()` gets the top element of the stack.\n- `int getMin()` retrieves the minimum element in the stack.\n\nYou must implement a solution with `O(1)` time complexity for each function.\n\nInput format: Number of operations, then each operation on a new line (push val / pop / top / getMin).",
     "constraints": "- `-2^31 <= val <= 2^31 - 1`\n- Methods `pop`, `top` and `getMin` operations will always be called on non-empty stacks.\n- At most `3 * 10^4` calls will be made to `push`, `pop`, `top`, and `getMin`.",
     "examples": [
-      { "input": "ops = [\"MinStack\",\"push\",\"push\",\"push\",\"getMin\",\"pop\",\"top\",\"getMin\"] vals = [[],[−3],[0],[−2],[],[],[],[]]", "output": "[null,null,null,null,-3,null,0,-2]" }
+      {
+        "input": "ops = [\"MinStack\",\"push\",\"push\",\"push\",\"getMin\",\"pop\",\"top\",\"getMin\"] vals = [[],[−3],[0],[−2],[],[],[],[]]",
+        "output": "[null,null,null,null,-3,null,0,-2]"
+      }
     ],
-    "hints": ["Use an auxiliary stack to track minimums.", "Push current min to aux stack whenever pushing, pop from both on pop."],
-    "tags": ["Stack", "Design"],
-    "companies": ["Amazon", "Google", "Microsoft"],
+    "hints": [
+      "Use an auxiliary stack to track minimums.",
+      "Push current min to aux stack whenever pushing, pop from both on pop."
+    ],
+    "tags": [
+      "Stack",
+      "Design"
+    ],
+    "companies": [
+      "Amazon",
+      "Google",
+      "Microsoft"
+    ],
     "visibleTests": [
-      { "input": "7\npush -3\npush 0\npush -2\ngetMin\npop\ntop\ngetMin", "output": "-3\n0\n-2" }
+      {
+        "input": "7\npush -3\npush 0\npush -2\ngetMin\npop\ntop\ngetMin",
+        "output": "-3\n0\n-2"
+      },
+      {
+        "input": "3\npush 1\npush 2\ngetMin",
+        "output": "1"
+      }
     ],
     "hiddenTests": [
-      { "input": "3\npush 1\npush 2\ngetMin", "output": "1" },
-      { "input": "4\npush 5\npush 3\npop\ngetMin", "output": "5" },
-      { "input": "5\npush 2\npush 0\npush 3\npush 0\ngetMin", "output": "0" },
-      { "input": "4\npush 1\ntop\ngetMin\npop", "output": "1\n1" },
-      { "input": "6\npush 5\npush 1\npush 5\ntop\ngetMin\npop", "output": "5\n1" },
-      { "input": "5\npush -1\npush -2\npush -3\ngetMin\npop", "output": "-3" },
-      { "input": "3\npush 0\npush 1\ngetMin", "output": "0" },
-      { "input": "5\npush 10\npush 5\npush 15\ngetMin\npop", "output": "5" }
+      {
+        "input": "4\npush 5\npush 3\npop\ngetMin",
+        "output": "5"
+      },
+      {
+        "input": "5\npush 2\npush 0\npush 3\npush 0\ngetMin",
+        "output": "0"
+      },
+      {
+        "input": "4\npush 1\ntop\ngetMin\npop",
+        "output": "1\n1"
+      },
+      {
+        "input": "6\npush 5\npush 1\npush 5\ntop\ngetMin\npop",
+        "output": "5\n1"
+      },
+      {
+        "input": "5\npush -1\npush -2\npush -3\ngetMin\npop",
+        "output": "-3"
+      },
+      {
+        "input": "3\npush 0\npush 1\ngetMin",
+        "output": "0"
+      },
+      {
+        "input": "5\npush 10\npush 5\npush 15\ngetMin\npop",
+        "output": "5"
+      },
+      {
+        "input": "7\npush -3\npush 0\npush -2\ngetMin\npop\ntop\ngetMin",
+        "output": "-3\n0\n-2"
+      }
     ],
     "timeLimit": 1000,
     "memoryLimit": 256,
     "xp": 20,
     "estimatedTime": 20,
-    "license": "ORIGINAL"
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
   },
   {
     "title": "Daily Temperatures",
@@ -39,65 +89,1032 @@
     "statement": "Given an array of integers `temperatures` represents the daily temperatures, return an array `answer` such that `answer[i]` is the number of days you have to wait after the `i`th day to get a warmer temperature. If there is no future day for which this is possible, keep `answer[i] == 0` instead.",
     "constraints": "- `1 <= temperatures.length <= 10^5`\n- `30 <= temperatures[i] <= 100`",
     "examples": [
-      { "input": "temperatures = [73,74,75,71,69,72,76,73]", "output": "[1,1,4,2,1,1,0,0]" },
-      { "input": "temperatures = [30,40,50,60]", "output": "[1,1,1,0]" },
-      { "input": "temperatures = [30,60,90]", "output": "[1,1,0]" }
+      {
+        "input": "temperatures = [73,74,75,71,69,72,76,73]",
+        "output": "[1,1,4,2,1,1,0,0]"
+      },
+      {
+        "input": "temperatures = [30,40,50,60]",
+        "output": "[1,1,1,0]"
+      },
+      {
+        "input": "temperatures = [30,60,90]",
+        "output": "[1,1,0]"
+      }
     ],
-    "hints": ["Use a monotonic decreasing stack.", "Store indices; pop when a warmer temperature is found."],
-    "tags": ["Array", "Stack", "Monotonic Stack"],
-    "companies": ["Amazon", "Google"],
+    "hints": [
+      "Use a monotonic decreasing stack.",
+      "Store indices; pop when a warmer temperature is found."
+    ],
+    "tags": [
+      "Array",
+      "Stack",
+      "Monotonic Stack"
+    ],
+    "companies": [
+      "Amazon",
+      "Google"
+    ],
     "visibleTests": [
-      { "input": "8\n73 74 75 71 69 72 76 73", "output": "1 1 4 2 1 1 0 0" },
-      { "input": "4\n30 40 50 60", "output": "1 1 1 0" }
+      {
+        "input": "8\n73 74 75 71 69 72 76 73",
+        "output": "1 1 4 2 1 1 0 0"
+      },
+      {
+        "input": "4\n30 40 50 60",
+        "output": "1 1 1 0"
+      }
     ],
     "hiddenTests": [
-      { "input": "3\n30 60 90", "output": "1 1 0" },
-      { "input": "1\n50", "output": "0" },
-      { "input": "5\n50 50 50 50 50", "output": "0 0 0 0 0" },
-      { "input": "5\n60 50 40 30 20", "output": "0 0 0 0 0" },
-      { "input": "5\n20 30 40 50 60", "output": "1 1 1 1 0" },
-      { "input": "6\n73 75 71 69 72 76", "output": "1 4 2 1 1 0" },
-      { "input": "4\n89 62 70 58", "output": "0 1 0 0" },
-      { "input": "5\n55 38 53 81 61", "output": "3 1 1 0 0" }
+      {
+        "input": "3\n30 60 90",
+        "output": "1 1 0"
+      },
+      {
+        "input": "1\n50",
+        "output": "0"
+      },
+      {
+        "input": "5\n50 50 50 50 50",
+        "output": "0 0 0 0 0"
+      },
+      {
+        "input": "5\n60 50 40 30 20",
+        "output": "0 0 0 0 0"
+      },
+      {
+        "input": "5\n20 30 40 50 60",
+        "output": "1 1 1 1 0"
+      },
+      {
+        "input": "6\n73 75 71 69 72 76",
+        "output": "1 4 2 1 1 0"
+      },
+      {
+        "input": "4\n89 62 70 58",
+        "output": "0 1 0 0"
+      },
+      {
+        "input": "5\n55 38 53 81 61",
+        "output": "3 1 1 0 0"
+      }
     ],
     "timeLimit": 1000,
     "memoryLimit": 256,
     "xp": 20,
     "estimatedTime": 20,
-    "license": "ORIGINAL"
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
   },
   {
     "title": "Largest Rectangle in Histogram",
     "slug": "largest-rectangle-in-histogram",
-    "difficulty": "HARD",
+    "difficulty": "MEDIUM",
     "topic": "stack",
     "statement": "Given an array of integers `heights` representing the histogram's bar height where the width of each bar is `1`, return the area of the largest rectangle in the histogram.",
     "constraints": "- `1 <= heights.length <= 10^5`\n- `0 <= heights[i] <= 10^4`",
     "examples": [
-      { "input": "heights = [2,1,5,6,2,3]", "output": "10" },
-      { "input": "heights = [2,4]", "output": "4" }
+      {
+        "input": "heights = [2,1,5,6,2,3]",
+        "output": "10"
+      },
+      {
+        "input": "heights = [2,4]",
+        "output": "4"
+      }
     ],
-    "hints": ["Use a monotonic stack.", "For each bar, find the left and right boundary where it is the minimum height."],
-    "tags": ["Array", "Stack", "Monotonic Stack"],
-    "companies": ["Google", "Amazon", "Microsoft"],
+    "hints": [
+      "Use a monotonic stack.",
+      "For each bar, find the left and right boundary where it is the minimum height."
+    ],
+    "tags": [
+      "Array",
+      "Stack",
+      "Monotonic Stack"
+    ],
+    "companies": [
+      "Google",
+      "Amazon",
+      "Microsoft"
+    ],
     "visibleTests": [
-      { "input": "6\n2 1 5 6 2 3", "output": "10" },
-      { "input": "2\n2 4", "output": "4" }
+      {
+        "input": "6\n2 1 5 6 2 3",
+        "output": "10"
+      },
+      {
+        "input": "2\n2 4",
+        "output": "4"
+      }
     ],
     "hiddenTests": [
-      { "input": "1\n5", "output": "5" },
-      { "input": "5\n1 1 1 1 1", "output": "5" },
-      { "input": "5\n5 4 3 2 1", "output": "9" },
-      { "input": "5\n1 2 3 4 5", "output": "9" },
-      { "input": "4\n2 1 2 2", "output": "4" },
-      { "input": "6\n6 2 5 4 5 1", "output": "12" },
-      { "input": "1\n0", "output": "0" },
-      { "input": "7\n2 0 2 1 2 0 2", "output": "2" }
+      {
+        "input": "1\n5",
+        "output": "5"
+      },
+      {
+        "input": "5\n1 1 1 1 1",
+        "output": "5"
+      },
+      {
+        "input": "5\n5 4 3 2 1",
+        "output": "9"
+      },
+      {
+        "input": "5\n1 2 3 4 5",
+        "output": "9"
+      },
+      {
+        "input": "4\n2 1 2 2",
+        "output": "4"
+      },
+      {
+        "input": "6\n6 2 5 4 5 1",
+        "output": "12"
+      },
+      {
+        "input": "1\n0",
+        "output": "0"
+      },
+      {
+        "input": "7\n2 0 2 1 2 0 2",
+        "output": "2"
+      }
     ],
     "timeLimit": 1000,
     "memoryLimit": 256,
-    "xp": 30,
+    "xp": 20,
     "estimatedTime": 45,
-    "license": "ORIGINAL"
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Balanced Brackets",
+    "slug": "balanced-brackets",
+    "difficulty": "EASY",
+    "topic": "stack",
+    "statement": "Given a string containing only `(`, `)`, `{`, `}`, `[`, `]`, determine if the input string is valid. A string is valid if every opening bracket is closed by the same type of bracket in the correct order.",
+    "constraints": "- `1 <= s.length <= 10^4`\n- `s` consists of parentheses only.",
+    "examples": [
+      {
+        "input": "()[]{}",
+        "output": "true"
+      },
+      {
+        "input": "([)]",
+        "output": "false"
+      }
+    ],
+    "hints": [
+      "Push opening brackets onto a stack.",
+      "For each closing bracket, check if the top of the stack is the matching opener."
+    ],
+    "tags": [
+      "String",
+      "Stack"
+    ],
+    "companies": [
+      "Amazon",
+      "Google",
+      "Microsoft",
+      "Meta"
+    ],
+    "visibleTests": [
+      {
+        "input": "()[]{}",
+        "output": "true"
+      },
+      {
+        "input": "([)]",
+        "output": "false"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "()",
+        "output": "true"
+      },
+      {
+        "input": "(){}[]",
+        "output": "true"
+      },
+      {
+        "input": "{[]}",
+        "output": "true"
+      },
+      {
+        "input": "",
+        "output": "true"
+      },
+      {
+        "input": "[",
+        "output": "false"
+      },
+      {
+        "input": "]",
+        "output": "false"
+      },
+      {
+        "input": "(((",
+        "output": "false"
+      },
+      {
+        "input": "(())",
+        "output": "true"
+      },
+      {
+        "input": "([{}])",
+        "output": "true"
+      },
+      {
+        "input": "{[}]",
+        "output": "false"
+      }
+    ],
+    "timeLimit": 1000,
+    "memoryLimit": 256,
+    "xp": 10,
+    "estimatedTime": 12,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\nlet idx = 0;\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Next Greater Element",
+    "slug": "next-greater-element",
+    "difficulty": "MEDIUM",
+    "topic": "stack",
+    "statement": "Given a circular integer array `nums`, for each element, find the **next greater element** to its right (wrapping around). If no greater element exists, output `-1` for that position.",
+    "constraints": "- `1 <= nums.length <= 10^4`\n- `-10^9 <= nums[i] <= 10^9`",
+    "examples": [
+      {
+        "input": "4\n1 2 1 3",
+        "output": "2 3 3 -1"
+      },
+      {
+        "input": "3\n1 2 3",
+        "output": "2 3 -1"
+      }
+    ],
+    "hints": [
+      "Use a monotonic decreasing stack.",
+      "Iterate twice (2n) to handle circular wrap-around."
+    ],
+    "tags": [
+      "Array",
+      "Stack",
+      "Monotonic Stack"
+    ],
+    "companies": [
+      "Amazon",
+      "Google",
+      "Microsoft"
+    ],
+    "visibleTests": [
+      {
+        "input": "4\n1 2 1 3",
+        "output": "2 3 3 -1"
+      },
+      {
+        "input": "3\n1 2 3",
+        "output": "2 3 -1"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "1\n5",
+        "output": "-1"
+      },
+      {
+        "input": "5\n5 4 3 2 1",
+        "output": "-1 5 5 5 5"
+      },
+      {
+        "input": "5\n1 1 1 1 1",
+        "output": "-1 -1 -1 -1 -1"
+      },
+      {
+        "input": "4\n3 1 2 4",
+        "output": "4 2 4 -1"
+      },
+      {
+        "input": "5\n1 2 1 2 1",
+        "output": "2 -1 2 -1 2"
+      },
+      {
+        "input": "3\n3 2 1",
+        "output": "-1 3 3"
+      },
+      {
+        "input": "5\n2 1 2 4 3",
+        "output": "4 2 4 -1 4"
+      },
+      {
+        "input": "4\n10 20 30 40",
+        "output": "20 30 40 -1"
+      },
+      {
+        "input": "4\n4 3 2 1",
+        "output": "-1 4 4 4"
+      },
+      {
+        "input": "3\n1 3 2",
+        "output": "3 -1 3"
+      }
+    ],
+    "timeLimit": 1000,
+    "memoryLimit": 256,
+    "xp": 20,
+    "estimatedTime": 20,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\nlet idx = 0;\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Minimum Stack with O(1) Min",
+    "slug": "minimum-stack",
+    "difficulty": "EASY",
+    "topic": "stack",
+    "statement": "Design a stack that supports push, pop, top, and retrieving the minimum element, all in O(1) time.\n\nProcess `q` operations:\n- `push x` — Push x\n- `pop` — Remove top\n- `top` — Print top element\n- `min` — Print current minimum\n\nAssume the stack is never empty when `pop`, `top`, or `min` is called.",
+    "constraints": "- `1 <= q <= 3 * 10^4`\n- `-2^31 <= x <= 2^31 - 1`",
+    "examples": [
+      {
+        "input": "5\npush 5\npush 3\nmin\npop\nmin",
+        "output": "3\n5"
+      },
+      {
+        "input": "4\npush 1\npush 2\ntop\nmin",
+        "output": "2\n1"
+      }
+    ],
+    "hints": [
+      "Maintain two stacks: one main and one for minimums.",
+      "Push to min-stack only when new element <= current min."
+    ],
+    "tags": [
+      "Stack",
+      "Design"
+    ],
+    "companies": [
+      "Amazon",
+      "Google",
+      "Microsoft",
+      "Adobe"
+    ],
+    "visibleTests": [
+      {
+        "input": "5\npush 5\npush 3\nmin\npop\nmin",
+        "output": "3\n5"
+      },
+      {
+        "input": "4\npush 1\npush 2\ntop\nmin",
+        "output": "2\n1"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "3\npush 0\ntop\nmin",
+        "output": "0\n0"
+      },
+      {
+        "input": "5\npush 5\npush 3\npush 7\nmin\npop",
+        "output": "3"
+      },
+      {
+        "input": "6\npush 2\npush 0\npush 3\npush 0\nmin\npop",
+        "output": "0"
+      },
+      {
+        "input": "4\npush 1\npush 1\npush 1\nmin",
+        "output": "1"
+      },
+      {
+        "input": "6\npush 5\npush 3\npush 8\nmin\npop\nmin",
+        "output": "3\n3"
+      },
+      {
+        "input": "5\npush 10\npush 5\npush 15\npush 2\nmin",
+        "output": "2"
+      },
+      {
+        "input": "4\npush -5\npush 3\nmin\npop",
+        "output": "-5"
+      },
+      {
+        "input": "5\npush 1\npush 2\npush 3\npop\nmin",
+        "output": "1"
+      },
+      {
+        "input": "3\npush 100\npush 50\nmin",
+        "output": "50"
+      },
+      {
+        "input": "6\npush 3\npush 1\npush 4\nmin\npop\nmin",
+        "output": "1\n1"
+      }
+    ],
+    "timeLimit": 1000,
+    "memoryLimit": 256,
+    "xp": 10,
+    "estimatedTime": 20,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\nlet idx = 0;\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Evaluate Postfix Expression",
+    "slug": "evaluate-postfix-expression",
+    "difficulty": "EASY",
+    "topic": "stack",
+    "statement": "Evaluate an arithmetic expression given in **Reverse Polish Notation (postfix)**. Valid operators are `+`, `-`, `*`, `/`. Division truncates toward zero.",
+    "constraints": "- `1 <= tokens.length <= 10^4`\n- Tokens are either integers or operators.\n- Division by zero will not occur.\n- The answer fits in a 32-bit integer.",
+    "examples": [
+      {
+        "input": "5\n2 1 + 3 *",
+        "output": "9"
+      },
+      {
+        "input": "6\n4 13 5 / +",
+        "output": "6"
+      }
+    ],
+    "hints": [
+      "Use a stack.",
+      "For each token: if number push it; if operator pop two values, apply operator, push result."
+    ],
+    "tags": [
+      "Array",
+      "Stack",
+      "Math"
+    ],
+    "companies": [
+      "Amazon",
+      "Google"
+    ],
+    "visibleTests": [
+      {
+        "input": "5\n2 1 + 3 *",
+        "output": "9"
+      },
+      {
+        "input": "6\n4 13 5 / +",
+        "output": "6"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "3\n2 3 +",
+        "output": "5"
+      },
+      {
+        "input": "5\n5 1 2 + 4 * + 3 -",
+        "output": "14"
+      },
+      {
+        "input": "3\n2 3 *",
+        "output": "6"
+      },
+      {
+        "input": "3\n10 2 /",
+        "output": "5"
+      },
+      {
+        "input": "3\n3 3 -",
+        "output": "0"
+      },
+      {
+        "input": "5\n4 2 / 3 *",
+        "output": "6"
+      },
+      {
+        "input": "7\n3 4 + 2 * 7 /",
+        "output": "2"
+      },
+      {
+        "input": "5\n5 1 2 + *",
+        "output": "15"
+      },
+      {
+        "input": "3\n-3 4 +",
+        "output": "1"
+      },
+      {
+        "input": "3\n10 3 /",
+        "output": "3"
+      }
+    ],
+    "timeLimit": 1000,
+    "memoryLimit": 256,
+    "xp": 10,
+    "estimatedTime": 15,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\nlet idx = 0;\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Largest Rectangle in Histogram",
+    "slug": "largest-rectangle-histogram",
+    "difficulty": "MEDIUM",
+    "topic": "stack",
+    "statement": "Given an array of integers `heights` representing the histogram's bar heights where the width of each bar is 1, find the area of the **largest rectangle** in the histogram.",
+    "constraints": "- `1 <= heights.length <= 10^5`\n- `0 <= heights[i] <= 10^4`",
+    "examples": [
+      {
+        "input": "6\n2 1 5 6 2 3",
+        "output": "10"
+      },
+      {
+        "input": "2\n2 4",
+        "output": "4"
+      }
+    ],
+    "hints": [
+      "Use a monotonic increasing stack.",
+      "When a shorter bar is encountered, pop and calculate area with popped bar as height."
+    ],
+    "tags": [
+      "Array",
+      "Stack",
+      "Monotonic Stack"
+    ],
+    "companies": [
+      "Amazon",
+      "Google",
+      "Meta"
+    ],
+    "visibleTests": [
+      {
+        "input": "6\n2 1 5 6 2 3",
+        "output": "10"
+      },
+      {
+        "input": "2\n2 4",
+        "output": "4"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "1\n5",
+        "output": "5"
+      },
+      {
+        "input": "5\n1 1 1 1 1",
+        "output": "5"
+      },
+      {
+        "input": "5\n5 4 3 2 1",
+        "output": "9"
+      },
+      {
+        "input": "5\n1 2 3 4 5",
+        "output": "9"
+      },
+      {
+        "input": "6\n6 2 5 4 5 1",
+        "output": "12"
+      },
+      {
+        "input": "4\n4 4 4 4",
+        "output": "16"
+      },
+      {
+        "input": "5\n0 1 0 1 0",
+        "output": "1"
+      },
+      {
+        "input": "6\n3 6 5 7 4 8",
+        "output": "20"
+      },
+      {
+        "input": "3\n4 2 4",
+        "output": "6"
+      },
+      {
+        "input": "5\n1 100 1 1 1",
+        "output": "100"
+      }
+    ],
+    "timeLimit": 2000,
+    "memoryLimit": 256,
+    "xp": 20,
+    "estimatedTime": 30,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\nlet idx = 0;\n// Your code here",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // Your code here\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Remove Adjacent Duplicates",
+    "slug": "remove-adjacent-duplicates",
+    "difficulty": "EASY",
+    "topic": "stack",
+    "statement": "Given a string `s` and integer `k`, repeatedly remove `k` adjacent duplicate characters. Return the final string after all removals.",
+    "constraints": "- `1 <= s.length <= 10^5`\n- `s` consists of lowercase English letters\n- `1 <= k <= s.length`",
+    "examples": [
+      {
+        "input": "deeedbbcccbdaa 3",
+        "output": "aa"
+      },
+      {
+        "input": "pbbcggttciiippooaais 2",
+        "output": "ps"
+      }
+    ],
+    "hints": [
+      "Use a stack of (char, count) pairs.",
+      "When count reaches k, pop it."
+    ],
+    "tags": [
+      "String",
+      "Stack"
+    ],
+    "companies": [
+      "Amazon",
+      "Google"
+    ],
+    "visibleTests": [
+      {
+        "input": "deeedbbcccbdaa 3",
+        "output": "aa"
+      },
+      {
+        "input": "pbbcggttciiippooaais 2",
+        "output": "ps"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "abcd 2",
+        "output": "abcd"
+      },
+      {
+        "input": "aabbcc 2",
+        "output": ""
+      },
+      {
+        "input": "aaabcccbb 3",
+        "output": "abc"
+      },
+      {
+        "input": "abcddcba 2",
+        "output": ""
+      },
+      {
+        "input": "aaaa 2",
+        "output": ""
+      },
+      {
+        "input": "aabba 2",
+        "output": "a"
+      },
+      {
+        "input": "abcde 1",
+        "output": ""
+      },
+      {
+        "input": "aaa 3",
+        "output": ""
+      },
+      {
+        "input": "abcabc 3",
+        "output": ""
+      },
+      {
+        "input": "aaaaaaaaaaa 3",
+        "output": "aa"
+      }
+    ],
+    "timeLimit": 1000,
+    "memoryLimit": 256,
+    "xp": 10,
+    "estimatedTime": 15,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\ndef solve():\n    pass\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\n// code",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Score of Parentheses",
+    "slug": "score-of-parentheses",
+    "difficulty": "MEDIUM",
+    "topic": "stack",
+    "statement": "Given a balanced parentheses string `s`, compute its score:\n- `()` has score 1\n- `AB` has score A + B\n- `(A)` has score 2*A",
+    "constraints": "- `2 <= s.length <= 50`\n- `s` is a balanced parentheses string.",
+    "examples": [
+      {
+        "input": "()",
+        "output": "1"
+      },
+      {
+        "input": "(())",
+        "output": "2"
+      },
+      {
+        "input": "()()",
+        "output": "2"
+      }
+    ],
+    "hints": [
+      "Use a stack starting with [0].",
+      "On `(`, push 0.",
+      "On `)`, pop v; if v==0, top+=1; else top += 2*v."
+    ],
+    "tags": [
+      "String",
+      "Stack"
+    ],
+    "companies": [
+      "Amazon",
+      "Google"
+    ],
+    "visibleTests": [
+      {
+        "input": "()",
+        "output": "1"
+      },
+      {
+        "input": "(())",
+        "output": "2"
+      },
+      {
+        "input": "()()",
+        "output": "2"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "(()(()))",
+        "output": "6"
+      },
+      {
+        "input": "(((())))",
+        "output": "8"
+      },
+      {
+        "input": "()(())",
+        "output": "3"
+      },
+      {
+        "input": "((())())",
+        "output": "5"
+      },
+      {
+        "input": "(()())",
+        "output": "4"
+      },
+      {
+        "input": "(())(())",
+        "output": "4"
+      },
+      {
+        "input": "((()))",
+        "output": "4"
+      },
+      {
+        "input": "(()()())",
+        "output": "6"
+      },
+      {
+        "input": "((()(())))",
+        "output": "10"
+      },
+      {
+        "input": "((())(()))",
+        "output": "8"
+      }
+    ],
+    "timeLimit": 1000,
+    "memoryLimit": 256,
+    "xp": 20,
+    "estimatedTime": 20,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\ndef solve():\n    pass\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\n// code",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Online Stock Span",
+    "slug": "online-stock-span",
+    "difficulty": "MEDIUM",
+    "topic": "stack",
+    "statement": "Design an algorithm that collects daily price quotes and returns the span of that stock's price for each day. The span is the max consecutive days before today (including today) where price <= today's price.\n\nProcess `n` prices and print each span.",
+    "constraints": "- `1 <= n <= 10^4`\n- `1 <= price <= 10^5`",
+    "examples": [
+      {
+        "input": "7\n100 80 60 70 60 75 85",
+        "output": "1 1 1 2 1 4 6"
+      },
+      {
+        "input": "5\n10 20 30 40 50",
+        "output": "1 2 3 4 5"
+      }
+    ],
+    "hints": [
+      "Stack stores (price, span) pairs.",
+      "Pop while stack top price <= current price, accumulate span."
+    ],
+    "tags": [
+      "Stack",
+      "Design",
+      "Data Stream",
+      "Monotonic Stack"
+    ],
+    "companies": [
+      "Amazon",
+      "Google",
+      "Microsoft"
+    ],
+    "visibleTests": [
+      {
+        "input": "7\n100 80 60 70 60 75 85",
+        "output": "1 1 1 2 1 4 6"
+      },
+      {
+        "input": "5\n10 20 30 40 50",
+        "output": "1 2 3 4 5"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "1\n100",
+        "output": "1"
+      },
+      {
+        "input": "5\n50 40 30 20 10",
+        "output": "1 1 1 1 1"
+      },
+      {
+        "input": "5\n5 5 5 5 5",
+        "output": "1 2 3 4 5"
+      },
+      {
+        "input": "6\n3 7 1 4 8 5",
+        "output": "1 2 1 2 5 1"
+      },
+      {
+        "input": "5\n10 10 10 10 10",
+        "output": "1 2 3 4 5"
+      },
+      {
+        "input": "7\n1 2 3 4 5 6 7",
+        "output": "1 2 3 4 5 6 7"
+      },
+      {
+        "input": "5\n5 4 3 4 5",
+        "output": "1 1 1 3 5"
+      },
+      {
+        "input": "4\n10 5 5 10",
+        "output": "1 1 2 4"
+      },
+      {
+        "input": "6\n28 14 28 35 46 53",
+        "output": "1 1 3 4 5 6"
+      },
+      {
+        "input": "5\n10 7 8 9 6",
+        "output": "1 1 2 3 1"
+      }
+    ],
+    "timeLimit": 1000,
+    "memoryLimit": 256,
+    "xp": 20,
+    "estimatedTime": 25,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\ndef solve():\n    pass\nsolve()",
+      "javascript": "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\n// code",
+      "java": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n    }\n}",
+      "cpp": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Min Deletions for Valid Brackets",
+    "slug": "min-deletions-valid-brackets",
+    "difficulty": "MEDIUM",
+    "topic": "stack",
+    "statement": "Given a string of `(` and `)`, return the minimum number of parentheses to remove to make it valid.",
+    "constraints": "- `1 <= s.length <= 10^5`\n- `s[i]` is `(` or `)`.",
+    "examples": [
+      {
+        "input": "())((",
+        "output": "3"
+      },
+      {
+        "input": "()()",
+        "output": "0"
+      }
+    ],
+    "hints": [
+      "Count unmatched open and close brackets separately.",
+      "Traverse: if ) and no open pending, increment close; else decrement open."
+    ],
+    "tags": [
+      "String",
+      "Stack",
+      "Greedy"
+    ],
+    "companies": [
+      "Amazon",
+      "Google"
+    ],
+    "visibleTests": [
+      {
+        "input": "())((",
+        "output": "3"
+      },
+      {
+        "input": "()()",
+        "output": "0"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "input": "(",
+        "output": "1"
+      },
+      {
+        "input": ")",
+        "output": "1"
+      },
+      {
+        "input": "()",
+        "output": "0"
+      },
+      {
+        "input": ")(",
+        "output": "2"
+      },
+      {
+        "input": "((((",
+        "output": "4"
+      },
+      {
+        "input": "))))",
+        "output": "4"
+      },
+      {
+        "input": "(())",
+        "output": "0"
+      },
+      {
+        "input": "(()(((",
+        "output": "4"
+      },
+      {
+        "input": ")))((((",
+        "output": "6"
+      },
+      {
+        "input": "()(())(",
+        "output": "1"
+      }
+    ],
+    "timeLimit": 1000,
+    "memoryLimit": 256,
+    "xp": 20,
+    "estimatedTime": 15,
+    "license": "ORIGINAL",
+    "starterCode": {
+      "python": "import sys\ninput = sys.stdin.readline\n\ndef solve():\n    pass\n\nsolve()",
+      "javascript": "// code",
+      "java": "// code",
+      "cpp": "// code"
+    }
   }
 ]
