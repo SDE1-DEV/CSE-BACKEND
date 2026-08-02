@@ -44,7 +44,7 @@ export class ProgressService {
     return roadmap;
   }
 
-  async getRoadmapBySlug(slug: string, isAdmin = false) {
+  async getRoadmapBySlug(slug: string, isAdmin = false, userId?: string) {
     const roadmap = await this.resolveRoadmap(slug, isAdmin, true);
     const lessonsCount = await prisma.lesson.count({
       where: {
@@ -53,7 +53,74 @@ export class ProgressService {
         ...(isAdmin ? {} : { isPublished: true }),
       },
     });
-    return { ...roadmap, lessonsCount, sectionsCount: roadmap._count?.sections ?? 0 };
+
+    // Fetch sections + lessons (needed by sidebar in LessonViewerPage and RoadmapDetailPage)
+    const sections = await prisma.roadmapSection.findMany({
+      where: { roadmapId: roadmap.id, deletedAt: null },
+      orderBy: { order: 'asc' },
+      include: {
+        lessons: {
+          where: { deletedAt: null, ...(isAdmin ? {} : { isPublished: true }) },
+          orderBy: { order: 'asc' },
+          select: {
+            id: true,
+            title: true,
+            slug: true,
+            estimatedMinutes: true,
+            order: true,
+            isPublished: true,
+            contentType: true,
+            description: true,
+          },
+        },
+      },
+    });
+
+    // Fetch user progress for the whole roadmap if userId provided
+    let progressMap: Record<string, 'not_started' | 'in_progress' | 'completed'> = {};
+    let completedCount = 0;
+
+    if (userId) {
+      const progressRows = await prisma.userProgress.findMany({
+        where: {
+          userId,
+          lesson: { section: { roadmapId: roadmap.id, deletedAt: null }, deletedAt: null },
+        },
+        select: { lessonId: true, completed: true, percentage: true, lastOpened: true },
+      });
+      for (const p of progressRows) {
+        if (p.completed) {
+          progressMap[p.lessonId] = 'completed';
+          completedCount++;
+        } else if (p.lastOpened || (p.percentage ?? 0) > 0) {
+          progressMap[p.lessonId] = 'in_progress';
+        } else {
+          progressMap[p.lessonId] = 'not_started';
+        }
+      }
+    }
+
+    // Enrich lessons with status
+    const enrichedSections = sections.map((sec) => ({
+      ...sec,
+      lessons: sec.lessons.map((l) => ({
+        ...l,
+        status: progressMap[l.id] ?? 'not_started',
+      })),
+    }));
+
+    const totalLessons = enrichedSections.reduce((sum, s) => sum + s.lessons.length, 0);
+    const progressPct = totalLessons > 0 ? Math.round((completedCount / totalLessons) * 100) : 0;
+
+    return {
+      ...roadmap,
+      lessonsCount,
+      lessonCount: lessonsCount,
+      sectionsCount: roadmap._count?.sections ?? 0,
+      sections: enrichedSections,
+      progress: progressPct,
+      completedLessons: completedCount,
+    };
   }
 
   async getRoadmapModulesWithLessons(slug: string, isAdmin = false) {

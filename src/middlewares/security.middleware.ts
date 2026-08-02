@@ -7,6 +7,7 @@
  * - HTTP parameter pollution prevention
  * - Secure cookie settings
  * - Audit logging for admin actions
+ * - CSRF protection (production only)
  */
 
 import { Request, Response, NextFunction } from 'express';
@@ -14,6 +15,8 @@ import { FilterXSS } from 'xss';
 import hpp from 'hpp';
 import { logger } from '../utils/logger';
 import { AuthenticatedRequest } from '../types';
+import { env } from '../config/env';
+import crypto from 'crypto';
 
 // XSS filter instance
 const xssFilter = new FilterXSS({
@@ -114,4 +117,95 @@ export const validateFileUpload = (
 
     next();
   };
+};
+
+const STATE_CHANGING_METHODS = new Set(['POST', 'PUT', 'PATCH', 'DELETE']);
+
+const isOriginAllowed = (origin: string | undefined): boolean => {
+  if (!origin) return false;
+  const allowed = [env.CLIENT_URL, 'http://localhost:5173', 'http://localhost:3000'];
+  return allowed.includes(origin);
+};
+
+/**
+ * Issues a CSRF double-submit cookie on safe requests when one is missing.
+ */
+const issueCsrfCookie = (req: Request, res: Response): void => {
+  if (!req.cookies || !req.cookies['_csrf']) {
+    const token = crypto.randomBytes(32).toString('hex');
+    res.cookie('_csrf', token, {
+      httpOnly: true,
+      secure: env.isProduction(),
+      sameSite: 'strict',
+      path: '/',
+    });
+  }
+};
+
+/**
+ * CSRF Protection middleware.
+ *
+ * - Development: disabled (pass-through)
+ * - Production: double-submit cookie pattern + defence-in-depth checks:
+ *   Allows state-changing request if ANY of:
+ *   1. X-CSRF-Token header matches the _csrf cookie
+ *   2. Bearer Authorization header present (not auto-attached by browsers)
+ *   3. X-Requested-With custom header present
+ *   4. Origin header is explicitly allowed
+ */
+export const csrfProtect = (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): void => {
+  if (!env.isProduction()) {
+    next();
+    return;
+  }
+
+  if (!STATE_CHANGING_METHODS.has(req.method)) {
+    issueCsrfCookie(req, res);
+    next();
+    return;
+  }
+
+  const authHeader = req.headers['authorization'];
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    next();
+    return;
+  }
+
+  if (req.headers['x-requested-with']) {
+    next();
+    return;
+  }
+
+  const origin = req.headers['origin'];
+  if (isOriginAllowed(origin)) {
+    next();
+    return;
+  }
+
+  const cookieToken = req.cookies?.['_csrf'];
+  const headerToken = req.headers['x-csrf-token'] as string | undefined;
+  if (cookieToken && headerToken && cookieToken === headerToken) {
+    next();
+    return;
+  }
+
+  logger.warn('CSRF check failed', {
+    method: req.method,
+    url: req.originalUrl,
+    ip: req.ip,
+    hasAuth: !!authHeader,
+    hasXRequestedWith: !!req.headers['x-requested-with'],
+    origin,
+  });
+
+  res.status(403).json({
+    success: false,
+    message: 'CSRF validation failed',
+    data: null,
+    errors: null,
+  });
 };

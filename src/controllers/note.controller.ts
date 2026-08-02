@@ -16,7 +16,8 @@ export const getNoteForLesson = async (
       throw new AppError(HTTP_STATUS.UNAUTHORIZED, 'Unauthorized');
     }
     const note = await noteService.getByLesson(req.user.userId, req.params.id);
-    sendSuccess(res, 'Note fetched successfully', note);
+    // Return as array since frontend useLessonNotes expects LessonNote[]
+    sendSuccess(res, 'Note fetched successfully', note ? [note] : []);
   } catch (error) {
     next(error);
   }

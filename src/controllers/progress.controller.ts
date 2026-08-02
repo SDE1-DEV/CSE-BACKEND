@@ -15,7 +15,7 @@ export const getRoadmapBySlug = async (
 ): Promise<void> => {
   try {
     const isAdmin = req.user?.role === Role.SUPER_ADMIN || req.user?.role === Role.MANAGER;
-    const result = await progressService.getRoadmapBySlug(req.params.slug, isAdmin);
+    const result = await progressService.getRoadmapBySlug(req.params.slug, isAdmin, req.user?.userId);
     sendSuccess(res, LEARNING_MESSAGES.ROADMAP_FETCHED, result);
   } catch (error) {
     next(error);

@@ -285,8 +285,8 @@ export const addBookmark = async (
     if (!req.user) {
       throw new AppError(HTTP_STATUS.UNAUTHORIZED, 'Unauthorized');
     }
-    const bookmark = await lessonService.addBookmark(req.params.lessonId, req.user.userId);
-    sendCreated(res, LEARNING_MESSAGES.BOOKMARK_ADDED, bookmark);
+    const result = await lessonService.addBookmark(req.params.lessonId, req.user.userId);
+    sendSuccess(res, result.isBookmarked ? LEARNING_MESSAGES.BOOKMARK_ADDED : LEARNING_MESSAGES.BOOKMARK_REMOVED, result);
   } catch (error) {
     next(error);
   }

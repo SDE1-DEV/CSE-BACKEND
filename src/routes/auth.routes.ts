@@ -21,23 +21,9 @@ import {
   updateAuthProfileSchema,
 } from '../validators/auth.validator';
 import { authenticate } from '../middlewares/authenticate.middleware';
-import rateLimit from 'express-rate-limit';
-import { RATE_LIMITS } from '../constants';
+import { authLimiter } from '../middlewares/rate-limit.middleware';
 
 const router = Router();
-
-const authLimiter = rateLimit({
-  windowMs: RATE_LIMITS.AUTH.windowMs,
-  max: RATE_LIMITS.AUTH.max,
-  message: {
-    success: false,
-    message: 'Too many requests. Please try again later.',
-    data: null,
-    errors: null,
-  },
-  standardHeaders: true,
-  legacyHeaders: false,
-});
 
 /**
  * @swagger

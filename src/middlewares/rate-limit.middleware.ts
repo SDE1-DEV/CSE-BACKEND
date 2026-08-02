@@ -9,6 +9,7 @@ import { isRedisAvailable } from '../config/redis';
 import rateLimit from 'express-rate-limit';
 import { RATE_LIMITS } from '../constants';
 import { logger } from '../utils/logger';
+import { env } from '../config/env';
 
 interface RateLimitOptions {
   windowMs: number;
@@ -65,33 +66,41 @@ export const createRedisRateLimiter = (options: RateLimitOptions) => {
 
 // ── Pre-configured limiters ────────────────────────────────────────────────────
 
+const devBypass = (_req: Request, _res: Response, next: NextFunction): void => {
+  next();
+};
+
 /** General API rate limiter (in-memory fallback) */
-export const generalLimiter = rateLimit({
-  windowMs: RATE_LIMITS.GENERAL.windowMs,
-  max: RATE_LIMITS.GENERAL.max,
-  standardHeaders: true,
-  legacyHeaders: false,
-  message: {
-    success: false,
-    message: 'Too many requests from this IP, please try again later.',
-    data: null,
-    errors: null,
-  },
-});
+export const generalLimiter = env.isDevelopment()
+  ? devBypass
+  : rateLimit({
+      windowMs: RATE_LIMITS.GENERAL.windowMs,
+      max: RATE_LIMITS.GENERAL.max,
+      standardHeaders: true,
+      legacyHeaders: false,
+      message: {
+        success: false,
+        message: 'Too many requests from this IP, please try again later.',
+        data: null,
+        errors: null,
+      },
+    });
 
 /** Auth endpoint limiter */
-export const authLimiter = rateLimit({
-  windowMs: RATE_LIMITS.AUTH.windowMs,
-  max: RATE_LIMITS.AUTH.max,
-  standardHeaders: true,
-  legacyHeaders: false,
-  message: {
-    success: false,
-    message: 'Too many authentication attempts. Please try again later.',
-    data: null,
-    errors: null,
-  },
-});
+export const authLimiter = env.isDevelopment()
+  ? devBypass
+  : rateLimit({
+      windowMs: RATE_LIMITS.AUTH.windowMs,
+      max: RATE_LIMITS.AUTH.max,
+      standardHeaders: true,
+      legacyHeaders: false,
+      message: {
+        success: false,
+        message: 'Too many authentication attempts. Please try again later.',
+        data: null,
+        errors: null,
+      },
+    });
 
 /** Upload endpoint limiter */
 export const uploadLimiter = rateLimit({

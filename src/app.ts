@@ -15,7 +15,7 @@ import { env } from './config/env';
 import { swaggerSpec } from './config/swagger';
 import { requestLogger } from './middlewares/logger.middleware';
 import { globalErrorHandler, notFound } from './middlewares/error.middleware';
-import { sanitizeInput } from './middlewares/security.middleware';
+import { sanitizeInput, csrfProtect } from './middlewares/security.middleware';
 import { generalLimiter } from './middlewares/rate-limit.middleware';
 import routes from './routes';
 
@@ -76,6 +76,9 @@ app.use(cookieParser(env.JWT_SECRET));
 
 // ── Input Sanitization ────────────────────────────────────────────────────────
 app.use(sanitizeInput);
+
+// ── CSRF Protection (production only) ─────────────────────────────────────────
+app.use(csrfProtect);
 
 // ── Request Logger (with Correlation IDs) ─────────────────────────────────────
 app.use(requestLogger);

@@ -178,13 +178,21 @@ export const LEARNING_MESSAGES = {
   SEARCH_RESULTS_FETCHED: 'Search results fetched successfully',
 } as const;
 
+// ── Quiz & Practice Messages ──────────────────────────────────────────────────
+export const QUIZ_MESSAGES = {
+  PRACTICE_FETCHED: 'Practice questions fetched successfully',
+  QUIZ_FETCHED: 'Quiz questions fetched successfully',
+  QUIZ_SUBMITTED: 'Quiz submitted successfully',
+  STATS_FETCHED: 'Learning statistics fetched successfully',
+} as const;
+
 export const RATE_LIMITS = {
-  AUTH: { windowMs: 15 * 60 * 1000, max: 100 },            // 100 per 15 min
-  GENERAL: { windowMs: 15 * 60 * 1000, max: 100 },         // 100 per 15 min
-  UPLOAD: { windowMs: 60 * 60 * 1000, max: 20 },           // 20 per hour
-  SEARCH: { windowMs: 60 * 1000, max: 30 },                // 30 per min
-  NOTIFICATIONS: { windowMs: 60 * 1000, max: 60 },         // 60 per min
-  AI_ENDPOINTS: { windowMs: 60 * 1000, max: 10 },          // 10 per min (future)
+  AUTH: { windowMs: 15 * 60 * 1000, max: 100 },
+  GENERAL: { windowMs: 15 * 60 * 1000, max: 100 },
+  UPLOAD: { windowMs: 60 * 60 * 1000, max: 20 },
+  SEARCH: { windowMs: 60 * 1000, max: 30 },
+  NOTIFICATIONS: { windowMs: 60 * 1000, max: 60 },
+  AI_ENDPOINTS: { windowMs: 60 * 1000, max: 10 },
 } as const;
 
 // ── PRD-06: Production Engineering Messages ───────────────────────────────────

@@ -10,6 +10,7 @@ import searchRoutes from './search.routes';
 import lessonRoutes from './lesson.routes';
 import noteRoutes from './note.routes';
 import learningRoutes from './learning.routes';
+import learningApiRoutes from './learning-api.routes';
 
 // ── PRD-03: Coding Practice Platform ─────────────────────────────────────────
 import problemCategoryRoutes from './problem-category.routes';
@@ -67,10 +68,11 @@ router.use('/health', healthRoutes);
 // ── PRD-02: Learning Ecosystem ────────────────────────────────────────────────
 router.use('/categories', categoryRoutes);
 
-// Learning extras FIRST (before generic /roadmaps CRUD) so slug-based
-// lookups and nested /modules /lessons win over the generic UUID CRUD.
-// Handles: GET /roadmaps/:slug, GET /roadmaps/:slug/modules,
-// GET /roadmaps/:slug/lessons, POST/DELETE /bookmark, GET/PATCH /progress, GET /activity
+// /learning/* — all frontend-facing learning API routes (quiz, practice, stats, notes, etc.)
+// Mount FIRST so /learning/lessons/:id wins before generic /roadmaps CRUD
+router.use('/learning', learningApiRoutes);
+
+// Learning extras at root for backwards-compat (slug roadmaps, body bookmarks, progress, activity)
 router.use('/', learningRoutes);
 
 router.use('/roadmaps', roadmapRoutes);

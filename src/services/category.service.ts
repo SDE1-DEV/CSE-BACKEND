@@ -32,6 +32,14 @@ export class CategoryService {
     return category;
   }
 
+  async getCategoryBySlug(slug: string): Promise<Category> {
+    const category = await categoryRepository.findBySlug(slug);
+    if (!category) {
+      throw new AppError(HTTP_STATUS.NOT_FOUND, LEARNING_MESSAGES.CATEGORY_NOT_FOUND);
+    }
+    return category;
+  }
+
   async getCategoryById(id: string): Promise<Category> {
     return cacheService.wrap(
       CacheKeys.CATEGORY(id),

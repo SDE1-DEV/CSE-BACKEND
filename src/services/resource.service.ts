@@ -23,6 +23,14 @@ export class ResourceService {
     });
   }
 
+  async getResourceById(id: string): Promise<LearningResource> {
+    const resource = await resourceRepository.findById(id);
+    if (!resource) {
+      throw new AppError(HTTP_STATUS.NOT_FOUND, LEARNING_MESSAGES.RESOURCE_NOT_FOUND);
+    }
+    return resource;
+  }
+
   async getResourcesByLesson(lessonId: string): Promise<LearningResource[]> {
     const lesson = await lessonRepository.findById(lessonId);
     if (!lesson) {

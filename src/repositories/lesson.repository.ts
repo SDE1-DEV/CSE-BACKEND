@@ -84,12 +84,13 @@ export class LessonRepository {
   async upsertProgress(
     userId: string,
     lessonId: string,
-    data: { watchPercentage?: number; timeSpent?: number; completed?: boolean; completedAt?: Date | null },
+    data: { watchPercentage?: number; timeSpent?: number; completed?: boolean; completedAt?: Date | null; roadmapId?: string | null; lastOpened?: Date },
   ): Promise<UserProgress> {
+    const { roadmapId, ...updateData } = data;
     return prisma.userProgress.upsert({
       where: { userId_lessonId: { userId, lessonId } },
-      update: { ...data, updatedAt: new Date() },
-      create: { userId, lessonId, ...data },
+      update: { ...updateData, updatedAt: new Date() },
+      create: { userId, lessonId, ...(roadmapId ? { roadmapId } : {}), ...updateData },
     });
   }
 

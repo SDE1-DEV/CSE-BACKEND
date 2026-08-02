@@ -282,12 +282,14 @@ model Lesson {
   updatedAt        DateTime    @updatedAt
   deletedAt        DateTime?
 
-  section        RoadmapSection   @relation(fields: [sectionId], references: [id], onDelete: Cascade)
-  resources      LearningResource[]
-  progress       UserProgress[]
-  notes          Note[]
-  bookmarks      Bookmark[]
-  recentlyViewed RecentlyViewed[]
+  section              RoadmapSection        @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  resources            LearningResource[]
+  progress             UserProgress[]
+  notes                Note[]
+  bookmarks            Bookmark[]
+  recentlyViewed       RecentlyViewed[]
+  practiceQuestions    LessonPracticeQuestion[]
+  quizQuestions        QuizQuestion[]
 
   @@index([slug])
   @@index([sectionId])
@@ -383,6 +385,51 @@ model RecentlyViewed {
   @@index([userId])
   @@index([lessonId])
   @@map("recently_viewed")
+}
+
+model LessonPracticeQuestion {
+  id           String   @id @default(uuid())
+  lessonId     String
+  question     String
+  answer       String
+  hint         String?
+  difficulty   Difficulty @default(BEGINNER)
+  displayOrder Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  lesson       Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  @@index([lessonId])
+  @@index([displayOrder])
+  @@map("lesson_practice_questions")
+}
+
+model QuizQuestion {
+  id           String   @id @default(uuid())
+  lessonId     String
+  question     String
+  explanation  String?
+  difficulty   Difficulty @default(BEGINNER)
+  displayOrder Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  lesson       Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  options      QuizOption[]
+  @@index([lessonId])
+  @@index([displayOrder])
+  @@map("quiz_questions")
+}
+
+model QuizOption {
+  id             String       @id @default(uuid())
+  quizQuestionId String
+  text           String
+  isCorrect      Boolean      @default(false)
+  displayOrder   Int          @default(0)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  quizQuestion   QuizQuestion @relation(fields: [quizQuestionId], references: [id], onDelete: Cascade)
+  @@index([quizQuestionId])
+  @@map("quiz_options")
 }
 
 // ── PRD-03: Coding Practice Platform ──────────────────────────────────────────

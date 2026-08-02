@@ -5,6 +5,15 @@ import { MESSAGES, HTTP_STATUS } from '../constants';
 import { RegisterInput, LoginInput, ForgotPasswordInput, ResetPasswordInput, RefreshTokenInput, ChangePasswordInput, UpdateProfileInput } from '../validators/auth.validator';
 import { AuthenticatedRequest } from '../types';
 import { AppError } from '../middlewares/error.middleware';
+import { env } from '../config/env';
+
+const REFRESH_COOKIE_OPTIONS = {
+  httpOnly: true,
+  secure: env.isProduction(),
+  sameSite: 'strict' as const,
+  path: '/api/auth',
+  maxAge: 7 * 24 * 60 * 60 * 1000,
+};
 
 /**
  * @swagger
@@ -12,7 +21,7 @@ import { AppError } from '../middlewares/error.middleware';
  *   post:
  *     tags: [Authentication]
  *     summary: Register a new user
- *     description: Creates a new user account and sends a verification OTP to email
+ *     description: Creates a new user account and immediately returns access and refresh tokens
  *     requestBody:
  *       required: true
  *       content:
@@ -44,13 +53,7 @@ export const register = async (
     const { fullName, email, password, phoneNumber } = req.body;
     const result = await authService.register(fullName, email, password, phoneNumber);
 
-    // Set refresh token as httpOnly cookie
-    res.cookie('refreshToken', result.tokens.refreshToken, {
-      httpOnly: true,
-      secure: process.env['NODE_ENV'] === 'production',
-      sameSite: 'strict',
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-    });
+    res.cookie('refreshToken', result.tokens.refreshToken, REFRESH_COOKIE_OPTIONS);
 
     sendCreated(res, MESSAGES.REGISTER_SUCCESS, {
       user: result.user,
@@ -78,7 +81,7 @@ export const register = async (
  *       200:
  *         description: Login successful, returns tokens and user data
  *       401:
- *         description: Invalid credentials or email not verified
+ *         description: Invalid credentials
  */
 export const login = async (
   req: Request<object, object, LoginInput>,
@@ -89,13 +92,7 @@ export const login = async (
     const { email, password } = req.body;
     const result = await authService.login(email, password);
 
-    // Set refresh token as httpOnly cookie
-    res.cookie('refreshToken', result.tokens.refreshToken, {
-      httpOnly: true,
-      secure: process.env['NODE_ENV'] === 'production',
-      sameSite: 'strict',
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-    });
+    res.cookie('refreshToken', result.tokens.refreshToken, REFRESH_COOKIE_OPTIONS);
 
     sendSuccess(res, MESSAGES.LOGIN_SUCCESS, {
       user: result.user,
@@ -138,7 +135,7 @@ export const logout = async (
       await authService.logout(refreshToken);
     }
 
-    res.clearCookie('refreshToken');
+    res.clearCookie('refreshToken', { path: '/api/auth' });
     sendSuccess(res, MESSAGES.LOGOUT_SUCCESS, null);
   } catch (error) {
     next(error);
@@ -180,13 +177,7 @@ export const refresh = async (
     }
     const result = await authService.refresh(refreshToken);
 
-    // Rotate the httpOnly cookie as well
-    res.cookie('refreshToken', result.refreshToken, {
-      httpOnly: true,
-      secure: process.env['NODE_ENV'] === 'production',
-      sameSite: 'strict',
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-    });
+    res.cookie('refreshToken', result.refreshToken, REFRESH_COOKIE_OPTIONS);
 
     sendSuccess(res, MESSAGES.TOKEN_REFRESHED, {
       accessToken: result.accessToken,
