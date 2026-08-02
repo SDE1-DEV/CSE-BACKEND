@@ -59,20 +59,73 @@ export const codingProblemParamsSchema = z.object({
   }),
 });
 
+/**
+ * Normalise a filter value that may arrive as "all", "", null, or undefined.
+ * Returns undefined so the service knows to skip the filter entirely.
+ */
+function normalizeFilterValue(val: string | undefined): string | undefined {
+  if (val === undefined || val === null || val === '' || val.toLowerCase() === 'all') {
+    return undefined;
+  }
+  return val;
+}
+
 export const getProblemsQuerySchema = z.object({
-  query: z.object({
-    page: z.string().regex(/^\d+$/).transform(Number).optional(),
-    limit: z.string().regex(/^\d+$/).transform(Number).optional(),
-    difficulty: z.nativeEnum(ProblemDifficulty).optional(),
-    categoryId: z.string().uuid().optional(),
-    tagId: z.string().uuid().optional(),
-    companyId: z.string().uuid().optional(),
-    search: z.string().max(300).optional(),
-    isPublished: z.string().transform((v) => v === 'true').optional(),
-    solved: z.string().transform((v) => v === 'true').optional(),
-    sortBy: z.enum(['createdAt', 'difficulty', 'title', 'acceptanceRate', 'points']).optional(),
-    sortOrder: z.enum(['asc', 'desc']).optional(),
-  }),
+  query: z
+    .object({
+      page: z.string().regex(/^\d+$/).transform(Number).optional(),
+      limit: z.string().regex(/^\d+$/).transform(Number).optional(),
+
+      // difficulty: accept both "all"/"" (→ ignored) and case-insensitive enum values
+      difficulty: z
+        .string()
+        .optional()
+        .transform((val) => {
+          const normalized = normalizeFilterValue(val);
+          if (!normalized) return undefined;
+          // Accept both lowercase (frontend) and uppercase (Prisma enum)
+          return normalized.toUpperCase() as ProblemDifficulty;
+        })
+        .pipe(z.nativeEnum(ProblemDifficulty).optional()),
+
+      // categoryId: "all"/"" → ignore; otherwise must be UUID
+      categoryId: z
+        .string()
+        .optional()
+        .transform((val) => normalizeFilterValue(val))
+        .pipe(z.string().uuid().optional()),
+
+      // tagId: "all"/"" → ignore; otherwise must be UUID
+      tagId: z
+        .string()
+        .optional()
+        .transform((val) => normalizeFilterValue(val))
+        .pipe(z.string().uuid().optional()),
+
+      // companyId: "all"/"" → ignore; otherwise must be UUID
+      companyId: z
+        .string()
+        .optional()
+        .transform((val) => normalizeFilterValue(val))
+        .pipe(z.string().uuid().optional()),
+
+      search: z.string().max(300).optional(),
+      isPublished: z.string().transform((v) => v === 'true').optional(),
+
+      // solved: boolean string ("true"/"false") — legacy param
+      solved: z.string().transform((v) => v === 'true').optional(),
+
+      // status: "all"/"solved"/"unsolved" — frontend ProblemFilters shape
+      status: z
+        .enum(['all', 'solved', 'unsolved'])
+        .optional()
+        .transform((val) => (val === 'all' ? undefined : val)),
+
+      sortBy: z.enum(['createdAt', 'difficulty', 'title', 'acceptanceRate', 'points']).optional(),
+      sortOrder: z.enum(['asc', 'desc']).optional(),
+    })
+    // Strip unknown keys (e.g. tagIds array sent by old client versions)
+    .strip(),
 });
 
 export type CreateCodingProblemInput = z.infer<typeof createCodingProblemSchema>['body'];

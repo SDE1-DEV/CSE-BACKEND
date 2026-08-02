@@ -139,11 +139,14 @@ export class CodingProblemService {
   async getAll(
     query: GetProblemsQuery,
     userId?: string,
-  ): Promise<{ data: unknown[]; total: number; page: number; limit: number; totalPages: number }> {
+  ): Promise<{ data: unknown[]; total: number; page: number; limit: number; totalPages: number; hasNext: boolean; hasPrevious: boolean }> {
     const page = query.page ?? 1;
     const limit = Math.min(query.limit ?? 20, 100);
 
     const filters: CodingProblemFilters = {};
+
+    // All filter values have already been normalized by the Zod schema:
+    // "all" / "" → undefined, so we only need to check for undefined here.
     if (query.difficulty) filters.difficulty = query.difficulty;
     if (query.categoryId) filters.categoryId = query.categoryId;
     if (query.tagId) filters.tagId = query.tagId;
@@ -151,9 +154,13 @@ export class CodingProblemService {
     if (query.search) filters.search = query.search;
     if (query.isPublished !== undefined) filters.isPublished = query.isPublished;
 
-    // solved / unsolved filters require userId
-    if (query.solved === true && userId) filters.solvedByUserId = userId;
-    if (query.solved === false && userId) filters.unsolvedByUserId = userId;
+    // Handle status field (frontend ProblemFilters shape: 'solved' | 'unsolved' | undefined)
+    if (query.status === 'solved' && userId) filters.solvedByUserId = userId;
+    if (query.status === 'unsolved' && userId) filters.unsolvedByUserId = userId;
+
+    // Legacy boolean solved field (for backwards compat)
+    if (query.solved === true && userId && !query.status) filters.solvedByUserId = userId;
+    if (query.solved === false && userId && !query.status) filters.unsolvedByUserId = userId;
 
     const sort: CodingProblemSort = {
       sortBy: query.sortBy,
@@ -161,7 +168,8 @@ export class CodingProblemService {
     };
 
     const { data, total } = await codingProblemRepository.findAll(filters, sort, { page, limit });
-    return buildPaginated(data, total, page, limit);
+    const result = buildPaginated(data, total, page, limit);
+    return result;
   }
 
   async update(id: string, data: UpdateCodingProblemInput): Promise<unknown> {
