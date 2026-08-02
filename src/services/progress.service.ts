@@ -112,8 +112,21 @@ export class ProgressService {
     const totalLessons = enrichedSections.reduce((sum, s) => sum + s.lessons.length, 0);
     const progressPct = totalLessons > 0 ? Math.round((completedCount / totalLessons) * 100) : 0;
 
+    // Normalize tags: DB stores as comma-separated String? — convert to string[]
+    const rawTags = roadmap.tags;
+    const normalizedTags: string[] = Array.isArray(rawTags)
+      ? rawTags
+      : typeof rawTags === 'string' && rawTags.trim()
+        ? rawTags.split(',').map((t: string) => t.trim()).filter(Boolean)
+        : [];
+
     return {
       ...roadmap,
+      tags: normalizedTags,
+      difficulty: typeof roadmap.difficulty === 'string' ? roadmap.difficulty.toLowerCase() : roadmap.difficulty,
+      category: roadmap.category
+        ? { ...roadmap.category, name: roadmap.category.title ?? roadmap.category.name, color: '#3b82f6', roadmapCount: 0 }
+        : { id: '', name: 'Programming', slug: 'programming', color: '#3b82f6', roadmapCount: 0 },
       lessonsCount,
       lessonCount: lessonsCount,
       sectionsCount: roadmap._count?.sections ?? 0,

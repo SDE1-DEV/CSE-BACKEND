@@ -53,3 +53,13 @@ export const deleteNotification = async (req: AuthenticatedRequest, res: Respons
     next(error);
   }
 };
+
+export const getUnreadCount = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const userId = req.user!.userId;
+    const count = await notificationService.getUnreadCount(userId);
+    sendSuccess(res, 'Unread count fetched', { count });
+  } catch (error) {
+    next(error);
+  }
+};
