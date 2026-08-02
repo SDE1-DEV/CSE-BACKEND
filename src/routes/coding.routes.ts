@@ -40,7 +40,13 @@ import { sendSuccess, buildPaginated } from '../utils/response';
 import { submissionRepository } from '../repositories/submission.repository';
 import { codingProblemRepository } from '../repositories/coding-problem.repository';
 
+// FPRD-16: Topics sub-router
+import codingTopicsRoutes from './coding-topics.routes';
+
 const router = Router();
+
+// ─── FPRD-16: Topics (Question Bank) ─────────────────────────────────────────
+router.use('/topics', codingTopicsRoutes);
 
 // ─── Problems ─────────────────────────────────────────────────────────────────
 router.get('/problems', authenticate, validate(getProblemsQuerySchema), getProblems);
