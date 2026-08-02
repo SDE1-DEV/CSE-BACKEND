@@ -28,7 +28,9 @@ export class DailyChallengeService {
       CacheKeys.DAILY_CHALLENGE(),
       async () => {
         const challenge = await dailyChallengeRepository.findToday();
-        if (!challenge) throw new AppError(HTTP_STATUS.NOT_FOUND, CODING_MESSAGES.DAILY_CHALLENGE_NOT_FOUND);
+        // Return null (not a 404) when no challenge is set for today — the
+        // frontend EmptyState handles the null case gracefully.
+        if (!challenge) return null;
 
         // Normalize to the shape the frontend DailyChallenge type expects
         const raw = challenge as any;

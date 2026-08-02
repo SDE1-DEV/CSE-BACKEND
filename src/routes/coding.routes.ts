@@ -272,6 +272,31 @@ router.get('/analytics', authenticate, requireStudent, async (req: Request, res:
   }
 });
 
+/** Normalize a raw Prisma CodingProblem record to the shape the frontend expects */
+function normalizeProblem(p: any) {
+  return {
+    id: p.id,
+    slug: p.slug,
+    title: p.title,
+    difficulty: (p.difficulty ?? 'EASY').toLowerCase(),
+    acceptanceRate: p.acceptanceRate ?? 0,
+    totalSubmissions: p._count?.submissions ?? 0,
+    tags: (p.tags ?? []).map((t: any) => ({
+      id: t.tag?.id ?? t.id,
+      name: t.tag?.name ?? t.name,
+      slug: t.tag?.slug ?? t.slug,
+    })),
+    companies: (p.companies ?? []).map((c: any) => ({
+      id: c.company?.id ?? c.id,
+      name: c.company?.name ?? c.name,
+      logo: c.company?.logo ?? null,
+    })),
+    category: p.category
+      ? { id: p.category.id, name: p.category.name, slug: p.category.slug }
+      : { id: '', name: 'Uncategorised', slug: 'uncategorised' },
+  };
+}
+
 // ─── Recommended Problems (published, not solved by user) ─────────────────────
 router.get('/recommended', authenticate, async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -294,7 +319,7 @@ router.get('/recommended', authenticate, async (req: Request, res: Response, nex
         _count: { select: { submissions: true } },
       },
     });
-    sendSuccess(res, 'Recommended problems fetched', problems);
+    sendSuccess(res, 'Recommended problems fetched', problems.map(normalizeProblem));
   } catch (err) {
     next(err);
   }
@@ -336,7 +361,7 @@ router.get('/recently-solved', authenticate, requireStudent, async (req: Request
         })
       : [];
 
-    sendSuccess(res, 'Recently solved fetched', problems);
+    sendSuccess(res, 'Recently solved fetched', problems.map(normalizeProblem));
   } catch (err) {
     next(err);
   }
@@ -382,7 +407,7 @@ router.get('/continue', authenticate, requireStudent, async (req: Request, res: 
         })
       : [];
 
-    sendSuccess(res, 'Continue solving fetched', problems);
+    sendSuccess(res, 'Continue solving fetched', problems.map(normalizeProblem));
   } catch (err) {
     next(err);
   }
