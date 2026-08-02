@@ -330,7 +330,7 @@ const options: swaggerJsdoc.Options = {
             lessonId: { type: 'string', format: 'uuid' },
             completed: { type: 'boolean', example: false },
             completedAt: { type: 'string', format: 'date-time', nullable: true },
-            watchPercentage: { type: 'number', example: 65 },
+            percentage: { type: 'number', example: 65 },
             timeSpent: { type: 'integer', example: 420 },
           },
         },

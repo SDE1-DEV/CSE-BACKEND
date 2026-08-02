@@ -40,7 +40,7 @@ import { categoryService } from '../services/category.service';
 import { resourceService } from '../services/resource.service';
 import { lessonService } from '../services/lesson.service';
 import { roadmapService } from '../services/roadmap.service';
-import { sendSuccess } from '../utils/response';
+import { sendSuccess, buildPaginated } from '../utils/response';
 import { LEARNING_MESSAGES } from '../constants';
 import { prisma } from '../config/database';
 import { authenticate } from '../middlewares/authenticate.middleware';
@@ -111,7 +111,7 @@ router.get('/categories/:categoryId/roadmaps', async (req: Request, res: Respons
       progress: 0,
       completedLessons: 0,
     }));
-    sendSuccess(res, LEARNING_MESSAGES.ROADMAPS_FETCHED, { data: enriched, total: result.total, page: result.page, limit: result.limit, totalPages: result.totalPages });
+    sendSuccess(res, LEARNING_MESSAGES.ROADMAPS_FETCHED, buildPaginated(enriched, result.total, result.page, result.limit));
   } catch (err) {
     next(err);
   }
@@ -157,17 +157,27 @@ router.get('/roadmaps', async (req: Request, res: Response, next: NextFunction) 
     // Batch-fetch per-user progress percentages if authenticated
     const progressMap: Record<string, { pct: number; completed: number }> = {};
     if (userId && roadmapIds.length > 0) {
+      // Single query: count all completed lessons for ALL returned roadmaps at once
+      const completedRows = await prisma.userProgress.groupBy({
+        by: ['roadmapId'],
+        where: {
+          userId,
+          completed: true,
+          roadmapId: { in: roadmapIds },
+        },
+        _count: { _all: true },
+      });
+      const completedByRoadmap: Record<string, number> = {};
+      for (const r of completedRows) {
+        if (r.roadmapId) completedByRoadmap[r.roadmapId] = r._count._all;
+      }
       for (const rid of roadmapIds) {
         const total = lessonCounts[rid] ?? 0;
-        if (total === 0) { progressMap[rid] = { pct: 0, completed: 0 }; continue; }
-        const done = await prisma.userProgress.count({
-          where: {
-            userId,
-            completed: true,
-            lesson: { section: { roadmapId: rid, deletedAt: null }, deletedAt: null },
-          },
-        });
-        progressMap[rid] = { pct: Math.round((done / total) * 100), completed: done };
+        const done = completedByRoadmap[rid] ?? 0;
+        progressMap[rid] = {
+          pct: total > 0 ? Math.round((done / total) * 100) : 0,
+          completed: done,
+        };
       }
     }
 
@@ -184,13 +194,7 @@ router.get('/roadmaps', async (req: Request, res: Response, next: NextFunction) 
       completedLessons: progressMap[r.id]?.completed ?? 0,
     }));
 
-    sendSuccess(res, LEARNING_MESSAGES.ROADMAPS_FETCHED, {
-      data: enriched,
-      total: result.total,
-      page: result.page,
-      limit: result.limit,
-      totalPages: result.totalPages,
-    });
+    sendSuccess(res, LEARNING_MESSAGES.ROADMAPS_FETCHED, buildPaginated(enriched, result.total, result.page, result.limit));
   } catch (err) {
     next(err);
   }

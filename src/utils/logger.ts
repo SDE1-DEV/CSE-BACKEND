@@ -88,7 +88,7 @@ export const logger = winston.createLogger({
 });
 
 // ── Slow Query Logger ─────────────────────────────────────────────────────────
-export const logSlowQuery = (query: string, duration: number, threshold = 200): void => {
+export const logSlowQuery = (query: string, duration: number, threshold = 1000): void => {
   if (duration > threshold) {
     logger.warn('Slow database query detected', {
       query: query.slice(0, 200),

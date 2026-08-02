@@ -47,9 +47,10 @@ export class LessonService {
       throw new AppError(HTTP_STATUS.NOT_FOUND, LEARNING_MESSAGES.LESSON_NOT_FOUND);
     }
 
-    // Track recently viewed for authenticated users
+    // Track recently viewed for authenticated users — fire-and-forget so it
+    // never adds latency to the critical lesson-fetch path.
     if (userId) {
-      await lessonRepository.upsertRecentlyViewed(userId, id);
+      void lessonRepository.upsertRecentlyViewed(userId, id).catch(() => { /* non-critical */ });
     }
 
     // ── Enrich with navigation, progress, bookmark, and roadmap context ───────
@@ -212,7 +213,7 @@ export class LessonService {
     return lessonRepository.upsertProgress(userId, lessonId, {
       completed: true,
       completedAt: new Date(),
-      watchPercentage: 100,
+      percentage: 100,
       roadmapId,
     });
   }
@@ -228,7 +229,7 @@ export class LessonService {
     const totalTimeSpent = (existing?.timeSpent ?? 0) + (data.timeSpent ?? 0);
 
     return lessonRepository.upsertProgress(userId, lessonId, {
-      watchPercentage: data.watchPercentage,
+      percentage: data.watchPercentage,
       timeSpent: totalTimeSpent,
     });
   }
@@ -307,13 +308,28 @@ export class LessonService {
 
     if (!roadmap) return null;
 
-    // Get roadmap progress for this user
-    const totalLessons = await prisma.lesson.count({
-      where: { section: { roadmapId: roadmap.id, deletedAt: null }, deletedAt: null, isPublished: true },
-    });
-    const completedLessons = await prisma.userProgress.count({
-      where: { userId, completed: true, lesson: { section: { roadmapId: roadmap.id, deletedAt: null }, deletedAt: null } },
-    });
+    // Fetch total and completed lessons in one batch instead of two separate COUNT queries
+    const [allLessons, completedProgress] = await Promise.all([
+      prisma.lesson.findMany({
+        where: {
+          section: { roadmapId: roadmap.id, deletedAt: null },
+          deletedAt: null,
+          isPublished: true,
+        },
+        select: { id: true },
+      }),
+      prisma.userProgress.findMany({
+        where: {
+          userId,
+          completed: true,
+          lesson: { section: { roadmapId: roadmap.id, deletedAt: null }, deletedAt: null },
+        },
+        select: { id: true },
+      }),
+    ]);
+
+    const totalLessons = allLessons.length;
+    const completedLessons = completedProgress.length;
     const progress = totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0;
 
     return {

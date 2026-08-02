@@ -98,39 +98,31 @@ export const markLessonStarted = async (
       throw new AppError(HTTP_STATUS.UNAUTHORIZED, 'Unauthorized');
     }
     const { prisma } = await import('../config/database');
-    const { lessonId } = { lessonId: req.params.id };
+    const lessonId = req.params.id;
+    const userId = req.user.userId;
 
-    const lesson = await prisma.lesson.findUnique({ where: { id: lessonId } });
+    // Verify lesson exists first
+    const lesson = await prisma.lesson.findUnique({
+      where: { id: lessonId },
+      select: { id: true },
+    });
     if (!lesson) {
       throw new AppError(HTTP_STATUS.NOT_FOUND, 'Lesson not found');
     }
 
-    const existing = await prisma.userProgress.findUnique({
-      where: { userId_lessonId: { userId: req.user.userId, lessonId } },
-    });
-
-    if (!existing) {
-      await prisma.userProgress.create({
-        data: {
-          userId: req.user.userId,
-          lessonId,
-          completed: false,
-          lastOpened: new Date(),
-        },
-      });
-    } else {
-      await prisma.userProgress.update({
-        where: { userId_lessonId: { userId: req.user.userId, lessonId } },
-        data: { lastOpened: new Date() },
-      });
-    }
-
-    // Track recently viewed
-    await prisma.recentlyViewed.upsert({
-      where: { userId_lessonId: { userId: req.user.userId, lessonId } },
-      update: { viewedAt: new Date() },
-      create: { userId: req.user.userId, lessonId },
-    });
+    // Single upsert for progress + single upsert for recently viewed (parallel)
+    await Promise.all([
+      prisma.userProgress.upsert({
+        where: { userId_lessonId: { userId, lessonId } },
+        update: { lastOpened: new Date() },
+        create: { userId, lessonId, completed: false, lastOpened: new Date() },
+      }),
+      prisma.recentlyViewed.upsert({
+        where: { userId_lessonId: { userId, lessonId } },
+        update: { viewedAt: new Date() },
+        create: { userId, lessonId },
+      }),
+    ]);
 
     sendSuccess(res, 'Lesson started', null);
   } catch (error) {

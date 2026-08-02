@@ -27,7 +27,12 @@ export const prisma =
 // ── Query monitoring ──────────────────────────────────────────────────────────
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 (prisma as any).$on('query', (e: { query: string; duration: number }) => {
-  logSlowQuery(e.query, e.duration);
+  // Skip noisy Prisma internal queries (BEGIN, COMMIT, DEALLOCATE) from the slow-query log
+  const q = (e.query ?? '').trim().toUpperCase();
+  const isNoise = q === 'BEGIN' || q === 'COMMIT' || q === 'ROLLBACK' || q.startsWith('DEALLOCATE');
+  if (!isNoise) {
+    logSlowQuery(e.query, e.duration);
+  }
   metricsService.recordDbQuery('query', e.duration);
 });
 

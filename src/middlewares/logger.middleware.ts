@@ -35,19 +35,27 @@ export const requestLogger = (
     const { method, originalUrl } = req;
     const ip = req.ip ?? req.socket.remoteAddress ?? 'unknown';
 
-    const logLevel = statusCode >= 500 ? 'error' : statusCode >= 400 ? 'warn' : 'info';
+    const isSlow = duration > 1000;
+    const isError = statusCode >= 500;
+    const isClientError = statusCode >= 400 && statusCode < 500;
 
-    logger.log(logLevel, `${method} ${originalUrl} ${statusCode} ${duration}ms`, {
-      correlationId,
-      method,
-      url: originalUrl,
-      statusCode,
-      duration_ms: duration,
-      ip,
-      userAgent: req.headers['user-agent'],
-    });
+    // Only log: 4xx errors, 5xx errors, and slow requests (>1000ms)
+    // Skip noisy 2xx/3xx successes to keep logs clean in production
+    if (isError || isClientError || isSlow) {
+      const logLevel = isError ? 'error' : 'warn';
+      logger.log(logLevel, `${method} ${originalUrl} ${statusCode} ${duration}ms`, {
+        correlationId,
+        method,
+        url: originalUrl,
+        statusCode,
+        duration_ms: duration,
+        ip,
+        userAgent: req.headers['user-agent'],
+        ...(isSlow && !isError && !isClientError ? { slow_request: true } : {}),
+      });
+    }
 
-    // Record metrics
+    // Record metrics for all requests regardless of log level
     metricsService.recordHttpRequest(method, originalUrl, statusCode, duration / 1000);
   });
 

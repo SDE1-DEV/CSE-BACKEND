@@ -141,7 +141,34 @@ export const getActivity = async (
     }
     const limit = parseInt(req.query.limit ?? '25', 10) || 25;
     const result = await progressService.getActivity(req.user.userId, limit);
-    sendSuccess(res, 'Activity fetched successfully', result);
+
+    // Map backend ActivityEntry → frontend ActivityItem shape
+    const mapped = result.map((entry: any) => ({
+      id: entry.id,
+      // Map backend type to frontend ActivityType
+      type: entry.type === 'LESSON_COMPLETED'
+        ? 'lesson_completed'
+        : entry.type === 'LESSON_VIEWED'
+          ? 'lesson_completed'   // treat viewed as completed for display
+          : 'lesson_completed',
+      title: entry.message ?? 'Activity',
+      description: undefined as string | undefined,
+      relatedId: entry.relatedLessonId ?? undefined,
+      relatedType: entry.relatedLessonId ? 'lesson' : undefined,
+      createdAt: (entry.timestamp instanceof Date
+        ? entry.timestamp.toISOString()
+        : entry.timestamp) ?? new Date().toISOString(),
+      metadata: entry.metadata ?? undefined,
+    }));
+
+    // Return in PaginatedResponse shape the frontend expects
+    sendSuccess(res, 'Activity fetched successfully', {
+      data: mapped,
+      total: mapped.length,
+      page: 1,
+      limit,
+      totalPages: 1,
+    });
   } catch (error) {
     next(error);
   }

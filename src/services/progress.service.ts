@@ -1,6 +1,5 @@
 import { Prisma } from '@prisma/client';
 import { prisma } from '../config/database';
-import { roadmapRepository } from '../repositories/roadmap.repository';
 import { lessonRepository } from '../repositories/lesson.repository';
 import { AppError } from '../middlewares/error.middleware';
 import { HTTP_STATUS, LEARNING_MESSAGES } from '../constants';
@@ -77,7 +76,7 @@ export class ProgressService {
     });
 
     // Fetch user progress for the whole roadmap if userId provided
-    let progressMap: Record<string, 'not_started' | 'in_progress' | 'completed'> = {};
+    const progressMap: Record<string, 'not_started' | 'in_progress' | 'completed'> = {};
     let completedCount = 0;
 
     if (userId) {
@@ -178,31 +177,36 @@ export class ProgressService {
     if (!roadmap) {
       throw new AppError(HTTP_STATUS.NOT_FOUND, LEARNING_MESSAGES.ROADMAP_NOT_FOUND);
     }
-    const totalLessons = await prisma.lesson.count({
-      where: {
-        section: { roadmapId, deletedAt: null },
-        deletedAt: null,
-        isPublished: true,
-      },
-    });
-    const completedLessons = await prisma.userProgress.count({
-      where: {
-        userId,
-        completed: true,
-        lesson: {
+
+    // Run all three independent queries in parallel
+    const [totalLessons, completedLessons, lastActivity] = await Promise.all([
+      prisma.lesson.count({
+        where: {
           section: { roadmapId, deletedAt: null },
           deletedAt: null,
+          isPublished: true,
         },
-      },
-    });
-    const lastActivity = await prisma.userProgress.findFirst({
-      where: {
-        userId,
-        lesson: { section: { roadmapId, deletedAt: null }, deletedAt: null },
-      },
-      orderBy: { updatedAt: 'desc' },
-      select: { updatedAt: true },
-    });
+      }),
+      prisma.userProgress.count({
+        where: {
+          userId,
+          completed: true,
+          lesson: {
+            section: { roadmapId, deletedAt: null },
+            deletedAt: null,
+          },
+        },
+      }),
+      prisma.userProgress.findFirst({
+        where: {
+          userId,
+          lesson: { section: { roadmapId, deletedAt: null }, deletedAt: null },
+        },
+        orderBy: { updatedAt: 'desc' },
+        select: { updatedAt: true },
+      }),
+    ]);
+
     const percentage = totalLessons > 0 ? (completedLessons / totalLessons) * 100 : 0;
     return {
       roadmapId,
@@ -246,15 +250,18 @@ export class ProgressService {
         },
       },
     });
+
     const distinctRoadmapIds = new Set<string>();
     for (const e of entries) {
       const rid = e.lesson?.section?.roadmap?.id;
       if (rid) distinctRoadmapIds.add(rid);
     }
-    const roadmapProgress: RoadmapProgress[] = [];
-    for (const rid of distinctRoadmapIds) {
-      roadmapProgress.push(await this.calculateRoadmapProgress(userId, rid));
-    }
+
+    // Compute all roadmap progress in parallel instead of sequential loop
+    const roadmapProgress: RoadmapProgress[] = await Promise.all(
+      Array.from(distinctRoadmapIds).map((rid) => this.calculateRoadmapProgress(userId, rid)),
+    );
+
     return {
       entries,
       roadmapProgress,
@@ -320,19 +327,22 @@ export class ProgressService {
   }
 
   async getActivity(userId: string, limit = 25) {
-    const progressEntries = await prisma.userProgress.findMany({
-      where: { userId },
-      orderBy: { updatedAt: 'desc' },
-      take: limit,
-      include: {
-        lesson: { select: { id: true, title: true, slug: true } },
-      },
-    });
-    const notifications = await prisma.notification.findMany({
-      where: { userId },
-      orderBy: { createdAt: 'desc' },
-      take: limit,
-    });
+    // Run both queries in parallel
+    const [progressEntries, notifications] = await Promise.all([
+      prisma.userProgress.findMany({
+        where: { userId },
+        orderBy: { updatedAt: 'desc' },
+        take: limit,
+        include: {
+          lesson: { select: { id: true, title: true, slug: true } },
+        },
+      }),
+      prisma.notification.findMany({
+        where: { userId },
+        orderBy: { createdAt: 'desc' },
+        take: limit,
+      }),
+    ]);
     type ActivityEntry = {
       id: string;
       type: 'LESSON_COMPLETED' | 'LESSON_VIEWED' | 'NOTIFICATION';

@@ -182,14 +182,16 @@ export class QuizService {
   // ── Learning Stats ──────────────────────────────────────────────────────────
 
   async getLearningStats(userId: string): Promise<LearningStats> {
-    // Count distinct roadmaps the user has any progress on
+    // Single query: get all progress entries with roadmap info — avoids N+1
     const progressEntries = await prisma.userProgress.findMany({
       where: { userId },
-      include: {
+      select: {
+        completed: true,
+        completedAt: true,
+        timeSpent: true,
+        lessonId: true,
         lesson: {
-          select: {
-            section: { select: { roadmapId: true } },
-          },
+          select: { section: { select: { roadmapId: true } } },
         },
       },
     });
@@ -200,107 +202,92 @@ export class QuizService {
       if (rid) roadmapIds.add(rid);
     }
 
-    // For each roadmap check completion ratio
+    const roadmapIdList = Array.from(roadmapIds);
+
+    // Batch fetch: all published lessons for all roadmaps in one query
+    const totalLessonRows = roadmapIdList.length > 0
+      ? await prisma.lesson.findMany({
+          where: {
+            section: { roadmapId: { in: roadmapIdList }, deletedAt: null },
+            deletedAt: null,
+            isPublished: true,
+          },
+          select: { id: true, section: { select: { roadmapId: true } } },
+        })
+      : [];
+
+    // Build map: roadmapId → total lesson count
+    const totalLessonsMap: Record<string, number> = {};
+    for (const l of totalLessonRows) {
+      const rid = l.section?.roadmapId;
+      if (rid) totalLessonsMap[rid] = (totalLessonsMap[rid] ?? 0) + 1;
+    }
+
+    // Build map: roadmapId → completed lesson count (from already-loaded progress)
+    const completedLessonsMap: Record<string, number> = {};
+    for (const p of progressEntries) {
+      const rid = p.lesson?.section?.roadmapId;
+      if (rid && p.completed) {
+        completedLessonsMap[rid] = (completedLessonsMap[rid] ?? 0) + 1;
+      }
+    }
+
+    // Count completed / in-progress roadmaps without extra DB calls
     let completedRoadmaps = 0;
     let inProgressRoadmaps = 0;
-
     for (const rid of roadmapIds) {
-      const totalLessons = await prisma.lesson.count({
-        where: {
-          section: { roadmapId: rid, deletedAt: null },
-          deletedAt: null,
-          isPublished: true,
-        },
-      });
-      const completedLessons = await prisma.userProgress.count({
-        where: {
-          userId,
-          completed: true,
-          lesson: { section: { roadmapId: rid, deletedAt: null }, deletedAt: null },
-        },
-      });
-      if (totalLessons > 0 && completedLessons >= totalLessons) {
+      const total = totalLessonsMap[rid] ?? 0;
+      const completed = completedLessonsMap[rid] ?? 0;
+      if (total > 0 && completed >= total) {
         completedRoadmaps++;
-      } else if (completedLessons > 0) {
+      } else if (completed > 0) {
         inProgressRoadmaps++;
       }
     }
 
-    const totalLessonsCompleted = await prisma.userProgress.count({
-      where: { userId, completed: true },
-    });
-
-    // Total minutes spent on lessons → hours
-    const timeSpentAgg = await prisma.userProgress.aggregate({
-      where: { userId },
-      _sum: { timeSpent: true },
-    });
-    const totalMinutes = timeSpentAgg._sum.timeSpent ?? 0;
+    const totalLessonsCompleted = progressEntries.filter((p) => p.completed).length;
+    const totalMinutes = progressEntries.reduce((sum, p) => sum + (p.timeSpent ?? 0), 0);
     const totalHoursLearned = Math.round((totalMinutes / 60) * 10) / 10;
 
     const bookmarksCount = await prisma.bookmark.count({ where: { userId } });
 
-    // Streak: count consecutive days with completed progress
-    const recentProgress = await prisma.userProgress.findMany({
-      where: { userId, completed: true },
-      orderBy: { completedAt: 'desc' },
-      take: 365,
-      select: { completedAt: true },
-    });
+    // Streak: compute from already-loaded progress — no extra DB call
+    const completedDates = progressEntries
+      .filter((p) => p.completed && p.completedAt)
+      .map((p) => p.completedAt!);
 
     let currentStreak = 0;
     let longestStreak = 0;
-    if (recentProgress.length > 0) {
-      const uniqueDays = new Set(
-        recentProgress
-          .filter((p) => p.completedAt)
-          .map((p) => p.completedAt!.toISOString().split('T')[0]),
-      );
 
+    if (completedDates.length > 0) {
+      const uniqueDays = new Set(completedDates.map((d) => d.toISOString().split('T')[0]));
       const sortedDays = Array.from(uniqueDays).sort().reverse();
       const today = new Date().toISOString().split('T')[0];
       const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
 
       let streak = 0;
       let prevDay: string | null = null;
-
       for (const day of sortedDays) {
         if (!prevDay) {
-          if (day === today || day === yesterday) {
-            streak = 1;
-          } else {
-            break;
-          }
+          if (day === today || day === yesterday) { streak = 1; } else { break; }
         } else {
-          const prev = new Date(prevDay);
-          const curr = new Date(day);
           const diffDays = Math.round(
-            (prev.getTime() - curr.getTime()) / (1000 * 60 * 60 * 24),
+            (new Date(prevDay).getTime() - new Date(day).getTime()) / (1000 * 60 * 60 * 24),
           );
-          if (diffDays === 1) {
-            streak++;
-          } else {
-            break;
-          }
+          if (diffDays === 1) { streak++; } else { break; }
         }
         prevDay = day;
       }
-
       currentStreak = streak;
 
-      // Longest streak calculation
       let runStreak = 1;
       const allSortedDays = Array.from(uniqueDays).sort();
       for (let i = 1; i < allSortedDays.length; i++) {
-        const prev = new Date(allSortedDays[i - 1]);
-        const curr = new Date(allSortedDays[i]);
-        const diff = Math.round((curr.getTime() - prev.getTime()) / (1000 * 60 * 60 * 24));
-        if (diff === 1) {
-          runStreak++;
-          longestStreak = Math.max(longestStreak, runStreak);
-        } else {
-          runStreak = 1;
-        }
+        const diff = Math.round(
+          (new Date(allSortedDays[i]).getTime() - new Date(allSortedDays[i - 1]).getTime()) / (1000 * 60 * 60 * 24),
+        );
+        if (diff === 1) { runStreak++; longestStreak = Math.max(longestStreak, runStreak); }
+        else { runStreak = 1; }
       }
       longestStreak = Math.max(longestStreak, currentStreak, allSortedDays.length > 0 ? 1 : 0);
     }

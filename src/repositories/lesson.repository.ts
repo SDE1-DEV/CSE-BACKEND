@@ -84,9 +84,14 @@ export class LessonRepository {
   async upsertProgress(
     userId: string,
     lessonId: string,
-    data: { watchPercentage?: number; timeSpent?: number; completed?: boolean; completedAt?: Date | null; roadmapId?: string | null; lastOpened?: Date },
+    data: { watchPercentage?: number; percentage?: number; timeSpent?: number; completed?: boolean; completedAt?: Date | null; roadmapId?: string | null; lastOpened?: Date },
   ): Promise<UserProgress> {
-    const { roadmapId, ...updateData } = data;
+    const { roadmapId, watchPercentage, ...rest } = data;
+    // Normalise: watchPercentage is the legacy name; the schema field is `percentage`
+    const updateData: Record<string, unknown> = { ...rest };
+    if (typeof watchPercentage === 'number') {
+      updateData.percentage = Math.max(0, Math.min(100, watchPercentage));
+    }
     return prisma.userProgress.upsert({
       where: { userId_lessonId: { userId, lessonId } },
       update: { ...updateData, updatedAt: new Date() },

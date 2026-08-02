@@ -5,6 +5,7 @@ import {
   markAllNotificationsRead,
   deleteNotification,
   getUnreadCount,
+  deleteAllReadNotifications,
 } from '../controllers/notification.controller';
 import { authenticate } from '../middlewares/authenticate.middleware';
 import { requireStudent } from '../middlewares/role.middleware';
@@ -23,8 +24,11 @@ const router = Router();
 router.get('/', authenticate, requireStudent, getNotifications);
 // unread-count MUST be before /:id to avoid being captured by the param route
 router.get('/unread-count', authenticate, requireStudent, getUnreadCount);
-router.patch('/:id/read', authenticate, requireStudent, validate(notificationParamsSchema), markNotificationRead);
+// read-all MUST be before /:id
 router.patch('/read-all', authenticate, requireStudent, markAllNotificationsRead);
+// delete all read notifications (clear read)
+router.delete('/read', authenticate, requireStudent, deleteAllReadNotifications);
+router.patch('/:id/read', authenticate, requireStudent, validate(notificationParamsSchema), markNotificationRead);
 router.delete('/:id', authenticate, requireStudent, validate(notificationParamsSchema), deleteNotification);
 
 export default router;

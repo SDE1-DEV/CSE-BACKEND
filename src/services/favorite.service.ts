@@ -3,6 +3,7 @@ import { favoriteRepository } from '../repositories/favorite.repository';
 import { codingProblemRepository } from '../repositories/coding-problem.repository';
 import { AppError } from '../middlewares/error.middleware';
 import { HTTP_STATUS, CODING_MESSAGES } from '../constants';
+import { buildPaginated } from '../utils/response';
 
 export class FavoriteService {
   async add(userId: string, problemId: string): Promise<FavoriteProblem> {
@@ -32,7 +33,7 @@ export class FavoriteService {
   ): Promise<{ data: FavoriteProblem[]; total: number; page: number; limit: number; totalPages: number }> {
     const safeLimit = Math.min(limit, 100);
     const { data, total } = await favoriteRepository.findAllByUser(userId, { page, limit: safeLimit });
-    return { data, total, page, limit: safeLimit, totalPages: Math.ceil(total / safeLimit) };
+    return buildPaginated(data as FavoriteProblem[], total, page, safeLimit);
   }
 }
 

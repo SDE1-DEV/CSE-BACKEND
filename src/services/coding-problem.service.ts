@@ -10,6 +10,8 @@ import {
   GetProblemsQuery,
 } from '../validators/coding-problem.validator';
 
+import { buildPaginated } from '../utils/response';
+
 export class CodingProblemService {
   async create(data: CreateCodingProblemInput): Promise<unknown> {
     // Verify category exists
@@ -51,6 +53,89 @@ export class CodingProblemService {
     return problem;
   }
 
+  /**
+   * Fetch by slug (frontend uses slug for problem detail pages).
+   * Falls back to UUID lookup so the route handler can pass either.
+   */
+  async getBySlugOrId(slugOrId: string, userId?: string): Promise<unknown> {
+    // UUID regex
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(slugOrId);
+
+    let problem: any = null;
+    if (isUuid) {
+      problem = await codingProblemRepository.findById(slugOrId, true);
+    }
+    if (!problem) {
+      // Try slug lookup
+      const { prisma } = await import('../config/database');
+      problem = await prisma.codingProblem.findUnique({
+        where: { slug: slugOrId },
+        include: {
+          category: true,
+          tags: { include: { tag: true } },
+          companies: { include: { company: true } },
+          _count: { select: { submissions: true, testCases: true, discussions: true } },
+        },
+      });
+    }
+
+    if (!problem) {
+      throw new AppError(HTTP_STATUS.NOT_FOUND, CODING_MESSAGES.PROBLEM_NOT_FOUND);
+    }
+
+    // Normalise shape expected by the frontend Problem type
+    const normalised = this.normaliseProblem(problem, userId);
+    return normalised;
+  }
+
+  /** Normalise raw Prisma problem into frontend-compatible shape */
+  normaliseProblem(raw: any, _userId?: string): unknown {
+    const tags = (raw.tags ?? []).map((t: any) => ({
+      id: t.tag?.id ?? t.id,
+      name: t.tag?.name ?? t.name,
+      slug: t.tag?.slug ?? t.slug,
+    }));
+    const companies = (raw.companies ?? []).map((c: any) => ({
+      id: c.company?.id ?? c.id,
+      name: c.company?.name ?? c.name,
+      logo: c.company?.logo ?? c.logo ?? null,
+    }));
+    const category = raw.category
+      ? { id: raw.category.id, name: raw.category.name, slug: raw.category.slug }
+      : { id: '', name: 'Uncategorised', slug: 'uncategorised' };
+
+    // Build examples from sampleInput / sampleOutput fields
+    const examples = [];
+    if (raw.sampleInput || raw.sampleOutput) {
+      examples.push({
+        id: `${raw.id}-ex1`,
+        input: raw.sampleInput ?? '',
+        output: raw.sampleOutput ?? '',
+        explanation: raw.explanation ?? undefined,
+      });
+    }
+
+    return {
+      id: raw.id,
+      slug: raw.slug,
+      title: raw.title,
+      description: raw.problemStatement ?? raw.description ?? '',
+      constraints: raw.constraints ?? null,
+      difficulty: (raw.difficulty ?? 'EASY').toLowerCase() as string,
+      acceptanceRate: raw.acceptanceRate ?? 0,
+      totalSubmissions: raw._count?.submissions ?? 0,
+      tags,
+      companies,
+      category,
+      examples,
+      isSolved: false,   // enriched in controller if userId provided
+      isFavorite: false, // enriched in controller if userId provided
+      discussionCount: raw._count?.discussions ?? 0,
+      createdAt: raw.createdAt?.toISOString?.() ?? '',
+      updatedAt: raw.updatedAt?.toISOString?.() ?? '',
+    };
+  }
+
   async getAll(
     query: GetProblemsQuery,
     userId?: string,
@@ -76,7 +161,7 @@ export class CodingProblemService {
     };
 
     const { data, total } = await codingProblemRepository.findAll(filters, sort, { page, limit });
-    return { data, total, page, limit, totalPages: Math.ceil(total / limit) };
+    return buildPaginated(data, total, page, limit);
   }
 
   async update(id: string, data: UpdateCodingProblemInput): Promise<unknown> {

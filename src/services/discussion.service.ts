@@ -5,6 +5,8 @@ import { AppError } from '../middlewares/error.middleware';
 import { HTTP_STATUS, CODING_MESSAGES } from '../constants';
 import { CreateDiscussionInput, UpdateDiscussionInput, GetDiscussionsQuery } from '../validators/discussion.validator';
 
+import { buildPaginated } from '../utils/response';
+
 export class DiscussionService {
   async create(
     userId: string,
@@ -32,7 +34,7 @@ export class DiscussionService {
     const limit = Math.min(query.limit ?? 20, 100);
 
     const { data, total } = await discussionRepository.findByProblemId(problemId, { page, limit });
-    return { data, total, page, limit, totalPages: Math.ceil(total / limit) };
+    return buildPaginated(data, total, page, limit);
   }
 
   async update(

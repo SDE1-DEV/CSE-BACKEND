@@ -84,13 +84,16 @@ export class SubmissionRepository {
     currentStreak: number;
     longestStreak: number;
   }> {
-    // Distinct accepted problem IDs per difficulty
-    const [solved, totalSubs, runtimeAgg, langGroups] = await Promise.all([
-      // All accepted problems (distinct)
-      prisma.submission.groupBy({
-        by: ['problemId'],
+    // Run all independent aggregate queries in parallel
+    const [solved, totalSubs, runtimeAgg, langGroups, streakData] = await Promise.all([
+      // All distinct accepted problems with their difficulty in one join
+      prisma.submission.findMany({
         where: { userId, status: 'ACCEPTED' },
-        _count: { problemId: true },
+        distinct: ['problemId'],
+        select: {
+          problemId: true,
+          problem: { select: { difficulty: true } },
+        },
       }),
       // Total submissions
       prisma.submission.count({ where: { userId } }),
@@ -106,39 +109,30 @@ export class SubmissionRepository {
         _count: { language: true },
         orderBy: { _count: { language: 'desc' } },
       }),
+      // Streak dates
+      prisma.submission.findMany({
+        where: { userId, status: 'ACCEPTED' },
+        select: { submittedAt: true },
+        orderBy: { submittedAt: 'desc' },
+      }),
     ]);
 
-    const solvedProblemIds = solved.map((s) => s.problemId);
-    const totalSolved = solvedProblemIds.length;
-
-    // Fetch difficulties for solved problems
+    // Difficulty breakdown — derived from the already-loaded solved list (no extra query)
+    const totalSolved = solved.length;
     let easySolved = 0;
     let mediumSolved = 0;
     let hardSolved = 0;
-
-    if (solvedProblemIds.length > 0) {
-      const problems = await prisma.codingProblem.findMany({
-        where: { id: { in: solvedProblemIds } },
-        select: { id: true, difficulty: true },
-      });
-      for (const p of problems) {
-        if (p.difficulty === 'EASY') easySolved++;
-        else if (p.difficulty === 'MEDIUM') mediumSolved++;
-        else if (p.difficulty === 'HARD') hardSolved++;
-      }
+    for (const s of solved) {
+      const diff = s.problem?.difficulty;
+      if (diff === 'EASY') easySolved++;
+      else if (diff === 'MEDIUM') mediumSolved++;
+      else if (diff === 'HARD') hardSolved++;
     }
 
-    const acceptedSubs = await prisma.submission.count({ where: { userId, status: 'ACCEPTED' } });
-    const acceptanceRate = totalSubs > 0 ? parseFloat(((acceptedSubs / totalSubs) * 100).toFixed(2)) : 0;
+    const acceptedSubCount = await prisma.submission.count({ where: { userId, status: 'ACCEPTED' } });
+    const acceptanceRate = totalSubs > 0 ? parseFloat(((acceptedSubCount / totalSubs) * 100).toFixed(2)) : 0;
     const averageRuntime = parseFloat((runtimeAgg._avg.runtime ?? 0).toFixed(2));
     const favoriteLanguage = langGroups.length > 0 ? String(langGroups[0]!.language) : null;
-
-    // Streak calculation — get distinct submission dates ordered desc
-    const streakData = await prisma.submission.findMany({
-      where: { userId, status: 'ACCEPTED' },
-      select: { submittedAt: true },
-      orderBy: { submittedAt: 'desc' },
-    });
 
     const distinctDates = [
       ...new Set(
@@ -186,7 +180,7 @@ export class SubmissionRepository {
       mediumSolved,
       hardSolved,
       totalSubmissions: totalSubs,
-      acceptedSubmissions: acceptedSubs,
+      acceptedSubmissions: acceptedSubCount,
       acceptanceRate,
       averageRuntime,
       favoriteLanguage,

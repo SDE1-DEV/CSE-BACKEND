@@ -49,6 +49,11 @@ export class NotificationService {
     await notificationRepository.delete(id);
     await cacheService.del(CacheKeys.NOTIFICATION_COUNT(userId));
   }
+
+  async deleteAllRead(userId: string): Promise<void> {
+    await notificationRepository.deleteAllRead(userId);
+    await cacheService.del(CacheKeys.NOTIFICATION_COUNT(userId));
+  }
 }
 
 export const notificationService = new NotificationService();

@@ -21,7 +21,16 @@ export class NotificationRepository {
       }),
       prisma.notification.count({ where: { userId } }),
     ]);
-    return { data, total, page, limit, totalPages: Math.ceil(total / limit) };
+    const totalPages = Math.ceil(total / limit);
+    return {
+      data,
+      total,
+      page,
+      limit,
+      totalPages,
+      hasNext: page < totalPages,
+      hasPrevious: page > 1,
+    };
   }
 
   async markRead(id: string): Promise<Notification> {
@@ -38,6 +47,10 @@ export class NotificationRepository {
 
   async delete(id: string): Promise<void> {
     await prisma.notification.delete({ where: { id } });
+  }
+
+  async deleteAllRead(userId: string): Promise<void> {
+    await prisma.notification.deleteMany({ where: { userId, isRead: true } });
   }
 
   async createForUser(

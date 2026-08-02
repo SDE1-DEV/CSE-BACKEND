@@ -7,6 +7,7 @@ import {
   UpdateProblemCategoryInput,
   GetProblemCategoriesQuery,
 } from '../validators/problem-category.validator';
+import { buildPaginated } from '../utils/response';
 
 export class ProblemCategoryService {
   async create(data: CreateProblemCategoryInput): Promise<ProblemCategory> {
@@ -47,7 +48,7 @@ export class ProblemCategoryService {
     }
 
     const { data, total } = await problemCategoryRepository.findAll(filters, { page, limit });
-    return { data, total, page, limit, totalPages: Math.ceil(total / limit) };
+    return buildPaginated(data, total, page, limit);
   }
 
   async update(id: string, data: UpdateProblemCategoryInput): Promise<ProblemCategory> {

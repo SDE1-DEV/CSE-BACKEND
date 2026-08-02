@@ -11,6 +11,8 @@ import { CreateCategoryInput, UpdateCategoryInput, GetCategoriesQuery } from '..
 import { cacheService, CacheKeys } from './cache.service';
 import { env } from '../config/env';
 
+import { buildPaginated } from '../utils/response';
+
 export class CategoryService {
   async createCategory(data: CreateCategoryInput): Promise<Category> {
     const slugExists = await categoryRepository.existsBySlug(data.slug);
@@ -78,14 +80,14 @@ export class CategoryService {
         cacheKey,
         async () => {
           const { data, total } = await categoryRepository.findAll(filters, pagination);
-          return { data, total, page, limit, totalPages: Math.ceil(total / limit) };
+          return buildPaginated(data, total, page, limit);
         },
         env.CACHE_TTL_LONG,
       );
     }
 
     const { data, total } = await categoryRepository.findAll(filters, pagination);
-    return { data, total, page, limit, totalPages: Math.ceil(total / limit) };
+    return buildPaginated(data, total, page, limit);
   }
 
   async updateCategory(id: string, data: UpdateCategoryInput): Promise<Category> {

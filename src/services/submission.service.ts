@@ -8,6 +8,8 @@ import { HTTP_STATUS, CODING_MESSAGES } from '../constants';
 import { CreateSubmissionInput, GetSubmissionsQuery } from '../validators/submission.validator';
 import { SubmissionStatus } from '@prisma/client';
 
+import { buildPaginated } from '../utils/response';
+
 export class SubmissionService {
   async submit(userId: string, data: CreateSubmissionInput): Promise<Submission> {
     // Verify problem exists and is published
@@ -78,7 +80,7 @@ export class SubmissionService {
     if (query.status) filters.status = query.status as SubmissionStatus;
 
     const { data, total } = await submissionRepository.findAll(filters, { page, limit });
-    return { data, total, page, limit, totalPages: Math.ceil(total / limit) };
+    return buildPaginated(data as Submission[], total, page, limit);
   }
 
   async getById(id: string, userId: string, isAdmin: boolean): Promise<Submission> {
@@ -111,7 +113,7 @@ export class SubmissionService {
     if (!isAdmin) filters.userId = userId;
 
     const { data, total } = await submissionRepository.findAll(filters, { page, limit });
-    return { data, total, page, limit, totalPages: Math.ceil(total / limit) };
+    return buildPaginated(data as Submission[], total, page, limit);
   }
 
   async getCodingStats(userId: string): Promise<unknown> {

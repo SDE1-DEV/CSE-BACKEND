@@ -74,7 +74,37 @@ export const getProblems = async (
     }
 
     const result = await codingProblemService.getAll(query, userId);
-    sendSuccess(res, CODING_MESSAGES.PROBLEMS_FETCHED, result);
+
+    // Normalise each problem into the frontend ProblemListItem shape
+    const normalised = {
+      ...result,
+      data: result.data.map((raw: any) => ({
+        id: raw.id,
+        slug: raw.slug,
+        title: raw.title,
+        difficulty: (raw.difficulty ?? 'EASY').toLowerCase(),
+        acceptanceRate: raw.acceptanceRate ?? 0,
+        totalSubmissions: raw._count?.submissions ?? 0,
+        tags: (raw.tags ?? []).map((t: any) => ({
+          id: t.tag?.id ?? t.id,
+          name: t.tag?.name ?? t.name,
+          slug: t.tag?.slug ?? t.slug,
+        })),
+        companies: (raw.companies ?? []).map((c: any) => ({
+          id: c.company?.id ?? c.id,
+          name: c.company?.name ?? c.name,
+          logo: c.company?.logo ?? null,
+        })),
+        category: raw.category
+          ? { id: raw.category.id, name: raw.category.name, slug: raw.category.slug }
+          : { id: '', name: 'Uncategorised', slug: 'uncategorised' },
+        isSolved: false,
+        isFavorite: false,
+        discussionCount: raw._count?.discussions ?? 0,
+      })),
+    };
+
+    sendSuccess(res, CODING_MESSAGES.PROBLEMS_FETCHED, normalised);
   } catch (error) {
     next(error);
   }

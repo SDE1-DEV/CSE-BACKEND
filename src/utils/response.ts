@@ -35,3 +35,34 @@ export const sendError = (
 export const sendCreated = <T>(res: Response, message: string, data: T): Response => {
   return sendSuccess(res, message, data, HTTP_STATUS.CREATED);
 };
+
+/**
+ * Build a fully-consistent paginated response object.
+ * Every paginated endpoint MUST use this helper so the shape is always:
+ *   { data, total, page, limit, totalPages, hasNext, hasPrevious }
+ */
+export function buildPaginated<T>(
+  data: T[],
+  total: number,
+  page: number,
+  limit: number,
+): {
+  data: T[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+  hasNext: boolean;
+  hasPrevious: boolean;
+} {
+  const totalPages = limit > 0 ? Math.ceil(total / limit) : 0;
+  return {
+    data,
+    total,
+    page,
+    limit,
+    totalPages,
+    hasNext: page < totalPages,
+    hasPrevious: page > 1,
+  };
+}

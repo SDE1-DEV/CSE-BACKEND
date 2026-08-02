@@ -54,6 +54,8 @@ import { getMyEvents } from '../controllers/event.controller';
 // ── PRD-07: Role Management, Manager Console & Super Admin ────────────────────
 import superAdminRoutes from './super-admin.routes';
 import managerRoutes from './manager.routes';
+// /profile/* — alias for frontend profileService.ts (calls /profile, not /users/profile)
+import profileRoutes from './profile.routes';
 
 import { authenticate } from '../middlewares/authenticate.middleware';
 import { requireStudent } from '../middlewares/role.middleware';
@@ -63,6 +65,8 @@ const router = Router();
 // ── PRD-01: Auth & User ───────────────────────────────────────────────────────
 router.use('/auth', authRoutes);
 router.use('/users', userRoutes);
+router.use('/profile', profileRoutes);
+
 router.use('/health', healthRoutes);
 
 // ── PRD-02: Learning Ecosystem ────────────────────────────────────────────────
@@ -89,6 +93,11 @@ router.use('/', lessonRoutes);
 router.use('/', noteRoutes);
 
 // ── PRD-03: Coding Practice Platform ─────────────────────────────────────────
+// /api/coding/* — all frontend-facing coding routes (matches codingService.ts paths)
+// Must be mounted BEFORE the legacy /problems routes to avoid shadowing
+import codingRoutes from './coding.routes';
+router.use('/coding', codingRoutes);
+
 router.use('/problem-categories', problemCategoryRoutes);
 router.use('/problems', codingProblemRoutes);
 router.use('/testcases', testCaseRoutes);

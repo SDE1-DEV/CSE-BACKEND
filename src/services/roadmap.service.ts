@@ -16,6 +16,8 @@ import {
 import { cacheService, CacheKeys } from './cache.service';
 import { env } from '../config/env';
 
+import { buildPaginated } from '../utils/response';
+
 export class RoadmapService {
   async createRoadmap(data: CreateRoadmapInput) {
     // Validate category exists
@@ -91,14 +93,7 @@ export class RoadmapService {
 
     const pagination: PaginationOptions = { page, limit };
     const { data, total } = await roadmapRepository.findAll(filters, pagination, sort);
-
-    return {
-      data,
-      total,
-      page,
-      limit,
-      totalPages: Math.ceil(total / limit),
-    };
+    return buildPaginated(data, total, page, limit);
   }
 
   async updateRoadmap(id: string, data: UpdateRoadmapInput, isAdmin = false) {
