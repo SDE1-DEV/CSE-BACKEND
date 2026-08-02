@@ -1,0 +1,106 @@
+[
+  {
+    "title": "Binary Search",
+    "slug": "binary-search",
+    "difficulty": "EASY",
+    "topic": "binary-search",
+    "statement": "Given an array of integers `nums` which is sorted in ascending order, and an integer `target`, write a function to search `target` in `nums`. If `target` exists, then return its index. Otherwise, return `-1`.\n\nYou must write an algorithm with O(log n) runtime complexity.",
+    "constraints": "- `1 <= nums.length <= 10^4`\n- `-10^4 < nums[i], target < 10^4`\n- All the integers in `nums` are unique.\n- `nums` is sorted in ascending order.",
+    "examples": [
+      { "input": "nums = [-1,0,3,5,9,12], target = 9", "output": "4" },
+      { "input": "nums = [-1,0,3,5,9,12], target = 2", "output": "-1" }
+    ],
+    "hints": ["Use classic binary search with left and right pointers."],
+    "tags": ["Array", "Binary Search"],
+    "companies": ["Google", "Amazon", "Microsoft"],
+    "visibleTests": [
+      { "input": "6\n-1 0 3 5 9 12\n9", "output": "4" },
+      { "input": "6\n-1 0 3 5 9 12\n2", "output": "-1" }
+    ],
+    "hiddenTests": [
+      { "input": "1\n5\n5", "output": "0" },
+      { "input": "1\n5\n6", "output": "-1" },
+      { "input": "5\n1 3 5 7 9\n1", "output": "0" },
+      { "input": "5\n1 3 5 7 9\n9", "output": "4" },
+      { "input": "5\n1 3 5 7 9\n5", "output": "2" },
+      { "input": "4\n2 5 8 12\n3", "output": "-1" },
+      { "input": "6\n1 2 3 4 5 6\n6", "output": "5" },
+      { "input": "3\n-3 -1 1\n-1", "output": "1" }
+    ],
+    "timeLimit": 1000,
+    "memoryLimit": 256,
+    "xp": 10,
+    "estimatedTime": 10,
+    "license": "ORIGINAL"
+  },
+  {
+    "title": "Search in Rotated Sorted Array",
+    "slug": "search-in-rotated-sorted-array",
+    "difficulty": "MEDIUM",
+    "topic": "binary-search",
+    "statement": "There is an integer array `nums` sorted in ascending order (with distinct values).\n\nPrior to being passed to your function, `nums` is possibly rotated at an unknown pivot index `k` such that the resulting array is `[nums[k], nums[k+1], ..., nums[n-1], nums[0], nums[1], ..., nums[k-1]]`.\n\nGiven the array `nums` after the possible rotation and an integer `target`, return the index of `target` if it is in `nums`, or `-1` if it is not in `nums`.\n\nYou must write an algorithm with O(log n) runtime complexity.",
+    "constraints": "- `1 <= nums.length <= 5000`\n- `-10^4 <= nums[i] <= 10^4`\n- All values of `nums` are unique.\n- `nums` is an ascending array that is possibly rotated.\n- `-10^4 <= target <= 10^4`",
+    "examples": [
+      { "input": "nums = [4,5,6,7,0,1,2], target = 0", "output": "4" },
+      { "input": "nums = [4,5,6,7,0,1,2], target = 3", "output": "-1" },
+      { "input": "nums = [1], target = 0", "output": "-1" }
+    ],
+    "hints": ["Identify which half is sorted using mid comparison.", "Check if target is in the sorted half, else search the other."],
+    "tags": ["Array", "Binary Search"],
+    "companies": ["Amazon", "Microsoft", "Google"],
+    "visibleTests": [
+      { "input": "7\n4 5 6 7 0 1 2\n0", "output": "4" },
+      { "input": "7\n4 5 6 7 0 1 2\n3", "output": "-1" }
+    ],
+    "hiddenTests": [
+      { "input": "1\n1\n0", "output": "-1" },
+      { "input": "1\n1\n1", "output": "0" },
+      { "input": "5\n3 4 5 1 2\n1", "output": "3" },
+      { "input": "5\n3 4 5 1 2\n4", "output": "1" },
+      { "input": "6\n6 7 1 2 3 4\n3", "output": "4" },
+      { "input": "4\n1 3 5 7\n5", "output": "2" },
+      { "input": "5\n5 1 2 3 4\n5", "output": "0" },
+      { "input": "7\n1 2 3 4 5 6 7\n7", "output": "6" }
+    ],
+    "timeLimit": 1000,
+    "memoryLimit": 256,
+    "xp": 20,
+    "estimatedTime": 25,
+    "license": "ORIGINAL"
+  },
+  {
+    "title": "Koko Eating Bananas",
+    "slug": "koko-eating-bananas",
+    "difficulty": "MEDIUM",
+    "topic": "binary-search",
+    "statement": "Koko loves to eat bananas. There are `n` piles of bananas, the `i`th pile has `piles[i]` bananas. The guards have gone and will come back in `h` hours.\n\nKoko can decide her bananas-per-hour eating speed of `k`. Each hour, she chooses some pile of bananas and eats `k` bananas from that pile. If the pile has less than `k` bananas, she eats all of them instead and will not eat any more bananas during this hour.\n\nKoko likes to eat slowly but still wants to finish eating all the bananas before the guards return.\n\nReturn the minimum integer `k` such that she can eat all the bananas within `h` hours.",
+    "constraints": "- `1 <= piles.length <= 10^4`\n- `piles.length <= h <= 10^9`\n- `1 <= piles[i] <= 10^9`",
+    "examples": [
+      { "input": "piles = [3,6,7,11], h = 8", "output": "4" },
+      { "input": "piles = [30,11,23,4,20], h = 5", "output": "30" },
+      { "input": "piles = [30,11,23,4,20], h = 6", "output": "23" }
+    ],
+    "hints": ["Binary search on the answer (speed k).", "Check if Koko can finish all piles in h hours at speed k."],
+    "tags": ["Array", "Binary Search"],
+    "companies": ["Amazon", "Google"],
+    "visibleTests": [
+      { "input": "4 8\n3 6 7 11", "output": "4" },
+      { "input": "5 5\n30 11 23 4 20", "output": "30" }
+    ],
+    "hiddenTests": [
+      { "input": "5 6\n30 11 23 4 20", "output": "23" },
+      { "input": "1 1\n1000000000", "output": "1000000000" },
+      { "input": "3 3\n3 3 3", "output": "3" },
+      { "input": "3 10\n3 3 3", "output": "1" },
+      { "input": "4 10\n312884470 285404553 807707190 829799010", "output": "402685172" },
+      { "input": "5 15\n1 2 3 4 5", "output": "1" },
+      { "input": "3 8\n3 6 7", "output": "3" },
+      { "input": "2 2\n1000000000 1000000000", "output": "1000000000" }
+    ],
+    "timeLimit": 2000,
+    "memoryLimit": 256,
+    "xp": 20,
+    "estimatedTime": 30,
+    "license": "ORIGINAL"
+  }
+]

@@ -41,10 +41,18 @@ router.use(authenticate, requireStudent);
 
 // ─── Validators ───────────────────────────────────────────────────────────────
 
+/**
+ * Normalize language: accept both 'python' (frontend lowercase) and 'PYTHON' (enum).
+ */
+const judgeLanguageSchema = z.preprocess(
+  (val) => (typeof val === 'string' ? val.toUpperCase() : val),
+  z.nativeEnum(ProgrammingLanguage),
+);
+
 const runSchema = z.object({
   body: z.object({
     problemId: z.string().uuid('Invalid problem ID'),
-    language: z.nativeEnum(ProgrammingLanguage),
+    language: judgeLanguageSchema,
     code: z.string().min(1).max(100_000),
     customInput: z.string().max(10_000).optional(),
   }),
@@ -53,7 +61,7 @@ const runSchema = z.object({
 const submitSchema = z.object({
   body: z.object({
     problemId: z.string().uuid('Invalid problem ID'),
-    language: z.nativeEnum(ProgrammingLanguage),
+    language: judgeLanguageSchema,
     sourceCode: z.string().min(1).max(100_000),
   }),
 });
@@ -61,7 +69,7 @@ const submitSchema = z.object({
 const customTestSchema = z.object({
   body: z.object({
     problemId: z.string().uuid('Invalid problem ID'),
-    language: z.nativeEnum(ProgrammingLanguage),
+    language: judgeLanguageSchema,
     code: z.string().min(1).max(100_000),
     input: z.string().max(10_000),
   }),
@@ -70,7 +78,7 @@ const customTestSchema = z.object({
 const draftSchema = z.object({
   body: z.object({
     problemId: z.string().uuid('Invalid problem ID'),
-    language: z.nativeEnum(ProgrammingLanguage),
+    language: judgeLanguageSchema,
     code: z.string().max(100_000),
   }),
 });

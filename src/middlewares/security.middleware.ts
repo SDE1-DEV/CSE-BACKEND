@@ -26,18 +26,30 @@ const xssFilter = new FilterXSS({
 });
 
 /**
- * Deep sanitize strings in an object against XSS.
+ * Fields that must NOT be XSS-sanitized — raw code sent to the judge.
+ * HTML encoding `<`, `>`, `&` in source code breaks compilation.
  */
-const sanitizeObject = (obj: unknown): unknown => {
+const CODE_FIELDS = new Set(['sourceCode', 'code', 'template', 'content']);
+
+/**
+ * Deep sanitize strings in an object against XSS.
+ * Skips fields in CODE_FIELDS to preserve raw source code.
+ */
+const sanitizeObject = (obj: unknown, parentKey?: string): unknown => {
   if (typeof obj === 'string') {
+    // Never XSS-sanitize source code fields
+    if (parentKey && CODE_FIELDS.has(parentKey)) return obj;
     return xssFilter.process(obj);
   }
   if (Array.isArray(obj)) {
-    return obj.map(sanitizeObject);
+    return obj.map((item) => sanitizeObject(item, parentKey));
   }
   if (obj !== null && typeof obj === 'object') {
     return Object.fromEntries(
-      Object.entries(obj as Record<string, unknown>).map(([k, v]) => [k, sanitizeObject(v)]),
+      Object.entries(obj as Record<string, unknown>).map(([k, v]) => [
+        k,
+        sanitizeObject(v, k),
+      ]),
     );
   }
   return obj;
@@ -45,9 +57,10 @@ const sanitizeObject = (obj: unknown): unknown => {
 
 /**
  * Input sanitization middleware — strips XSS from body/query/params.
+ * Code fields (sourceCode, code, template, content) are preserved as-is.
  */
 export const sanitizeInput = (req: Request, _res: Response, next: NextFunction): void => {
-  if (req.body) req.body = sanitizeObject(req.body);
+  if (req.body) req.body = sanitizeObject(req.body) as typeof req.body;
   if (req.query) req.query = sanitizeObject(req.query) as typeof req.query;
   if (req.params) req.params = sanitizeObject(req.params) as typeof req.params;
   next();

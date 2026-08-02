@@ -1,0 +1,22 @@
+[
+  { "name": "Google", "slug": "google", "industry": "Technology", "headquarters": "Mountain View, CA", "website": "https://google.com" },
+  { "name": "Amazon", "slug": "amazon", "industry": "E-commerce / Cloud", "headquarters": "Seattle, WA", "website": "https://amazon.com" },
+  { "name": "Microsoft", "slug": "microsoft", "industry": "Technology", "headquarters": "Redmond, WA", "website": "https://microsoft.com" },
+  { "name": "Meta", "slug": "meta", "industry": "Technology", "headquarters": "Menlo Park, CA", "website": "https://meta.com" },
+  { "name": "Apple", "slug": "apple", "industry": "Technology", "headquarters": "Cupertino, CA", "website": "https://apple.com" },
+  { "name": "Netflix", "slug": "netflix", "industry": "Entertainment", "headquarters": "Los Gatos, CA", "website": "https://netflix.com" },
+  { "name": "Uber", "slug": "uber", "industry": "Ride-sharing", "headquarters": "San Francisco, CA", "website": "https://uber.com" },
+  { "name": "Adobe", "slug": "adobe", "industry": "Technology", "headquarters": "San Jose, CA", "website": "https://adobe.com" },
+  { "name": "Oracle", "slug": "oracle", "industry": "Technology", "headquarters": "Austin, TX", "website": "https://oracle.com" },
+  { "name": "Flipkart", "slug": "flipkart", "industry": "E-commerce", "headquarters": "Bangalore, India", "website": "https://flipkart.com" },
+  { "name": "Infosys", "slug": "infosys", "industry": "IT Services", "headquarters": "Bangalore, India", "website": "https://infosys.com" },
+  { "name": "TCS", "slug": "tcs", "industry": "IT Services", "headquarters": "Mumbai, India", "website": "https://tcs.com" },
+  { "name": "Wipro", "slug": "wipro", "industry": "IT Services", "headquarters": "Bangalore, India", "website": "https://wipro.com" },
+  { "name": "Goldman Sachs", "slug": "goldman-sachs", "industry": "Finance", "headquarters": "New York, NY", "website": "https://goldmansachs.com" },
+  { "name": "Morgan Stanley", "slug": "morgan-stanley", "industry": "Finance", "headquarters": "New York, NY", "website": "https://morganstanley.com" },
+  { "name": "Salesforce", "slug": "salesforce", "industry": "Technology", "headquarters": "San Francisco, CA", "website": "https://salesforce.com" },
+  { "name": "LinkedIn", "slug": "linkedin", "industry": "Technology", "headquarters": "Sunnyvale, CA", "website": "https://linkedin.com" },
+  { "name": "Snapchat", "slug": "snapchat", "industry": "Technology", "headquarters": "Santa Monica, CA", "website": "https://snapchat.com" },
+  { "name": "Twitter", "slug": "twitter", "industry": "Technology", "headquarters": "San Francisco, CA", "website": "https://twitter.com" },
+  { "name": "Airbnb", "slug": "airbnb", "industry": "Travel", "headquarters": "San Francisco, CA", "website": "https://airbnb.com" }
+]

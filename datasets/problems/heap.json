@@ -1,0 +1,68 @@
+[
+  {
+    "title": "Kth Largest Element in an Array",
+    "slug": "kth-largest-element-in-an-array",
+    "difficulty": "MEDIUM",
+    "topic": "heap",
+    "statement": "Given an integer array `nums` and an integer `k`, return the `k`th largest element in the array.\n\nNote that it is the `k`th largest element in the sorted order, not the `k`th distinct element.\n\nCan you solve it without sorting?",
+    "constraints": "- `1 <= k <= nums.length <= 10^5`\n- `-10^4 <= nums[i] <= 10^4`",
+    "examples": [
+      { "input": "nums = [3,2,1,5,6,4], k = 2", "output": "5" },
+      { "input": "nums = [3,2,3,1,2,4,5,5,6], k = 4", "output": "4" }
+    ],
+    "hints": ["Use a min-heap of size k.", "The root of the heap is the kth largest element."],
+    "tags": ["Array", "Divide and Conquer", "Sorting", "Heap (Priority Queue)", "Quickselect"],
+    "companies": ["Amazon", "Google", "Microsoft"],
+    "visibleTests": [
+      { "input": "6 2\n3 2 1 5 6 4", "output": "5" },
+      { "input": "9 4\n3 2 3 1 2 4 5 5 6", "output": "4" }
+    ],
+    "hiddenTests": [
+      { "input": "1 1\n1", "output": "1" },
+      { "input": "5 1\n5 4 3 2 1", "output": "5" },
+      { "input": "5 5\n5 4 3 2 1", "output": "1" },
+      { "input": "4 2\n-1 -2 -3 -4", "output": "-2" },
+      { "input": "6 3\n1 1 1 1 1 1", "output": "1" },
+      { "input": "5 3\n10 9 8 7 6", "output": "8" },
+      { "input": "3 2\n2 1 3", "output": "2" },
+      { "input": "7 4\n7 6 5 4 3 2 1", "output": "4" }
+    ],
+    "timeLimit": 1000,
+    "memoryLimit": 256,
+    "xp": 20,
+    "estimatedTime": 20,
+    "license": "ORIGINAL"
+  },
+  {
+    "title": "Find Median from Data Stream",
+    "slug": "find-median-from-data-stream",
+    "difficulty": "HARD",
+    "topic": "heap",
+    "statement": "The median is the middle value in an ordered integer list. If the size of the list is even, there is no middle value, and the median is the mean of the two middle values.\n\nImplement the MedianFinder class:\n- `MedianFinder()` initializes the MedianFinder object.\n- `void addNum(int num)` adds the integer `num` from the data stream to the data structure.\n- `double findMedian()` returns the median of all elements so far.\n\nAnswers within `10^-5` of the actual answer will be accepted.",
+    "constraints": "- `-10^5 <= num <= 10^5`\n- There will be at least one element in the data structure before calling `findMedian`.\n- At most `5 * 10^4` calls will be made to `addNum` and `findMedian`.",
+    "examples": [
+      { "input": "ops: addNum(1), addNum(2), findMedian(), addNum(3), findMedian()", "output": "1.50000, 2.00000" }
+    ],
+    "hints": ["Use a max-heap for the lower half and min-heap for the upper half.", "Keep them balanced (size difference at most 1)."],
+    "tags": ["Two Pointers", "Design", "Sorting", "Heap (Priority Queue)", "Data Stream"],
+    "companies": ["Google", "Amazon", "Microsoft"],
+    "visibleTests": [
+      { "input": "5\nadd 1\nadd 2\nmedian\nadd 3\nmedian", "output": "1.50000\n2.00000" }
+    ],
+    "hiddenTests": [
+      { "input": "3\nadd 1\nadd 1\nmedian", "output": "1.00000" },
+      { "input": "4\nadd 1\nadd 2\nadd 3\nmedian", "output": "2.00000" },
+      { "input": "5\nadd 6\nadd 10\nadd 2\nadd 6\nmedian", "output": "6.00000" },
+      { "input": "3\nadd -1\nadd -2\nmedian", "output": "-1.50000" },
+      { "input": "5\nadd 5\nadd 5\nadd 5\nadd 5\nmedian", "output": "5.00000" },
+      { "input": "6\nadd 1\nadd 2\nmedian\nadd 3\nadd 4\nmedian", "output": "1.50000\n2.50000" },
+      { "input": "3\nadd 100000\nadd -100000\nmedian", "output": "0.00000" },
+      { "input": "5\nadd 1\nadd 7\nadd 3\nadd 5\nmedian", "output": "4.00000" }
+    ],
+    "timeLimit": 2000,
+    "memoryLimit": 256,
+    "xp": 30,
+    "estimatedTime": 45,
+    "license": "ORIGINAL"
+  }
+]

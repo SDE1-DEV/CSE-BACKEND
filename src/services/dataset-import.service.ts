@@ -275,12 +275,30 @@ export class DatasetImportService {
   }
 
   private async linkTag(problemId: string, tagName: string): Promise<void> {
-    const slug = tagName.toLowerCase().replace(/\s+/g, '-');
-    const tag = await prisma.problemTag.upsert({
-      where: { slug },
-      create: { name: tagName, slug },
-      update: {},
+    const slug = tagName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+
+    // Find existing tag by slug first, then by name — handle unique constraint safely
+    let tag = await prisma.problemTag.findFirst({
+      where: { OR: [{ slug }, { name: tagName }] },
+      select: { id: true },
     });
+
+    if (!tag) {
+      try {
+        tag = await prisma.problemTag.create({
+          data: { name: tagName, slug },
+          select: { id: true },
+        });
+      } catch {
+        // Race condition: another concurrent import created the same tag
+        tag = await prisma.problemTag.findFirst({
+          where: { OR: [{ slug }, { name: tagName }] },
+          select: { id: true },
+        });
+        if (!tag) throw new Error(`Failed to resolve tag: ${tagName}`);
+      }
+    }
+
     await prisma.problemTagRelation.upsert({
       where: { problemId_tagId: { problemId, tagId: tag.id } },
       create: { problemId, tagId: tag.id },
@@ -289,12 +307,28 @@ export class DatasetImportService {
   }
 
   private async linkCompany(problemId: string, companyName: string): Promise<void> {
-    const slug = companyName.toLowerCase().replace(/\s+/g, '-');
-    const company = await prisma.company.upsert({
-      where: { slug },
-      create: { name: companyName, slug },
-      update: {},
+    const slug = companyName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+
+    let company = await prisma.company.findFirst({
+      where: { OR: [{ slug }, { name: companyName }] },
+      select: { id: true },
     });
+
+    if (!company) {
+      try {
+        company = await prisma.company.create({
+          data: { name: companyName, slug },
+          select: { id: true },
+        });
+      } catch {
+        company = await prisma.company.findFirst({
+          where: { OR: [{ slug }, { name: companyName }] },
+          select: { id: true },
+        });
+        if (!company) throw new Error(`Failed to resolve company: ${companyName}`);
+      }
+    }
+
     await prisma.problemCompany.upsert({
       where: { problemId_companyId: { problemId, companyId: company.id } },
       create: { problemId, companyId: company.id },

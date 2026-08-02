@@ -202,9 +202,20 @@ router.post('/run', authenticate, requireStudent, async (req: Request, res: Resp
     const userId = (req as any).user?.userId;
     if (!userId) { res.status(401).json({ success: false, message: 'Unauthorized' }); return; }
 
-    const { problemId, language, code, customInput } = req.body ?? {};
+    const { problemId, code, customInput } = req.body ?? {};
+    // Normalize language: frontend may send lowercase ('python') or uppercase ('PYTHON')
+    const rawLang = req.body?.language ?? '';
+    const language = (typeof rawLang === 'string' ? rawLang.toUpperCase() : rawLang) as ProgrammingLanguage;
+
     if (!problemId || !language || !code) {
       res.status(400).json({ success: false, message: 'problemId, language, and code are required' });
+      return;
+    }
+
+    // Validate language is a known ProgrammingLanguage enum value
+    const validLanguages: ProgrammingLanguage[] = ['C', 'CPP', 'JAVA', 'PYTHON', 'JAVASCRIPT', 'TYPESCRIPT', 'GO', 'RUST', 'CSHARP', 'KOTLIN'];
+    if (!validLanguages.includes(language)) {
+      res.status(400).json({ success: false, message: `Unsupported language: ${rawLang}. Supported: ${validLanguages.join(', ')}` });
       return;
     }
 
@@ -213,7 +224,7 @@ router.post('/run', authenticate, requireStudent, async (req: Request, res: Resp
     const submission = await submissionService.run(
       userId,
       problemId,
-      language as ProgrammingLanguage,
+      language,
       code,
       customInput,
     );

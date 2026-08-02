@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -11,7 +8,1247 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-// ── Enums ─────────────────────────────────────────────────────────────────────
+model User {
+  id                     String              @id @default(uuid())
+  fullName               String
+  email                  String              @unique
+  passwordHash           String
+  phoneNumber            String?
+  profileImage           String?
+  collegeName            String?
+  university             String?
+  branch                 String?
+  currentYear            Int?
+  semester               Int?
+  githubUrl              String?
+  linkedinUrl            String?
+  portfolioUrl           String?
+  bio                    String?
+  role                   Role                @default(STUDENT)
+  isVerified             Boolean             @default(false)
+  profileCompletion      Int                 @default(0)
+  lastLoginAt            DateTime?
+  createdAt              DateTime            @default(now())
+  updatedAt              DateTime            @updatedAt
+  status                 String?             @default("ACTIVE")
+  activityLogs           ActivityLog[]       @relation("ActivityLogUser")
+  auditLogsPerformed     AuditLog[]          @relation("AuditLogPerformer")
+  bannersCreated         Banner[]            @relation("BannerCreator")
+  bookmarks              Bookmark[]
+  contentVersions        ContentVersion[]    @relation("ContentVersionEditor")
+  eventRegistrations     EventRegistration[]
+  faqsCreated            Faq[]               @relation("FaqCreator")
+  favoriteProblems       FavoriteProblem[]
+  jobApplications        JobApplication[]
+  managerInvitationsSent ManagerInvitation[] @relation("ManagerInvitationInviter")
+  managerPermissions     ManagerPermission[] @relation("ManagerPermissions")
+  mediaFilesUploaded     MediaFile[]         @relation("MediaFileUploader")
+  notes                  Note[]
+  notifications          Notification[]
+  problemDiscussions     ProblemDiscussion[]
+  uploadedProjectFiles   ProjectFile[]       @relation("ProjectFileUploader")
+  recentlyViewed         RecentlyViewed[]
+  refreshTokens          RefreshToken[]
+  resumes                Resume[]
+  roleHistories          RoleHistory[]       @relation("RoleHistoryUser")
+  submissions            Submission[]
+  datasetImports         DatasetImport[]     @relation("DatasetImporter")
+  codeDrafts             CodeDraft[]
+  assignedTasks          Task[]              @relation("TaskAssignee")
+  teamComments           TeamComment[]       @relation("TeamCommentAuthor")
+  receivedInvitations    TeamInvitation[]    @relation("InvitationReceiver")
+  sentInvitations        TeamInvitation[]    @relation("InvitationSender")
+  teamMemberships        TeamMember[]        @relation("TeamMemberships")
+  ownedTeams             Team[]              @relation("TeamOwner")
+  testimonialsCreated    Testimonial[]       @relation("TestimonialCreator")
+  analytics              UserAnalytics?
+  userProgress           UserProgress[]
+
+  @@index([email])
+  @@index([role])
+  @@map("users")
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("refresh_tokens")
+}
+
+model EmailVerification {
+  id        String   @id @default(uuid())
+  email     String
+  otp       String
+  expiresAt DateTime
+  verified  Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@map("email_verifications")
+}
+
+model PasswordReset {
+  id        String   @id @default(uuid())
+  email     String
+  otp       String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@map("password_resets")
+}
+
+model Category {
+  id           String    @id @default(uuid())
+  title        String
+  slug         String    @unique
+  description  String?
+  icon         String?
+  displayOrder Int       @default(0)
+  isActive     Boolean   @default(true)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  deletedAt    DateTime?
+  roadmaps     Roadmap[]
+
+  @@index([slug])
+  @@index([isActive])
+  @@index([displayOrder])
+  @@index([deletedAt])
+  @@map("categories")
+}
+
+model Roadmap {
+  id               String           @id @default(uuid())
+  categoryId       String
+  title            String
+  slug             String           @unique
+  description      String?
+  thumbnail        String?
+  difficulty       Difficulty       @default(BEGINNER)
+  estimatedHours   Int?
+  prerequisites    String?
+  displayOrder     Int              @default(0)
+  isPublished      Boolean          @default(false)
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  banner           String?
+  learningOutcomes String?
+  seoDescription   String?
+  seoTitle         String?
+  tags             String?
+  visibility       String?          @default("PUBLIC")
+  deletedAt        DateTime?
+  sections         RoadmapSection[]
+  category         Category         @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@index([slug])
+  @@index([categoryId])
+  @@index([isPublished])
+  @@index([difficulty])
+  @@index([displayOrder])
+  @@index([deletedAt])
+  @@map("roadmaps")
+}
+
+model RoadmapSection {
+  id          String    @id @default(uuid())
+  roadmapId   String
+  title       String
+  description String?
+  order       Int       @default(0)
+  deletedAt   DateTime?
+  lessons     Lesson[]
+  roadmap     Roadmap   @relation(fields: [roadmapId], references: [id], onDelete: Cascade)
+
+  @@index([roadmapId])
+  @@index([order])
+  @@index([deletedAt])
+  @@map("roadmap_sections")
+}
+
+model Lesson {
+  id                String                   @id @default(uuid())
+  sectionId         String
+  title             String
+  slug              String                   @unique
+  description       String?
+  contentType       ContentType              @default(NOTE)
+  estimatedMinutes  Int?
+  order             Int                      @default(0)
+  isPublished       Boolean                  @default(false)
+  createdAt         DateTime                 @default(now())
+  updatedAt         DateTime                 @updatedAt
+  content           String?
+  deletedAt         DateTime?
+  bookmarks         Bookmark[]
+  resources         LearningResource[]
+  practiceQuestions LessonPracticeQuestion[]
+  section           RoadmapSection           @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  notes             Note[]
+  quizQuestions     QuizQuestion[]
+  recentlyViewed    RecentlyViewed[]
+  progress          UserProgress[]
+
+  @@index([slug])
+  @@index([sectionId])
+  @@index([isPublished])
+  @@index([order])
+  @@index([deletedAt])
+  @@map("lessons")
+}
+
+model LearningResource {
+  id        String       @id @default(uuid())
+  lessonId  String
+  type      ResourceType
+  title     String
+  url       String
+  duration  Int?
+  author    String?
+  thumbnail String?
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+  deletedAt DateTime?
+  lesson    Lesson       @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@index([lessonId])
+  @@index([deletedAt])
+  @@map("learning_resources")
+}
+
+model Note {
+  id        String   @id @default(uuid())
+  userId    String
+  lessonId  String
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  lesson    Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, lessonId])
+  @@map("notes")
+}
+
+model UserProgress {
+  id          String    @id @default(uuid())
+  userId      String
+  lessonId    String
+  roadmapId   String?
+  moduleId    String?
+  completed   Boolean   @default(false)
+  completedAt DateTime?
+  percentage  Float     @default(0)
+  lastOpened  DateTime?
+  timeSpent   Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  lesson      Lesson    @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, lessonId])
+  @@index([userId])
+  @@index([lessonId])
+  @@map("user_progress")
+}
+
+model Bookmark {
+  id        String   @id @default(uuid())
+  userId    String
+  lessonId  String
+  createdAt DateTime @default(now())
+  lesson    Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, lessonId])
+  @@index([userId])
+  @@index([lessonId])
+  @@map("bookmarks")
+}
+
+model RecentlyViewed {
+  id       String   @id @default(uuid())
+  userId   String
+  lessonId String
+  viewedAt DateTime @default(now())
+  lesson   Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, lessonId])
+  @@index([userId])
+  @@index([lessonId])
+  @@map("recently_viewed")
+}
+
+model LessonPracticeQuestion {
+  id           String     @id @default(uuid())
+  lessonId     String
+  question     String
+  answer       String
+  hint         String?
+  difficulty   Difficulty @default(BEGINNER)
+  displayOrder Int        @default(0)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  lesson       Lesson     @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@index([lessonId])
+  @@index([displayOrder])
+  @@map("lesson_practice_questions")
+}
+
+model QuizQuestion {
+  id           String       @id @default(uuid())
+  lessonId     String
+  question     String
+  explanation  String?
+  difficulty   Difficulty   @default(BEGINNER)
+  displayOrder Int          @default(0)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  options      QuizOption[]
+  lesson       Lesson       @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@index([lessonId])
+  @@index([displayOrder])
+  @@map("quiz_questions")
+}
+
+model QuizOption {
+  id             String       @id @default(uuid())
+  quizQuestionId String
+  text           String
+  isCorrect      Boolean      @default(false)
+  displayOrder   Int          @default(0)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  quizQuestion   QuizQuestion @relation(fields: [quizQuestionId], references: [id], onDelete: Cascade)
+
+  @@index([quizQuestionId])
+  @@map("quiz_options")
+}
+
+model ProblemCategory {
+  id           String          @id @default(uuid())
+  name         String
+  slug         String          @unique
+  description  String?
+  displayOrder Int             @default(0)
+  isActive     Boolean         @default(true)
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+  deletedAt    DateTime?
+  problems     CodingProblem[]
+
+  @@index([slug])
+  @@index([isActive])
+  @@index([displayOrder])
+  @@index([deletedAt])
+  @@map("problem_categories")
+}
+
+model CodingProblem {
+  id               String               @id @default(uuid())
+  categoryId       String
+  title            String
+  slug             String               @unique
+  description      String?
+  problemStatement String
+  inputFormat      String?
+  outputFormat     String?
+  constraints      String?
+  sampleInput      String?
+  sampleOutput     String?
+  explanation      String?
+  difficulty       ProblemDifficulty    @default(EASY)
+  timeLimit        Int                  @default(2000)
+  memoryLimit      Int                  @default(256)
+  outputLimit      Int                  @default(64)
+  acceptanceRate   Float                @default(0)
+  submissionCount  Int                  @default(0)
+  acceptedCount    Int                  @default(0)
+  points           Int                  @default(0)
+  xp               Int                  @default(0)
+  estimatedTime    Int?
+  hints            Json?
+  notes            String?
+  license          String?              @default("ORIGINAL")
+  sourceType       SourceType           @default(ORIGINAL)
+  isPublished      Boolean              @default(false)
+  createdAt        DateTime             @default(now())
+  updatedAt        DateTime             @updatedAt
+  deletedAt        DateTime?
+  templates        CodeTemplate[]
+  category         ProblemCategory      @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  dailyChallenges  DailyChallenge[]
+  favorites        FavoriteProblem[]
+  companies        ProblemCompany[]
+  discussions      ProblemDiscussion[]
+  tags             ProblemTagRelation[]
+  submissions      Submission[]
+  testCases        TestCase[]
+  relatedFrom      RelatedProblem[]     @relation("RelatedFrom")
+  relatedTo        RelatedProblem[]     @relation("RelatedTo")
+  codeDrafts       CodeDraft[]
+
+  @@index([categoryId])
+  @@index([difficulty])
+  @@index([slug])
+  @@index([isPublished])
+  @@index([deletedAt])
+  @@index([sourceType])
+  @@map("coding_problems")
+}
+
+model ProblemTag {
+  id       String               @id @default(uuid())
+  name     String               @unique
+  slug     String               @unique
+  problems ProblemTagRelation[]
+
+  @@index([slug])
+  @@map("problem_tags")
+}
+
+model ProblemTagRelation {
+  id        String        @id @default(uuid())
+  problemId String
+  tagId     String
+  problem   CodingProblem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  tag       ProblemTag    @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@unique([problemId, tagId])
+  @@index([problemId])
+  @@index([tagId])
+  @@map("problem_tag_relations")
+}
+
+model Company {
+  id           String           @id @default(uuid())
+  name         String           @unique
+  slug         String           @unique
+  logo         String?
+  website      String?
+  careersUrl   String?
+  description  String?
+  headquarters String?
+  industry     String?
+  verified     Boolean          @default(false)
+  deletedAt    DateTime?
+  jobPostings  JobPosting[]
+  problems     ProblemCompany[]
+
+  @@index([slug])
+  @@index([deletedAt])
+  @@map("companies")
+}
+
+model ProblemCompany {
+  id        String        @id @default(uuid())
+  problemId String
+  companyId String
+  company   Company       @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  problem   CodingProblem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+
+  @@unique([problemId, companyId])
+  @@index([problemId])
+  @@index([companyId])
+  @@map("problem_companies")
+}
+
+model TestCase {
+  id             String                  @id @default(uuid())
+  problemId      String
+  input          String
+  expectedOutput String
+  isSample       Boolean                 @default(false)
+  isHidden       Boolean                 @default(false)
+  isJudgeOnly    Boolean                 @default(false)
+  weight         Int                     @default(1)
+  displayOrder   Int                     @default(0)
+  problem        CodingProblem           @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  testResults    SubmissionTestResult[]
+
+  @@index([problemId])
+  @@map("test_cases")
+}
+
+model CodeTemplate {
+  id        String              @id @default(uuid())
+  problemId String
+  language  ProgrammingLanguage
+  template  String
+  problem   CodingProblem       @relation(fields: [problemId], references: [id], onDelete: Cascade)
+
+  @@unique([problemId, language])
+  @@index([problemId])
+  @@map("code_templates")
+}
+
+model Submission {
+  id              String                 @id @default(uuid())
+  userId          String
+  problemId       String
+  language        ProgrammingLanguage
+  sourceCode      String
+  status          SubmissionStatus       @default(PENDING)
+  judgeStatus     String                 @default("QUEUED")
+  runtime         Int?
+  memoryUsed      Int?
+  score           Int                    @default(0)
+  passedTestCases Int                    @default(0)
+  totalTestCases  Int                    @default(0)
+  errorMessage    String?
+  compileOutput   String?
+  stderr          String?
+  isRun           Boolean                @default(false)
+  submittedAt     DateTime               @default(now())
+  problem         CodingProblem          @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  user            User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  testResults     SubmissionTestResult[]
+
+  @@index([userId])
+  @@index([problemId])
+  @@index([submittedAt])
+  @@index([status])
+  @@index([judgeStatus])
+  @@map("submissions")
+}
+
+model SubmissionTestResult {
+  id             String     @id @default(uuid())
+  submissionId   String
+  testCaseId     String
+  passed         Boolean    @default(false)
+  actualOutput   String?
+  expectedOutput String
+  runtime        Int?
+  memoryUsed     Int?
+  errorMessage   String?
+  submission     Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  testCase       TestCase   @relation(fields: [testCaseId], references: [id], onDelete: Cascade)
+
+  @@index([submissionId])
+  @@index([testCaseId])
+  @@map("submission_test_results")
+}
+
+model CodeDraft {
+  id        String              @id @default(uuid())
+  userId    String
+  problemId String
+  language  ProgrammingLanguage
+  code      String
+  savedAt   DateTime            @default(now())
+  updatedAt DateTime            @default(now()) @updatedAt
+  user      User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  problem   CodingProblem       @relation(fields: [problemId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, problemId, language])
+  @@index([userId])
+  @@index([problemId])
+  @@map("code_drafts")
+}
+
+model RelatedProblem {
+  id      String        @id @default(uuid())
+  fromId  String
+  toId    String
+  from    CodingProblem @relation("RelatedFrom", fields: [fromId], references: [id], onDelete: Cascade)
+  to      CodingProblem @relation("RelatedTo", fields: [toId], references: [id], onDelete: Cascade)
+
+  @@unique([fromId, toId])
+  @@index([fromId])
+  @@index([toId])
+  @@map("related_problems")
+}
+
+model DatasetImport {
+  id             String       @id @default(uuid())
+  filename       String
+  sourceType     SourceType   @default(ORIGINAL)
+  status         ImportStatus @default(PENDING)
+  totalProblems  Int          @default(0)
+  importedCount  Int          @default(0)
+  failedCount    Int          @default(0)
+  skippedCount   Int          @default(0)
+  errorLog       Json?
+  importReport   Json?
+  startedAt      DateTime?
+  completedAt    DateTime?
+  importedBy     String
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @default(now()) @updatedAt
+  importer       User         @relation("DatasetImporter", fields: [importedBy], references: [id], onDelete: Cascade)
+
+  @@index([importedBy])
+  @@index([status])
+  @@index([createdAt])
+  @@map("dataset_imports")
+}
+
+model FavoriteProblem {
+  id        String        @id @default(uuid())
+  userId    String
+  problemId String
+  createdAt DateTime      @default(now())
+  problem   CodingProblem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, problemId])
+  @@index([userId])
+  @@index([problemId])
+  @@map("favorite_problems")
+}
+
+model DailyChallenge {
+  id            String        @id @default(uuid())
+  problemId     String
+  challengeDate DateTime      @unique @db.Date
+  bonusXP       Int           @default(50)
+  problem       CodingProblem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+
+  @@index([challengeDate])
+  @@index([problemId])
+  @@map("daily_challenges")
+}
+
+model ProblemDiscussion {
+  id        String        @id @default(uuid())
+  userId    String
+  problemId String
+  content   String
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+  problem   CodingProblem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([problemId])
+  @@map("problem_discussions")
+}
+
+model ProjectCategory {
+  id           String    @id @default(uuid())
+  name         String
+  slug         String    @unique
+  description  String?
+  icon         String?
+  displayOrder Int       @default(0)
+  isActive     Boolean   @default(true)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  deletedAt    DateTime?
+  projects     Project[]
+
+  @@index([slug])
+  @@index([isActive])
+  @@index([displayOrder])
+  @@index([deletedAt])
+  @@map("project_categories")
+}
+
+model Project {
+  id                String                      @id @default(uuid())
+  categoryId        String
+  title             String
+  slug              String                      @unique
+  description       String?
+  overview          String?
+  difficulty        ProjectDifficulty           @default(BEGINNER)
+  estimatedDuration String?
+  thumbnail         String?
+  githubRepository  String?
+  liveDemo          String?
+  documentationUrl  String?
+  requirements      String?
+  learningOutcomes  String?
+  isPublished       Boolean                     @default(false)
+  createdAt         DateTime                    @default(now())
+  updatedAt         DateTime                    @updatedAt
+  deletedAt         DateTime?
+  milestones        Milestone[]
+  files             ProjectFile[]
+  technologies      ProjectTechnologyRelation[]
+  category          ProjectCategory             @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  teams             Team[]
+
+  @@index([categoryId])
+  @@index([slug])
+  @@index([isPublished])
+  @@index([difficulty])
+  @@index([deletedAt])
+  @@map("projects")
+}
+
+model ProjectTechnology {
+  id       String                      @id @default(uuid())
+  name     String                      @unique
+  slug     String                      @unique
+  icon     String?
+  projects ProjectTechnologyRelation[]
+
+  @@index([slug])
+  @@map("project_technologies")
+}
+
+model ProjectTechnologyRelation {
+  id           String            @id @default(uuid())
+  projectId    String
+  technologyId String
+  project      Project           @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  technology   ProjectTechnology @relation(fields: [technologyId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, technologyId])
+  @@index([projectId])
+  @@index([technologyId])
+  @@map("project_technology_relations")
+}
+
+model Team {
+  id           String           @id @default(uuid())
+  projectId    String
+  name         String
+  ownerId      String
+  maxMembers   Int              @default(5)
+  status       TeamStatus       @default(OPEN)
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+  activityLogs ActivityLog[]
+  tasks        Task[]
+  invitations  TeamInvitation[]
+  members      TeamMember[]
+  owner        User             @relation("TeamOwner", fields: [ownerId], references: [id])
+  project      Project          @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+  @@index([ownerId])
+  @@index([status])
+  @@map("teams")
+}
+
+model TeamMember {
+  id       String         @id @default(uuid())
+  teamId   String
+  userId   String
+  role     TeamMemberRole @default(DEVELOPER)
+  joinedAt DateTime       @default(now())
+  team     Team           @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  user     User           @relation("TeamMemberships", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([teamId, userId])
+  @@index([teamId])
+  @@index([userId])
+  @@map("team_members")
+}
+
+model TeamInvitation {
+  id         String           @id @default(uuid())
+  teamId     String
+  senderId   String
+  receiverId String
+  status     InvitationStatus @default(PENDING)
+  expiresAt  DateTime
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+  receiver   User             @relation("InvitationReceiver", fields: [receiverId], references: [id], onDelete: Cascade)
+  sender     User             @relation("InvitationSender", fields: [senderId], references: [id], onDelete: Cascade)
+  team       Team             @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  @@index([teamId])
+  @@index([senderId])
+  @@index([receiverId])
+  @@index([status])
+  @@map("team_invitations")
+}
+
+model Task {
+  id             String        @id @default(uuid())
+  teamId         String
+  assignedTo     String?
+  title          String
+  description    String?
+  priority       TaskPriority  @default(MEDIUM)
+  status         TaskStatus    @default(TODO)
+  dueDate        DateTime?
+  estimatedHours Float?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  assignee       User?         @relation("TaskAssignee", fields: [assignedTo], references: [id])
+  team           Team          @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  comments       TeamComment[]
+
+  @@index([teamId])
+  @@index([assignedTo])
+  @@index([status])
+  @@index([dueDate])
+  @@map("tasks")
+}
+
+model Milestone {
+  id                   String          @id @default(uuid())
+  projectId            String
+  title                String
+  description          String?
+  dueDate              DateTime?
+  status               MilestoneStatus @default(PENDING)
+  completionPercentage Float           @default(0)
+  createdAt            DateTime        @default(now())
+  updatedAt            DateTime        @updatedAt
+  project              Project         @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+  @@index([status])
+  @@index([dueDate])
+  @@map("milestones")
+}
+
+model ProjectFile {
+  id         String   @id @default(uuid())
+  projectId  String
+  uploadedBy String
+  title      String
+  fileUrl    String
+  fileType   String
+  uploadedAt DateTime @default(now())
+  project    Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  uploader   User     @relation("ProjectFileUploader", fields: [uploadedBy], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+  @@index([uploadedBy])
+  @@map("project_files")
+}
+
+model TeamComment {
+  id        String   @id @default(uuid())
+  taskId    String
+  userId    String
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  task      Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  user      User     @relation("TeamCommentAuthor", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([taskId])
+  @@index([userId])
+  @@map("team_comments")
+}
+
+model ActivityLog {
+  id        String         @id @default(uuid())
+  teamId    String
+  userId    String
+  action    ActivityAction
+  metadata  Json?
+  createdAt DateTime       @default(now())
+  team      Team           @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  user      User           @relation("ActivityLogUser", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([teamId])
+  @@index([userId])
+  @@index([createdAt])
+  @@map("activity_logs")
+}
+
+model JobPosting {
+  id                  String           @id @default(uuid())
+  companyId           String
+  title               String
+  type                JobType          @default(FULL_TIME)
+  location            String?
+  workMode            WorkMode         @default(ONSITE)
+  description         String
+  requirements        String?
+  salaryRange         String?
+  applicationUrl      String?
+  applicationDeadline DateTime?
+  experienceRequired  String?
+  isPublished         Boolean          @default(false)
+  createdAt           DateTime         @default(now())
+  updatedAt           DateTime         @updatedAt
+  deletedAt           DateTime?
+  applications        JobApplication[]
+  company             Company          @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@index([companyId])
+  @@index([isPublished])
+  @@index([applicationDeadline])
+  @@index([type])
+  @@index([workMode])
+  @@index([deletedAt])
+  @@map("job_postings")
+}
+
+model JobApplication {
+  id        String            @id @default(uuid())
+  userId    String
+  jobId     String
+  status    ApplicationStatus @default(SAVED)
+  notes     String?
+  appliedAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+  job       JobPosting        @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  user      User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, jobId])
+  @@index([userId])
+  @@index([jobId])
+  @@map("job_applications")
+}
+
+model Resume {
+  id        String          @id @default(uuid())
+  userId    String
+  title     String
+  template  String          @default("default")
+  resumeUrl String?
+  atsScore  Int?
+  isDefault Boolean         @default(false)
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+  sections  ResumeSection[]
+  user      User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("resumes")
+}
+
+model ResumeSection {
+  id          String   @id @default(uuid())
+  resumeId    String
+  sectionType String
+  content     Json
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  resume      Resume   @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+
+  @@index([resumeId])
+  @@map("resume_sections")
+}
+
+model Event {
+  id              String              @id @default(uuid())
+  title           String
+  description     String?
+  type            EventType           @default(WEBINAR)
+  organizer       String?
+  location        String?
+  startTime       DateTime
+  endTime         DateTime
+  registrationUrl String?
+  maxParticipants Int?
+  isPublished     Boolean             @default(false)
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+  deletedAt       DateTime?
+  registrations   EventRegistration[]
+
+  @@index([isPublished])
+  @@index([startTime])
+  @@index([type])
+  @@index([deletedAt])
+  @@map("events")
+}
+
+model EventRegistration {
+  id           String   @id @default(uuid())
+  eventId      String
+  userId       String
+  registeredAt DateTime @default(now())
+  event        Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([eventId, userId])
+  @@index([eventId])
+  @@index([userId])
+  @@map("event_registrations")
+}
+
+model Notification {
+  id        String           @id @default(uuid())
+  userId    String
+  title     String
+  message   String
+  type      NotificationType @default(SYSTEM)
+  isRead    Boolean          @default(false)
+  metadata  Json?
+  createdAt DateTime         @default(now())
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([isRead])
+  @@index([type])
+  @@map("notifications")
+}
+
+model UserAnalytics {
+  id                    String    @id @default(uuid())
+  userId                String    @unique
+  lastLogin             DateTime?
+  totalStudyMinutes     Int       @default(0)
+  currentLearningStreak Int       @default(0)
+  longestLearningStreak Int       @default(0)
+  updatedAt             DateTime  @updatedAt
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("user_analytics")
+}
+
+model PlatformSetting {
+  id          String   @id @default(uuid())
+  key         String   @unique
+  value       String
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([key])
+  @@map("platform_settings")
+}
+
+model ManagerPermission {
+  id         String           @id @default(uuid())
+  managerId  String
+  module     PermissionModule
+  canCreate  Boolean          @default(false)
+  canRead    Boolean          @default(true)
+  canUpdate  Boolean          @default(false)
+  canDelete  Boolean          @default(false)
+  canPublish Boolean          @default(false)
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+  manager    User             @relation("ManagerPermissions", fields: [managerId], references: [id], onDelete: Cascade)
+
+  @@unique([managerId, module])
+  @@index([managerId])
+  @@index([module])
+  @@map("manager_permissions")
+}
+
+model AuditLog {
+  id          String   @id @default(uuid())
+  performedBy String
+  targetUser  String?
+  role        String
+  action      String
+  module      String?
+  entity      String?
+  entityId    String?
+  oldValue    Json?
+  newValue    Json?
+  ipAddress   String?
+  userAgent   String?
+  createdAt   DateTime @default(now())
+  performer   User     @relation("AuditLogPerformer", fields: [performedBy], references: [id], onDelete: Cascade)
+
+  @@index([performedBy])
+  @@index([targetUser])
+  @@index([action])
+  @@index([module])
+  @@index([createdAt])
+  @@index([role])
+  @@map("audit_logs")
+}
+
+model RoleHistory {
+  id        String   @id @default(uuid())
+  userId    String
+  oldRole   String
+  newRole   String
+  reason    String?
+  changedBy String
+  createdAt DateTime @default(now())
+  user      User     @relation("RoleHistoryUser", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([changedBy])
+  @@index([createdAt])
+  @@map("role_history")
+}
+
+model ManagerInvitation {
+  id         String                @id @default(uuid())
+  email      String
+  token      String                @unique
+  status     InvitationTokenStatus @default(PENDING)
+  invitedBy  String
+  expiresAt  DateTime
+  acceptedAt DateTime?
+  createdAt  DateTime              @default(now())
+  inviter    User                  @relation("ManagerInvitationInviter", fields: [invitedBy], references: [id], onDelete: Cascade)
+
+  @@index([email])
+  @@index([token])
+  @@index([status])
+  @@map("manager_invitations")
+}
+
+model PlatformMetric {
+  id                String   @id @default(uuid())
+  date              DateTime @unique @db.Date
+  totalUsers        Int      @default(0)
+  activeUsers       Int      @default(0)
+  newUsers          Int      @default(0)
+  learningHours     Float    @default(0)
+  codingSubmissions Int      @default(0)
+  projectsCreated   Int      @default(0)
+  applications      Int      @default(0)
+  eventsRegistered  Int      @default(0)
+  avgSessionTime    Float    @default(0)
+  storageUsed       Float    @default(0)
+  apiRequests       Int      @default(0)
+  createdAt         DateTime @default(now())
+
+  @@index([date])
+  @@map("platform_metrics")
+}
+
+model SystemLog {
+  id        String   @id @default(uuid())
+  level     String
+  module    String
+  message   String
+  metadata  Json?
+  createdAt DateTime @default(now())
+
+  @@index([level])
+  @@index([module])
+  @@index([createdAt])
+  @@map("system_logs")
+}
+
+model Banner {
+  id          String          @id @default(uuid())
+  title       String
+  placement   BannerPlacement @default(HOMEPAGE)
+  type        BannerType      @default(IMAGE)
+  mediaUrl    String
+  ctaText     String?
+  ctaLink     String?
+  priority    Int             @default(0)
+  isActive    Boolean         @default(true)
+  scheduledAt DateTime?
+  expiresAt   DateTime?
+  createdBy   String
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  deletedAt   DateTime?
+  creator     User            @relation("BannerCreator", fields: [createdBy], references: [id], onDelete: Cascade)
+
+  @@index([placement])
+  @@index([isActive])
+  @@index([priority])
+  @@index([deletedAt])
+  @@map("banners")
+}
+
+model FaqCategory {
+  id           String   @id @default(uuid())
+  name         String
+  slug         String   @unique
+  displayOrder Int      @default(0)
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  faqs         Faq[]
+
+  @@index([slug])
+  @@map("faq_categories")
+}
+
+model Faq {
+  id             String       @id @default(uuid())
+  categoryId     String?
+  question       String
+  answer         String
+  searchKeywords String?
+  isPublished    Boolean      @default(false)
+  displayOrder   Int          @default(0)
+  createdBy      String
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  deletedAt      DateTime?
+  category       FaqCategory? @relation(fields: [categoryId], references: [id])
+  creator        User         @relation("FaqCreator", fields: [createdBy], references: [id], onDelete: Cascade)
+
+  @@index([categoryId])
+  @@index([isPublished])
+  @@index([deletedAt])
+  @@map("faqs")
+}
+
+model Testimonial {
+  id          String    @id @default(uuid())
+  studentName String
+  studentId   String?
+  role        String?
+  company     String?
+  content     String
+  rating      Int       @default(5)
+  avatarUrl   String?
+  isFeatured  Boolean   @default(false)
+  isPublished Boolean   @default(false)
+  createdBy   String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+  creator     User      @relation("TestimonialCreator", fields: [createdBy], references: [id], onDelete: Cascade)
+
+  @@index([isFeatured])
+  @@index([isPublished])
+  @@index([deletedAt])
+  @@map("testimonials")
+}
+
+model MediaFile {
+  id           String        @id @default(uuid())
+  filename     String
+  originalName String
+  mimeType     String
+  fileType     MediaFileType @default(OTHER)
+  fileUrl      String
+  fileSize     Int           @default(0)
+  folder       String?
+  altText      String?
+  uploadedBy   String
+  usageCount   Int           @default(0)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  deletedAt    DateTime?
+  uploader     User          @relation("MediaFileUploader", fields: [uploadedBy], references: [id], onDelete: Cascade)
+
+  @@index([uploadedBy])
+  @@index([folder])
+  @@index([fileType])
+  @@index([deletedAt])
+  @@map("media_files")
+}
+
+model ContentVersion {
+  id         String   @id @default(uuid())
+  entity     String
+  entityId   String
+  version    Int      @default(1)
+  editedBy   String
+  fieldName  String?
+  oldValue   Json?
+  newValue   Json?
+  changeNote String?
+  createdAt  DateTime @default(now())
+  editor     User     @relation("ContentVersionEditor", fields: [editedBy], references: [id], onDelete: Cascade)
+
+  @@index([entity, entityId])
+  @@index([editedBy])
+  @@index([createdAt])
+  @@map("content_versions")
+}
 
 enum Role {
   STUDENT
@@ -19,7 +1256,6 @@ enum Role {
   SUPER_ADMIN
 }
 
-// ── PRD-07: Permission Module ──────────────────────────────────────────────────
 enum PermissionModule {
   LEARNING
   CODING
@@ -30,7 +1266,6 @@ enum PermissionModule {
   REPORTS
 }
 
-// ── PRD-07: Manager Invitation Status ─────────────────────────────────────────
 enum InvitationTokenStatus {
   PENDING
   ACCEPTED
@@ -62,8 +1297,6 @@ enum ResourceType {
   DOCUMENTATION
   PRACTICE_LINK
 }
-
-// ── PRD-03 Enums ──────────────────────────────────────────────────────────────
 
 enum ProblemDifficulty {
   EASY
@@ -99,12 +1332,6 @@ enum ImportStatus {
   ROLLED_BACK
 }
 
-enum JudgeStatus {
-  QUEUED
-  RUNNING
-  DONE
-}
-
 enum SubmissionStatus {
   PENDING
   ACCEPTED
@@ -114,621 +1341,6 @@ enum SubmissionStatus {
   RUNTIME_ERROR
   COMPILE_ERROR
 }
-
-// ── Auth Models ───────────────────────────────────────────────────────────────
-
-model User {
-  id                String    @id @default(uuid())
-  fullName          String
-  email             String    @unique
-  passwordHash      String
-  phoneNumber       String?
-  profileImage      String?
-  collegeName       String?
-  university        String?
-  branch            String?
-  currentYear       Int?
-  semester          Int?
-  githubUrl         String?
-  linkedinUrl       String?
-  portfolioUrl      String?
-  bio               String?
-  role              Role      @default(STUDENT)
-  status            String?   @default("ACTIVE")
-  isVerified        Boolean   @default(false)
-  profileCompletion Int       @default(0)
-  lastLoginAt       DateTime?
-  createdAt         DateTime  @default(now())
-  updatedAt         DateTime  @updatedAt
-
-  refreshTokens      RefreshToken[]
-  userProgress       UserProgress[]
-  notes              Note[]
-  bookmarks          Bookmark[]
-  recentlyViewed     RecentlyViewed[]
-  submissions        Submission[]
-  favoriteProblems   FavoriteProblem[]
-  problemDiscussions ProblemDiscussion[]
-
-  // PRD-04 relations
-  ownedTeams            Team[]             @relation("TeamOwner")
-  teamMemberships       TeamMember[]       @relation("TeamMemberships")
-  sentInvitations       TeamInvitation[]   @relation("InvitationSender")
-  receivedInvitations   TeamInvitation[]   @relation("InvitationReceiver")
-  assignedTasks         Task[]             @relation("TaskAssignee")
-  uploadedProjectFiles  ProjectFile[]      @relation("ProjectFileUploader")
-  teamComments          TeamComment[]      @relation("TeamCommentAuthor")
-  activityLogs          ActivityLog[]      @relation("ActivityLogUser")
-
-  // PRD-05 relations
-  jobApplications    JobApplication[]
-  resumes            Resume[]
-  eventRegistrations EventRegistration[]
-  notifications      Notification[]
-  analytics          UserAnalytics?
-
-  // PRD-07 relations
-  managerPermissions    ManagerPermission[]    @relation("ManagerPermissions")
-  auditLogsPerformed    AuditLog[]             @relation("AuditLogPerformer")
-  roleHistories         RoleHistory[]          @relation("RoleHistoryUser")
-  managerInvitationsSent ManagerInvitation[]   @relation("ManagerInvitationInviter")
-
-  // FPRD-10 relations
-  bannersCreated        Banner[]               @relation("BannerCreator")
-  faqsCreated           Faq[]                  @relation("FaqCreator")
-  testimonialsCreated   Testimonial[]          @relation("TestimonialCreator")
-  mediaFilesUploaded    MediaFile[]            @relation("MediaFileUploader")
-  contentVersions       ContentVersion[]       @relation("ContentVersionEditor")
-
-  // FPRD-17 relations
-  codeDrafts            CodeDraft[]
-  datasetImports        DatasetImport[]
-  userTopicProgress     UserTopicProgress[]
-
-  @@index([email])
-  @@index([role])
-  @@map("users")
-}
-
-model RefreshToken {
-  id        String   @id @default(uuid())
-  userId    String
-  token     String   @unique
-  expiresAt DateTime
-  createdAt DateTime @default(now())
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-  @@map("refresh_tokens")
-}
-
-model EmailVerification {
-  id        String   @id @default(uuid())
-  email     String
-  otp       String
-  expiresAt DateTime
-  verified  Boolean  @default(false)
-  createdAt DateTime @default(now())
-
-  @@map("email_verifications")
-}
-
-model PasswordReset {
-  id        String   @id @default(uuid())
-  email     String
-  otp       String
-  expiresAt DateTime
-  createdAt DateTime @default(now())
-
-  @@map("password_resets")
-}
-
-// ── Learning Ecosystem Models ─────────────────────────────────────────────────
-
-model Category {
-  id           String    @id @default(uuid())
-  title        String
-  slug         String    @unique
-  description  String?
-  icon         String?
-  displayOrder Int       @default(0)
-  isActive     Boolean   @default(true)
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
-  deletedAt    DateTime?
-
-  roadmaps Roadmap[]
-
-  @@index([slug])
-  @@index([isActive])
-  @@index([displayOrder])
-  @@index([deletedAt])
-  @@map("categories")
-}
-
-model Roadmap {
-  id             String     @id @default(uuid())
-  categoryId     String
-  title          String
-  slug           String     @unique
-  description    String?
-  thumbnail      String?
-  difficulty     Difficulty @default(BEGINNER)
-  estimatedHours Int?
-  prerequisites  String?
-  tags           String?    // FPRD-10: comma-separated tags
-  learningOutcomes String?  // FPRD-10: what students will learn
-  seoTitle       String?    // FPRD-10: SEO title
-  seoDescription String?    // FPRD-10: SEO description
-  banner         String?    // FPRD-10: banner image URL
-  visibility     String?    @default("PUBLIC") // FPRD-10: PUBLIC | PRIVATE | INVITE_ONLY
-  displayOrder   Int        @default(0)
-  isPublished    Boolean    @default(false)
-  createdAt      DateTime   @default(now())
-  updatedAt      DateTime   @updatedAt
-  deletedAt      DateTime?
-
-  category Category          @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-  sections RoadmapSection[]
-
-  @@index([slug])
-  @@index([categoryId])
-  @@index([isPublished])
-  @@index([difficulty])
-  @@index([displayOrder])
-  @@index([deletedAt])
-  @@map("roadmaps")
-}
-
-model RoadmapSection {
-  id          String  @id @default(uuid())
-  roadmapId   String
-  title       String
-  description String?
-  order       Int     @default(0)
-  deletedAt   DateTime?
-
-  roadmap Roadmap  @relation(fields: [roadmapId], references: [id], onDelete: Cascade)
-  lessons Lesson[]
-
-  @@index([roadmapId])
-  @@index([order])
-  @@index([deletedAt])
-  @@map("roadmap_sections")
-}
-
-model Lesson {
-  id               String      @id @default(uuid())
-  sectionId        String
-  title            String
-  slug             String      @unique
-  description      String?
-  content          String?     // FPRD-10: rich text / markdown body (Module 1)
-  contentType      ContentType @default(NOTE)
-  estimatedMinutes Int?
-  order            Int         @default(0)
-  isPublished      Boolean     @default(false)
-  createdAt        DateTime    @default(now())
-  updatedAt        DateTime    @updatedAt
-  deletedAt        DateTime?
-
-  section              RoadmapSection        @relation(fields: [sectionId], references: [id], onDelete: Cascade)
-  resources            LearningResource[]
-  progress             UserProgress[]
-  notes                Note[]
-  bookmarks            Bookmark[]
-  recentlyViewed       RecentlyViewed[]
-  practiceQuestions    LessonPracticeQuestion[]
-  quizQuestions        QuizQuestion[]
-
-  @@index([slug])
-  @@index([sectionId])
-  @@index([isPublished])
-  @@index([order])
-  @@index([deletedAt])
-  @@map("lessons")
-}
-
-model LearningResource {
-  id        String       @id @default(uuid())
-  lessonId  String
-  type      ResourceType
-  title     String
-  url       String
-  duration  Int?
-  author    String?
-  thumbnail String?
-  createdAt DateTime     @default(now())
-  updatedAt DateTime     @updatedAt
-  deletedAt DateTime?
-
-  lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
-
-  @@index([lessonId])
-  @@index([deletedAt])
-  @@map("learning_resources")
-}
-
-model Note {
-  id        String   @id @default(uuid())
-  userId    String
-  lessonId  String
-  content   String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, lessonId])
-  @@map("notes")
-}
-
-model UserProgress {
-  id          String    @id @default(uuid())
-  userId      String
-  lessonId    String
-  roadmapId   String?
-  moduleId    String?
-  completed   Boolean   @default(false)
-  completedAt DateTime?
-  percentage  Float     @default(0)
-  lastOpened  DateTime?
-  timeSpent   Int       @default(0)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, lessonId])
-  @@index([userId])
-  @@index([lessonId])
-  @@map("user_progress")
-}
-
-model Bookmark {
-  id        String   @id @default(uuid())
-  userId    String
-  lessonId  String
-  createdAt DateTime @default(now())
-
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, lessonId])
-  @@index([userId])
-  @@index([lessonId])
-  @@map("bookmarks")
-}
-
-model RecentlyViewed {
-  id       String   @id @default(uuid())
-  userId   String
-  lessonId String
-  viewedAt DateTime @default(now())
-
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, lessonId])
-  @@index([userId])
-  @@index([lessonId])
-  @@map("recently_viewed")
-}
-
-model LessonPracticeQuestion {
-  id           String   @id @default(uuid())
-  lessonId     String
-  question     String
-  answer       String
-  hint         String?
-  difficulty   Difficulty @default(BEGINNER)
-  displayOrder Int      @default(0)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  lesson       Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
-  @@index([lessonId])
-  @@index([displayOrder])
-  @@map("lesson_practice_questions")
-}
-
-model QuizQuestion {
-  id           String   @id @default(uuid())
-  lessonId     String
-  question     String
-  explanation  String?
-  difficulty   Difficulty @default(BEGINNER)
-  displayOrder Int      @default(0)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  lesson       Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
-  options      QuizOption[]
-  @@index([lessonId])
-  @@index([displayOrder])
-  @@map("quiz_questions")
-}
-
-model QuizOption {
-  id             String       @id @default(uuid())
-  quizQuestionId String
-  text           String
-  isCorrect      Boolean      @default(false)
-  displayOrder   Int          @default(0)
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
-  quizQuestion   QuizQuestion @relation(fields: [quizQuestionId], references: [id], onDelete: Cascade)
-  @@index([quizQuestionId])
-  @@map("quiz_options")
-}
-
-// ── PRD-03: Coding Practice Platform ──────────────────────────────────────────
-
-model ProblemCategory {
-  id           String    @id @default(uuid())
-  name         String
-  slug         String    @unique
-  description  String?
-  displayOrder Int       @default(0)
-  isActive     Boolean   @default(true)
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
-  deletedAt    DateTime?
-
-  problems CodingProblem[]
-  userTopicProgress UserTopicProgress[]
-
-  @@index([slug])
-  @@index([isActive])
-  @@index([displayOrder])
-  @@index([deletedAt])
-  @@map("problem_categories")
-}
-
-model CodingProblem {
-  id               String            @id @default(uuid())
-  categoryId       String
-  title            String
-  slug             String            @unique
-  description      String?
-  problemStatement String
-  inputFormat      String?
-  outputFormat     String?
-  constraints      String?
-  sampleInput      String?
-  sampleOutput     String?
-  explanation      String?
-  difficulty       ProblemDifficulty @default(EASY)
-  timeLimit        Int               @default(2000)   // milliseconds
-  memoryLimit      Int               @default(256)    // MB
-  outputLimit      Int               @default(64)     // KB — Phase 12
-  acceptanceRate   Float             @default(0)
-  points           Int               @default(0)
-  isPublished      Boolean           @default(false)
-  // FPRD-17 Phase 17 — extended schema
-  hints            Json?             // array of strings
-  notes            String?
-  estimatedTime    Int?              // minutes
-  xp               Int               @default(0)
-  license          String?           @default("ORIGINAL")
-  sourceType       SourceType        @default(ORIGINAL)
-  submissionCount  Int               @default(0)
-  acceptedCount    Int               @default(0)
-  createdAt        DateTime          @default(now())
-  updatedAt        DateTime          @updatedAt
-  deletedAt        DateTime?
-
-  category        ProblemCategory     @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-  testCases       TestCase[]
-  templates       CodeTemplate[]
-  submissions     Submission[]
-  favorites       FavoriteProblem[]
-  discussions     ProblemDiscussion[]
-  tags            ProblemTagRelation[]
-  companies       ProblemCompany[]
-  dailyChallenges DailyChallenge[]
-  codeDrafts      CodeDraft[]
-  relatedFrom     RelatedProblem[]    @relation("FromProblem")
-  relatedTo       RelatedProblem[]    @relation("ToProblem")
-
-  @@index([categoryId])
-  @@index([difficulty])
-  @@index([slug])
-  @@index([isPublished])
-  @@index([deletedAt])
-  @@index([sourceType])
-  @@map("coding_problems")
-}
-
-model ProblemTag {
-  id   String @id @default(uuid())
-  name String @unique
-  slug String @unique
-
-  problems ProblemTagRelation[]
-
-  @@index([slug])
-  @@map("problem_tags")
-}
-
-model ProblemTagRelation {
-  id        String @id @default(uuid())
-  problemId String
-  tagId     String
-
-  problem CodingProblem @relation(fields: [problemId], references: [id], onDelete: Cascade)
-  tag     ProblemTag    @relation(fields: [tagId], references: [id], onDelete: Cascade)
-
-  @@unique([problemId, tagId])
-  @@index([problemId])
-  @@index([tagId])
-  @@map("problem_tag_relations")
-}
-
-model Company {
-  id           String  @id @default(uuid())
-  name         String  @unique
-  slug         String  @unique
-  logo         String?
-  website      String?
-  // PRD-05 extensions
-  description  String?
-  industry     String?
-  headquarters String?
-  careersUrl   String?
-  verified     Boolean @default(false)
-  deletedAt    DateTime?
-
-  problems    ProblemCompany[]
-  jobPostings JobPosting[]
-
-  @@index([slug])
-  @@index([deletedAt])
-  @@map("companies")
-}
-
-model ProblemCompany {
-  id        String @id @default(uuid())
-  problemId String
-  companyId String
-
-  problem CodingProblem @relation(fields: [problemId], references: [id], onDelete: Cascade)
-  company Company       @relation(fields: [companyId], references: [id], onDelete: Cascade)
-
-  @@unique([problemId, companyId])
-  @@index([problemId])
-  @@index([companyId])
-  @@map("problem_companies")
-}
-
-model TestCase {
-  id             String  @id @default(uuid())
-  problemId      String
-  input          String
-  expectedOutput String
-  isSample       Boolean @default(false)
-  isHidden       Boolean @default(false)
-  isJudgeOnly    Boolean @default(false)   // FPRD-17 Phase 6 — judge-only test cases
-  weight         Int     @default(1)
-  displayOrder   Int     @default(0)
-
-  problem         CodingProblem          @relation(fields: [problemId], references: [id], onDelete: Cascade)
-  submissionResults SubmissionTestResult[]
-
-  @@index([problemId])
-  @@map("test_cases")
-}
-
-model CodeTemplate {
-  id        String              @id @default(uuid())
-  problemId String
-  language  ProgrammingLanguage
-  template  String
-
-  problem CodingProblem @relation(fields: [problemId], references: [id], onDelete: Cascade)
-
-  @@unique([problemId, language])
-  @@index([problemId])
-  @@map("code_templates")
-}
-
-model Submission {
-  id              String            @id @default(uuid())
-  userId          String
-  problemId       String
-  language        ProgrammingLanguage
-  sourceCode      String
-  status          SubmissionStatus  @default(PENDING)
-  judgeStatus     JudgeStatus       @default(QUEUED)  // FPRD-17 async queue
-  runtime         Int?              // milliseconds
-  memoryUsed      Int?              // MB
-  score           Int               @default(0)
-  passedTestCases Int               @default(0)
-  totalTestCases  Int               @default(0)
-  errorMessage    String?           // compile/runtime error message
-  stderr          String?           // stderr output
-  compileOutput   String?           // compile log
-  isRun           Boolean           @default(false)   // true for /run, false for /submit
-  submittedAt     DateTime          @default(now())
-
-  user           User              @relation(fields: [userId], references: [id], onDelete: Cascade)
-  problem        CodingProblem     @relation(fields: [problemId], references: [id], onDelete: Cascade)
-  testResults    SubmissionTestResult[]
-
-  @@index([userId])
-  @@index([problemId])
-  @@index([submittedAt])
-  @@index([status])
-  @@index([judgeStatus])
-  @@map("submissions")
-}
-
-// FPRD-17 Phase 5/9 — per-test-case results stored for output comparison
-model SubmissionTestResult {
-  id             String     @id @default(uuid())
-  submissionId   String
-  testCaseId     String
-  passed         Boolean    @default(false)
-  actualOutput   String?
-  expectedOutput String
-  runtime        Int?       // ms
-  memoryUsed     Int?       // MB
-  errorMessage   String?
-
-  submission Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
-  testCase   TestCase   @relation(fields: [testCaseId], references: [id], onDelete: Cascade)
-
-  @@index([submissionId])
-  @@index([testCaseId])
-  @@map("submission_test_results")
-}
-
-model FavoriteProblem {
-  id        String   @id @default(uuid())
-  userId    String
-  problemId String
-  createdAt DateTime @default(now())
-
-  user    User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  problem CodingProblem @relation(fields: [problemId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, problemId])
-  @@index([userId])
-  @@index([problemId])
-  @@map("favorite_problems")
-}
-
-model DailyChallenge {
-  id            String   @id @default(uuid())
-  problemId     String
-  challengeDate DateTime @unique @db.Date
-  bonusXP       Int      @default(50)
-
-  problem CodingProblem @relation(fields: [problemId], references: [id], onDelete: Cascade)
-
-  @@index([challengeDate])
-  @@index([problemId])
-  @@map("daily_challenges")
-}
-
-model ProblemDiscussion {
-  id        String   @id @default(uuid())
-  userId    String
-  problemId String
-  content   String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  user    User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  problem CodingProblem @relation(fields: [problemId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-  @@index([problemId])
-  @@map("problem_discussions")
-}
-
-// ── PRD-04: Project Hub & Team Collaboration ───────────────────────────────────
 
 enum ProjectDifficulty {
   BEGINNER
@@ -794,242 +1406,6 @@ enum ActivityAction {
   INVITATION_ACCEPTED
 }
 
-model ProjectCategory {
-  id           String   @id @default(uuid())
-  name         String
-  slug         String   @unique
-  description  String?
-  icon         String?
-  displayOrder Int      @default(0)
-  isActive     Boolean  @default(true)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  deletedAt    DateTime?
-
-  projects Project[]
-
-  @@index([slug])
-  @@index([isActive])
-  @@index([displayOrder])
-  @@index([deletedAt])
-  @@map("project_categories")
-}
-
-model Project {
-  id               String            @id @default(uuid())
-  categoryId       String
-  title            String
-  slug             String            @unique
-  description      String?
-  overview         String?
-  difficulty       ProjectDifficulty @default(BEGINNER)
-  estimatedDuration String?
-  thumbnail        String?
-  githubRepository String?
-  liveDemo         String?
-  documentationUrl String?
-  requirements     String?
-  learningOutcomes String?
-  isPublished      Boolean           @default(false)
-  createdAt        DateTime          @default(now())
-  updatedAt        DateTime          @updatedAt
-  deletedAt        DateTime?
-
-  category     ProjectCategory           @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-  technologies ProjectTechnologyRelation[]
-  teams        Team[]
-  milestones   Milestone[]
-  files        ProjectFile[]
-
-  @@index([categoryId])
-  @@index([slug])
-  @@index([isPublished])
-  @@index([difficulty])
-  @@index([deletedAt])
-  @@map("projects")
-}
-
-model ProjectTechnology {
-  id   String @id @default(uuid())
-  name String @unique
-  slug String @unique
-  icon String?
-
-  projects ProjectTechnologyRelation[]
-
-  @@index([slug])
-  @@map("project_technologies")
-}
-
-model ProjectTechnologyRelation {
-  id           String @id @default(uuid())
-  projectId    String
-  technologyId String
-
-  project    Project           @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  technology ProjectTechnology @relation(fields: [technologyId], references: [id], onDelete: Cascade)
-
-  @@unique([projectId, technologyId])
-  @@index([projectId])
-  @@index([technologyId])
-  @@map("project_technology_relations")
-}
-
-model Team {
-  id         String     @id @default(uuid())
-  projectId  String
-  name       String
-  ownerId    String
-  maxMembers Int        @default(5)
-  status     TeamStatus @default(OPEN)
-  createdAt  DateTime   @default(now())
-  updatedAt  DateTime   @updatedAt
-
-  project     Project          @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  owner       User             @relation("TeamOwner", fields: [ownerId], references: [id])
-  members     TeamMember[]
-  invitations TeamInvitation[]
-  tasks       Task[]
-  activityLogs ActivityLog[]
-
-  @@index([projectId])
-  @@index([ownerId])
-  @@index([status])
-  @@map("teams")
-}
-
-model TeamMember {
-  id       String         @id @default(uuid())
-  teamId   String
-  userId   String
-  role     TeamMemberRole @default(DEVELOPER)
-  joinedAt DateTime       @default(now())
-
-  team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
-  user User @relation("TeamMemberships", fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([teamId, userId])
-  @@index([teamId])
-  @@index([userId])
-  @@map("team_members")
-}
-
-model TeamInvitation {
-  id         String           @id @default(uuid())
-  teamId     String
-  senderId   String
-  receiverId String
-  status     InvitationStatus @default(PENDING)
-  expiresAt  DateTime
-  createdAt  DateTime         @default(now())
-  updatedAt  DateTime         @updatedAt
-
-  team     Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
-  sender   User @relation("InvitationSender", fields: [senderId], references: [id], onDelete: Cascade)
-  receiver User @relation("InvitationReceiver", fields: [receiverId], references: [id], onDelete: Cascade)
-
-  @@index([teamId])
-  @@index([senderId])
-  @@index([receiverId])
-  @@index([status])
-  @@map("team_invitations")
-}
-
-model Task {
-  id             String       @id @default(uuid())
-  teamId         String
-  assignedTo     String?
-  title          String
-  description    String?
-  priority       TaskPriority @default(MEDIUM)
-  status         TaskStatus   @default(TODO)
-  dueDate        DateTime?
-  estimatedHours Float?
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
-
-  team       Team          @relation(fields: [teamId], references: [id], onDelete: Cascade)
-  assignee   User?         @relation("TaskAssignee", fields: [assignedTo], references: [id], onDelete: SetNull)
-  comments   TeamComment[]
-
-  @@index([teamId])
-  @@index([assignedTo])
-  @@index([status])
-  @@index([dueDate])
-  @@map("tasks")
-}
-
-model Milestone {
-  id                   String          @id @default(uuid())
-  projectId            String
-  title                String
-  description          String?
-  dueDate              DateTime?
-  status               MilestoneStatus @default(PENDING)
-  completionPercentage Float           @default(0)
-  createdAt            DateTime        @default(now())
-  updatedAt            DateTime        @updatedAt
-
-  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
-
-  @@index([projectId])
-  @@index([status])
-  @@index([dueDate])
-  @@map("milestones")
-}
-
-model ProjectFile {
-  id         String   @id @default(uuid())
-  projectId  String
-  uploadedBy String
-  title      String
-  fileUrl    String
-  fileType   String
-  uploadedAt DateTime @default(now())
-
-  project  Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  uploader User    @relation("ProjectFileUploader", fields: [uploadedBy], references: [id], onDelete: Cascade)
-
-  @@index([projectId])
-  @@index([uploadedBy])
-  @@map("project_files")
-}
-
-model TeamComment {
-  id        String   @id @default(uuid())
-  taskId    String
-  userId    String
-  content   String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  task Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
-  user User @relation("TeamCommentAuthor", fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([taskId])
-  @@index([userId])
-  @@map("team_comments")
-}
-
-model ActivityLog {
-  id        String         @id @default(uuid())
-  teamId    String
-  userId    String
-  action    ActivityAction
-  metadata  Json?
-  createdAt DateTime       @default(now())
-
-  team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
-  user User @relation("ActivityLogUser", fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([teamId])
-  @@index([userId])
-  @@index([createdAt])
-  @@map("activity_logs")
-}
-
-// ── PRD-05: Placement Ecosystem ────────────────────────────────────────────────
-
 enum JobType {
   INTERNSHIP
   FULL_TIME
@@ -1053,8 +1429,6 @@ enum ApplicationStatus {
   WITHDRAWN
 }
 
-// ── PRD-05: Events ─────────────────────────────────────────────────────────────
-
 enum EventType {
   HACKATHON
   WEBINAR
@@ -1064,8 +1438,6 @@ enum EventType {
   MEETUP
 }
 
-// ── PRD-05: Notifications ──────────────────────────────────────────────────────
-
 enum NotificationType {
   PLACEMENT
   PROJECT
@@ -1074,313 +1446,6 @@ enum NotificationType {
   EVENT
   SYSTEM
 }
-
-// ── PRD-05: Job Postings ───────────────────────────────────────────────────────
-
-model JobPosting {
-  id                  String    @id @default(uuid())
-  companyId           String
-  title               String
-  type                JobType   @default(FULL_TIME)
-  location            String?
-  workMode            WorkMode  @default(ONSITE)
-  description         String
-  requirements        String?
-  salaryRange         String?
-  applicationUrl      String?
-  applicationDeadline DateTime?
-  experienceRequired  String?
-  isPublished         Boolean   @default(false)
-  createdAt           DateTime  @default(now())
-  updatedAt           DateTime  @updatedAt
-  deletedAt           DateTime?
-
-  company      Company          @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  applications JobApplication[]
-
-  @@index([companyId])
-  @@index([isPublished])
-  @@index([applicationDeadline])
-  @@index([type])
-  @@index([workMode])
-  @@index([deletedAt])
-  @@map("job_postings")
-}
-
-model JobApplication {
-  id       String            @id @default(uuid())
-  userId   String
-  jobId    String
-  status   ApplicationStatus @default(SAVED)
-  notes    String?
-  appliedAt DateTime         @default(now())
-  updatedAt DateTime         @updatedAt
-
-  user User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  job  JobPosting @relation(fields: [jobId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, jobId])
-  @@index([userId])
-  @@index([jobId])
-  @@map("job_applications")
-}
-
-// ── PRD-05: Resume Builder ─────────────────────────────────────────────────────
-
-model Resume {
-  id        String   @id @default(uuid())
-  userId    String
-  title     String
-  template  String   @default("default")
-  resumeUrl String?
-  atsScore  Int?
-  isDefault Boolean  @default(false)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  user     User            @relation(fields: [userId], references: [id], onDelete: Cascade)
-  sections ResumeSection[]
-
-  @@index([userId])
-  @@map("resumes")
-}
-
-model ResumeSection {
-  id          String   @id @default(uuid())
-  resumeId    String
-  sectionType String
-  content     Json
-  order       Int      @default(0)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  resume Resume @relation(fields: [resumeId], references: [id], onDelete: Cascade)
-
-  @@index([resumeId])
-  @@map("resume_sections")
-}
-
-// ── PRD-05: Events ─────────────────────────────────────────────────────────────
-
-model Event {
-  id              String    @id @default(uuid())
-  title           String
-  description     String?
-  type            EventType @default(WEBINAR)
-  organizer       String?
-  location        String?
-  startTime       DateTime
-  endTime         DateTime
-  registrationUrl String?
-  maxParticipants Int?
-  isPublished     Boolean   @default(false)
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
-  deletedAt       DateTime?
-
-  registrations EventRegistration[]
-
-  @@index([isPublished])
-  @@index([startTime])
-  @@index([type])
-  @@index([deletedAt])
-  @@map("events")
-}
-
-model EventRegistration {
-  id           String   @id @default(uuid())
-  eventId      String
-  userId       String
-  registeredAt DateTime @default(now())
-
-  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
-  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([eventId, userId])
-  @@index([eventId])
-  @@index([userId])
-  @@map("event_registrations")
-}
-
-// ── PRD-05: Notifications ──────────────────────────────────────────────────────
-
-model Notification {
-  id        String           @id @default(uuid())
-  userId    String
-  title     String
-  message   String
-  type      NotificationType @default(SYSTEM)
-  isRead    Boolean          @default(false)
-  metadata  Json?
-  createdAt DateTime         @default(now())
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-  @@index([isRead])
-  @@index([type])
-  @@map("notifications")
-}
-
-// ── PRD-05: User Analytics ─────────────────────────────────────────────────────
-
-model UserAnalytics {
-  id                    String    @id @default(uuid())
-  userId                String    @unique
-  lastLogin             DateTime?
-  totalStudyMinutes     Int       @default(0)
-  currentLearningStreak Int       @default(0)
-  longestLearningStreak Int       @default(0)
-  updatedAt             DateTime  @updatedAt
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-  @@map("user_analytics")
-}
-
-// ── PRD-05: Platform Settings ──────────────────────────────────────────────────
-
-model PlatformSetting {
-  id          String   @id @default(uuid())
-  key         String   @unique
-  value       String
-  description String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  @@index([key])
-  @@map("platform_settings")
-}
-
-// ── PRD-07: Manager Permissions ───────────────────────────────────────────────
-
-model ManagerPermission {
-  id        String           @id @default(uuid())
-  managerId String
-  module    PermissionModule
-  canCreate Boolean          @default(false)
-  canRead   Boolean          @default(true)
-  canUpdate Boolean          @default(false)
-  canDelete Boolean          @default(false)
-  canPublish Boolean         @default(false)
-  createdAt DateTime         @default(now())
-  updatedAt DateTime         @updatedAt
-
-  manager User @relation("ManagerPermissions", fields: [managerId], references: [id], onDelete: Cascade)
-
-  @@unique([managerId, module])
-  @@index([managerId])
-  @@index([module])
-  @@map("manager_permissions")
-}
-
-// ── PRD-07: Audit Log ─────────────────────────────────────────────────────────
-
-model AuditLog {
-  id          String   @id @default(uuid())
-  performedBy String
-  targetUser  String?
-  role        String
-  action      String
-  module      String?
-  entity      String?
-  entityId    String?
-  oldValue    Json?
-  newValue    Json?
-  ipAddress   String?
-  userAgent   String?
-  createdAt   DateTime @default(now())
-
-  performer User  @relation("AuditLogPerformer", fields: [performedBy], references: [id], onDelete: Cascade)
-
-  @@index([performedBy])
-  @@index([targetUser])
-  @@index([action])
-  @@index([module])
-  @@index([createdAt])
-  @@index([role])
-  @@map("audit_logs")
-}
-
-// ── PRD-07: Role History ───────────────────────────────────────────────────────
-
-model RoleHistory {
-  id         String   @id @default(uuid())
-  userId     String
-  oldRole    String
-  newRole    String
-  reason     String?
-  changedBy  String
-  createdAt  DateTime @default(now())
-
-  user User @relation("RoleHistoryUser", fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-  @@index([changedBy])
-  @@index([createdAt])
-  @@map("role_history")
-}
-
-// ── PRD-07: Manager Invitation ────────────────────────────────────────────────
-
-model ManagerInvitation {
-  id         String               @id @default(uuid())
-  email      String
-  token      String               @unique
-  status     InvitationTokenStatus @default(PENDING)
-  invitedBy  String
-  expiresAt  DateTime
-  acceptedAt DateTime?
-  createdAt  DateTime             @default(now())
-
-  inviter User @relation("ManagerInvitationInviter", fields: [invitedBy], references: [id], onDelete: Cascade)
-
-  @@index([email])
-  @@index([token])
-  @@index([status])
-  @@map("manager_invitations")
-}
-
-// ── PRD-07: Platform Metrics (Daily Snapshots) ────────────────────────────────
-
-model PlatformMetric {
-  id                  String   @id @default(uuid())
-  date                DateTime @unique @db.Date
-  totalUsers          Int      @default(0)
-  activeUsers         Int      @default(0)
-  newUsers            Int      @default(0)
-  learningHours       Float    @default(0)
-  codingSubmissions   Int      @default(0)
-  projectsCreated     Int      @default(0)
-  applications        Int      @default(0)
-  eventsRegistered    Int      @default(0)
-  avgSessionTime      Float    @default(0)
-  storageUsed         Float    @default(0)
-  apiRequests         Int      @default(0)
-  createdAt           DateTime @default(now())
-
-  @@index([date])
-  @@map("platform_metrics")
-}
-
-// ── PRD-07: System Log ────────────────────────────────────────────────────────
-
-model SystemLog {
-  id        String   @id @default(uuid())
-  level     String
-  module    String
-  message   String
-  metadata  Json?
-  createdAt DateTime @default(now())
-
-  @@index([level])
-  @@index([module])
-  @@index([createdAt])
-  @@map("system_logs")
-}
-
-// ── FPRD-10: Banner Management ────────────────────────────────────────────────
 
 enum BannerPlacement {
   HOMEPAGE
@@ -1396,99 +1461,6 @@ enum BannerType {
   VIDEO
 }
 
-model Banner {
-  id          String          @id @default(uuid())
-  title       String
-  placement   BannerPlacement @default(HOMEPAGE)
-  type        BannerType      @default(IMAGE)
-  mediaUrl    String
-  ctaText     String?
-  ctaLink     String?
-  priority    Int             @default(0)
-  isActive    Boolean         @default(true)
-  scheduledAt DateTime?
-  expiresAt   DateTime?
-  createdBy   String
-  createdAt   DateTime        @default(now())
-  updatedAt   DateTime        @updatedAt
-  deletedAt   DateTime?
-
-  creator User @relation("BannerCreator", fields: [createdBy], references: [id], onDelete: Cascade)
-
-  @@index([placement])
-  @@index([isActive])
-  @@index([priority])
-  @@index([deletedAt])
-  @@map("banners")
-}
-
-// ── FPRD-10: FAQ CMS ──────────────────────────────────────────────────────────
-
-model FaqCategory {
-  id           String   @id @default(uuid())
-  name         String
-  slug         String   @unique
-  displayOrder Int      @default(0)
-  isActive     Boolean  @default(true)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-
-  faqs Faq[]
-
-  @@index([slug])
-  @@map("faq_categories")
-}
-
-model Faq {
-  id           String      @id @default(uuid())
-  categoryId   String?
-  question     String
-  answer       String
-  searchKeywords String?
-  isPublished  Boolean     @default(false)
-  displayOrder Int         @default(0)
-  createdBy    String
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
-  deletedAt    DateTime?
-
-  category  FaqCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
-  creator   User         @relation("FaqCreator", fields: [createdBy], references: [id], onDelete: Cascade)
-
-  @@index([categoryId])
-  @@index([isPublished])
-  @@index([deletedAt])
-  @@map("faqs")
-}
-
-// ── FPRD-10: Testimonials ────────────────────────────────────────────────────
-
-model Testimonial {
-  id          String   @id @default(uuid())
-  studentName String
-  studentId   String?
-  role        String?
-  company     String?
-  content     String
-  rating      Int      @default(5)
-  avatarUrl   String?
-  isFeatured  Boolean  @default(false)
-  isPublished Boolean  @default(false)
-  createdBy   String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  deletedAt   DateTime?
-
-  creator User @relation("TestimonialCreator", fields: [createdBy], references: [id], onDelete: Cascade)
-
-  @@index([isFeatured])
-  @@index([isPublished])
-  @@index([deletedAt])
-  @@map("testimonials")
-}
-
-// ── FPRD-10: Media Library ────────────────────────────────────────────────────
-
 enum MediaFileType {
   IMAGE
   VIDEO
@@ -1498,142 +1470,4 @@ enum MediaFileType {
   PPT
   ICON
   OTHER
-}
-
-model MediaFile {
-  id          String        @id @default(uuid())
-  filename    String
-  originalName String
-  mimeType    String
-  fileType    MediaFileType @default(OTHER)
-  fileUrl     String
-  fileSize    Int           @default(0)
-  folder      String?
-  altText     String?
-  uploadedBy  String
-  usageCount  Int           @default(0)
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-  deletedAt   DateTime?
-
-  uploader User @relation("MediaFileUploader", fields: [uploadedBy], references: [id], onDelete: Cascade)
-
-  @@index([uploadedBy])
-  @@index([folder])
-  @@index([fileType])
-  @@index([deletedAt])
-  @@map("media_files")
-}
-
-// ── FPRD-10: Content Version History ────────────────────────────────────────
-
-model ContentVersion {
-  id         String   @id @default(uuid())
-  entity     String
-  entityId   String
-  version    Int      @default(1)
-  editedBy   String
-  fieldName  String?
-  oldValue   Json?
-  newValue   Json?
-  changeNote String?
-  createdAt  DateTime @default(now())
-
-  editor User @relation("ContentVersionEditor", fields: [editedBy], references: [id], onDelete: Cascade)
-
-  @@index([entity, entityId])
-  @@index([editedBy])
-  @@index([createdAt])
-  @@map("content_versions")
-}
-
-// ── FPRD-17 Phase 11 — Code Autosave (Draft) ─────────────────────────────────
-
-model CodeDraft {
-  id        String              @id @default(uuid())
-  userId    String
-  problemId String
-  language  ProgrammingLanguage
-  code      String
-  savedAt   DateTime            @default(now())
-  updatedAt DateTime            @updatedAt
-
-  user    User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  problem CodingProblem @relation(fields: [problemId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, problemId, language])
-  @@index([userId])
-  @@index([problemId])
-  @@map("code_drafts")
-}
-
-// ── FPRD-17 Phase 17 — Related Problems ──────────────────────────────────────
-
-model RelatedProblem {
-  id         String @id @default(uuid())
-  fromId     String
-  toId       String
-
-  from CodingProblem @relation("FromProblem", fields: [fromId], references: [id], onDelete: Cascade)
-  to   CodingProblem @relation("ToProblem",   fields: [toId],   references: [id], onDelete: Cascade)
-
-  @@unique([fromId, toId])
-  @@index([fromId])
-  @@index([toId])
-  @@map("related_problems")
-}
-
-// ── FPRD-17 Phase 18 — Dataset Import Pipeline ────────────────────────────────
-
-model DatasetImport {
-  id              String       @id @default(uuid())
-  filename        String
-  sourceType      SourceType   @default(ORIGINAL)
-  status          ImportStatus @default(PENDING)
-  totalProblems   Int          @default(0)
-  importedCount   Int          @default(0)
-  failedCount     Int          @default(0)
-  skippedCount    Int          @default(0)
-  errorLog        Json?
-  importReport    Json?
-  startedAt       DateTime?
-  completedAt     DateTime?
-  importedBy      String
-  createdAt       DateTime     @default(now())
-  updatedAt       DateTime     @updatedAt
-
-  importer User @relation(fields: [importedBy], references: [id], onDelete: Cascade)
-
-  @@index([importedBy])
-  @@index([status])
-  @@index([createdAt])
-  @@map("dataset_imports")
-}
-
-// ── FPRD-17 Phase 21 — User Per-Topic Progress ────────────────────────────────
-
-model UserTopicProgress {
-  id             String   @id @default(uuid())
-  userId         String
-  categoryId     String
-  solved         Int      @default(0)
-  attempted      Int      @default(0)
-  bookmarked     Int      @default(0)
-  totalEasy      Int      @default(0)
-  totalMedium    Int      @default(0)
-  totalHard      Int      @default(0)
-  solvedEasy     Int      @default(0)
-  solvedMedium   Int      @default(0)
-  solvedHard     Int      @default(0)
-  completionPct  Float    @default(0)
-  avgRuntime     Float    @default(0)
-  updatedAt      DateTime @updatedAt
-
-  user     User            @relation(fields: [userId], references: [id], onDelete: Cascade)
-  category ProblemCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, categoryId])
-  @@index([userId])
-  @@index([categoryId])
-  @@map("user_topic_progress")
 }

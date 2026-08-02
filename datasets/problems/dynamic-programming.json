@@ -1,0 +1,209 @@
+[
+  {
+    "title": "Climbing Stairs",
+    "slug": "climbing-stairs",
+    "difficulty": "EASY",
+    "topic": "dynamic-programming",
+    "statement": "You are climbing a staircase. It takes `n` steps to reach the top.\n\nEach time you can either climb `1` or `2` steps. In how many distinct ways can you climb to the top?",
+    "constraints": "- `1 <= n <= 45`",
+    "examples": [
+      { "input": "n = 2", "output": "2", "explanation": "There are two ways to climb to the top: 1+1, 2" },
+      { "input": "n = 3", "output": "3", "explanation": "There are three ways: 1+1+1, 1+2, 2+1" }
+    ],
+    "hints": ["This is essentially the Fibonacci sequence.", "dp[i] = dp[i-1] + dp[i-2]"],
+    "tags": ["Math", "Dynamic Programming", "Memoization"],
+    "companies": ["Amazon", "Google", "Microsoft"],
+    "visibleTests": [
+      { "input": "2", "output": "2" },
+      { "input": "3", "output": "3" }
+    ],
+    "hiddenTests": [
+      { "input": "1", "output": "1" },
+      { "input": "4", "output": "5" },
+      { "input": "5", "output": "8" },
+      { "input": "10", "output": "89" },
+      { "input": "20", "output": "10946" },
+      { "input": "35", "output": "14930352" },
+      { "input": "44", "output": "1134903170" },
+      { "input": "45", "output": "1836311903" }
+    ],
+    "timeLimit": 1000,
+    "memoryLimit": 256,
+    "xp": 10,
+    "estimatedTime": 10,
+    "license": "ORIGINAL"
+  },
+  {
+    "title": "House Robber",
+    "slug": "house-robber",
+    "difficulty": "MEDIUM",
+    "topic": "dynamic-programming",
+    "statement": "You are a professional robber planning to rob houses along a street. Each house has a certain amount of money stashed, the only constraint stopping you from robbing each of them is that adjacent houses have security systems connected and it will automatically contact the police if two adjacent houses were broken into on the same night.\n\nGiven an integer array `nums` representing the amount of money of each house, return the maximum amount of money you can rob tonight without alerting the police.",
+    "constraints": "- `1 <= nums.length <= 100`\n- `0 <= nums[i] <= 400`",
+    "examples": [
+      { "input": "nums = [1,2,3,1]", "output": "4" },
+      { "input": "nums = [2,7,9,3,1]", "output": "12" }
+    ],
+    "hints": ["dp[i] = max(dp[i-1], dp[i-2] + nums[i])"],
+    "tags": ["Array", "Dynamic Programming"],
+    "companies": ["Amazon", "Google"],
+    "visibleTests": [
+      { "input": "4\n1 2 3 1", "output": "4" },
+      { "input": "5\n2 7 9 3 1", "output": "12" }
+    ],
+    "hiddenTests": [
+      { "input": "1\n5", "output": "5" },
+      { "input": "2\n1 2", "output": "2" },
+      { "input": "3\n2 1 1", "output": "2" },
+      { "input": "5\n1 1 1 1 1", "output": "3" },
+      { "input": "6\n2 7 9 3 1 8", "output": "19" },
+      { "input": "4\n10 0 0 10", "output": "20" },
+      { "input": "3\n0 0 0", "output": "0" },
+      { "input": "6\n4 1 1 4 2 1", "output": "9" }
+    ],
+    "timeLimit": 1000,
+    "memoryLimit": 256,
+    "xp": 20,
+    "estimatedTime": 20,
+    "license": "ORIGINAL"
+  },
+  {
+    "title": "Coin Change",
+    "slug": "coin-change",
+    "difficulty": "MEDIUM",
+    "topic": "dynamic-programming",
+    "statement": "You are given an integer array `coins` representing coins of different denominations and an integer `amount` representing a total amount of money.\n\nReturn the fewest number of coins that you need to make up that amount. If that amount of money cannot be made up by any combination of the coins, return `-1`.\n\nYou may assume that you have an infinite number of each kind of coin.",
+    "constraints": "- `1 <= coins.length <= 12`\n- `1 <= coins[i] <= 2^31 - 1`\n- `0 <= amount <= 10^4`",
+    "examples": [
+      { "input": "coins = [1,2,5], amount = 11", "output": "3", "explanation": "11 = 5 + 5 + 1" },
+      { "input": "coins = [2], amount = 3", "output": "-1" },
+      { "input": "coins = [1], amount = 0", "output": "0" }
+    ],
+    "hints": ["Use bottom-up DP.", "dp[i] = min(dp[i - coin] + 1) for each coin."],
+    "tags": ["Array", "Dynamic Programming", "Breadth-First Search"],
+    "companies": ["Amazon", "Google", "Microsoft"],
+    "visibleTests": [
+      { "input": "3\n1 2 5\n11", "output": "3" },
+      { "input": "1\n2\n3", "output": "-1" }
+    ],
+    "hiddenTests": [
+      { "input": "1\n1\n0", "output": "0" },
+      { "input": "1\n1\n1", "output": "1" },
+      { "input": "3\n1 2 5\n100", "output": "20" },
+      { "input": "2\n5 10\n15", "output": "2" },
+      { "input": "3\n2 5 10\n3", "output": "-1" },
+      { "input": "4\n1 5 6 9\n11", "output": "2" },
+      { "input": "2\n2 5\n0", "output": "0" },
+      { "input": "3\n3 5 7\n1", "output": "-1" }
+    ],
+    "timeLimit": 2000,
+    "memoryLimit": 256,
+    "xp": 20,
+    "estimatedTime": 25,
+    "license": "ORIGINAL"
+  },
+  {
+    "title": "Longest Common Subsequence",
+    "slug": "longest-common-subsequence",
+    "difficulty": "MEDIUM",
+    "topic": "dynamic-programming",
+    "statement": "Given two strings `text1` and `text2`, return the length of their longest common subsequence. If there is no common subsequence, return `0`.\n\nA subsequence of a string is a new string generated from the original string with some characters (can be none) deleted without changing the relative order of the remaining characters.\n\nA common subsequence of two strings is a subsequence that is common to both strings.",
+    "constraints": "- `1 <= text1.length, text2.length <= 1000`\n- `text1` and `text2` consist of only lowercase English characters.",
+    "examples": [
+      { "input": "text1 = \"abcde\", text2 = \"ace\"", "output": "3", "explanation": "The longest common subsequence is \"ace\" and its length is 3." },
+      { "input": "text1 = \"abc\", text2 = \"abc\"", "output": "3" },
+      { "input": "text1 = \"abc\", text2 = \"def\"", "output": "0" }
+    ],
+    "hints": ["dp[i][j] = length of LCS of text1[0..i] and text2[0..j].", "If text1[i] == text2[j], dp[i][j] = dp[i-1][j-1] + 1."],
+    "tags": ["String", "Dynamic Programming"],
+    "companies": ["Google", "Amazon", "Microsoft"],
+    "visibleTests": [
+      { "input": "abcde\nace", "output": "3" },
+      { "input": "abc\nabc", "output": "3" }
+    ],
+    "hiddenTests": [
+      { "input": "abc\ndef", "output": "0" },
+      { "input": "a\na", "output": "1" },
+      { "input": "abcde\nbde", "output": "3" },
+      { "input": "bl\nybyel", "output": "2" },
+      { "input": "ezupkr\nubmrapg", "output": "2" },
+      { "input": "hofubmnylkra\nohklkufryhbm", "output": "6" },
+      { "input": "aaaaaa\naaaa", "output": "4" },
+      { "input": "abcd\ndcba", "output": "1" }
+    ],
+    "timeLimit": 2000,
+    "memoryLimit": 256,
+    "xp": 20,
+    "estimatedTime": 30,
+    "license": "ORIGINAL"
+  },
+  {
+    "title": "Word Break",
+    "slug": "word-break",
+    "difficulty": "MEDIUM",
+    "topic": "dynamic-programming",
+    "statement": "Given a string `s` and a dictionary of strings `wordDict`, return `true` if `s` can be segmented into a space-separated sequence of one or more dictionary words.\n\nNote that the same word in the dictionary may be reused multiple times in the segmentation.",
+    "constraints": "- `1 <= s.length <= 300`\n- `1 <= wordDict.length <= 1000`\n- `1 <= wordDict[i].length <= 20`\n- `s` and `wordDict[i]` consist of only lowercase English letters.\n- All the strings of `wordDict` are unique.",
+    "examples": [
+      { "input": "s = \"leetcode\", wordDict = [\"leet\",\"code\"]", "output": "true" },
+      { "input": "s = \"applepenapple\", wordDict = [\"apple\",\"pen\"]", "output": "true" },
+      { "input": "s = \"catsandog\", wordDict = [\"cats\",\"dog\",\"sand\",\"and\",\"cat\"]", "output": "false" }
+    ],
+    "hints": ["dp[i] = can we partition s[0..i-1] using words in dict.", "dp[i] = true if dp[j] is true and s[j..i] is in dict for some j < i."],
+    "tags": ["Hash Table", "String", "Dynamic Programming", "Trie", "Memoization"],
+    "companies": ["Amazon", "Google", "Microsoft"],
+    "visibleTests": [
+      { "input": "leetcode\n2\nleet code", "output": "true" },
+      { "input": "applepenapple\n2\napple pen", "output": "true" }
+    ],
+    "hiddenTests": [
+      { "input": "catsandog\n5\ncats dog sand and cat", "output": "false" },
+      { "input": "a\n1\na", "output": "true" },
+      { "input": "ab\n2\na ab", "output": "true" },
+      { "input": "cars\n3\ncar ca rs", "output": "true" },
+      { "input": "aaaaaaa\n2\naaaa aaa", "output": "true" },
+      { "input": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaab\n2\naa aaa", "output": "false" },
+      { "input": "hello\n2\nhel lo", "output": "true" },
+      { "input": "abc\n1\nab", "output": "false" }
+    ],
+    "timeLimit": 2000,
+    "memoryLimit": 256,
+    "xp": 20,
+    "estimatedTime": 30,
+    "license": "ORIGINAL"
+  },
+  {
+    "title": "Edit Distance",
+    "slug": "edit-distance",
+    "difficulty": "HARD",
+    "topic": "dynamic-programming",
+    "statement": "Given two strings `word1` and `word2`, return the minimum number of operations required to convert `word1` to `word2`.\n\nYou have the following three operations permitted on a word:\n- Insert a character\n- Delete a character\n- Replace a character",
+    "constraints": "- `0 <= word1.length, word2.length <= 500`\n- `word1` and `word2` consist of lowercase English letters.",
+    "examples": [
+      { "input": "word1 = \"horse\", word2 = \"ros\"", "output": "3" },
+      { "input": "word1 = \"intention\", word2 = \"execution\"", "output": "5" }
+    ],
+    "hints": ["Classic 2D DP.", "dp[i][j] = edit distance for word1[0..i-1] and word2[0..j-1]."],
+    "tags": ["String", "Dynamic Programming"],
+    "companies": ["Google", "Amazon", "Microsoft"],
+    "visibleTests": [
+      { "input": "horse\nros", "output": "3" },
+      { "input": "intention\nexecution", "output": "5" }
+    ],
+    "hiddenTests": [
+      { "input": "a\nb", "output": "1" },
+      { "input": "abc\nabc", "output": "0" },
+      { "input": "\nabc", "output": "3" },
+      { "input": "abc\n", "output": "3" },
+      { "input": "kitten\nsitting", "output": "3" },
+      { "input": "abc\ndef", "output": "3" },
+      { "input": "abcde\nafce", "output": "2" },
+      { "input": "sunday\nsaturday", "output": "3" }
+    ],
+    "timeLimit": 2000,
+    "memoryLimit": 256,
+    "xp": 30,
+    "estimatedTime": 45,
+    "license": "ORIGINAL"
+  }
+]
