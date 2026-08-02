@@ -174,23 +174,21 @@ router.get('/submissions/:id/result', authenticate, async (req: Request, res: Re
       return;
     }
     const statusMap: Record<string, string> = {
-      PENDING: 'pending',
-      ACCEPTED: 'accepted',
-      WRONG_ANSWER: 'wrong_answer',
-      TIME_LIMIT_EXCEEDED: 'time_limit_exceeded',
-      MEMORY_LIMIT_EXCEEDED: 'memory_limit_exceeded',
-      RUNTIME_ERROR: 'runtime_error',
-      COMPILE_ERROR: 'compile_error',
+      PENDING: 'pending', ACCEPTED: 'accepted', WRONG_ANSWER: 'wrong_answer',
+      TIME_LIMIT_EXCEEDED: 'time_limit_exceeded', MEMORY_LIMIT_EXCEEDED: 'memory_limit_exceeded',
+      RUNTIME_ERROR: 'runtime_error', COMPILE_ERROR: 'compile_error',
     };
     sendSuccess(res, 'Submission result fetched', {
       id: sub.id,
       status: statusMap[sub.status] ?? sub.status.toLowerCase(),
+      judgeStatus: (sub as any).judgeStatus?.toLowerCase() ?? 'done',
       runtime: sub.runtime ?? null,
       memoryUsed: sub.memoryUsed ?? null,
       score: sub.score,
       passedTestCases: sub.passedTestCases,
       totalTestCases: sub.totalTestCases,
-      errorMessage: null,
+      errorMessage: (sub as any).errorMessage ?? null,
+      compileOutput: (sub as any).compileOutput ?? null,
       problem: (sub as any).problem,
     });
   } catch (err) {
@@ -204,53 +202,41 @@ router.post('/run', authenticate, requireStudent, async (req: Request, res: Resp
     const userId = (req as any).user?.userId;
     if (!userId) { res.status(401).json({ success: false, message: 'Unauthorized' }); return; }
 
-    const { problemId, language, code, customInput: _customInput } = req.body ?? {};
+    const { problemId, language, code, customInput } = req.body ?? {};
     if (!problemId || !language || !code) {
       res.status(400).json({ success: false, message: 'problemId, language, and code are required' });
       return;
     }
 
-    const problem = await codingProblemRepository.findById(problemId);
-    if (!problem || !problem.isPublished) {
-      res.status(404).json({ success: false, message: 'Problem not found' });
-      return;
-    }
+    // FPRD-17: delegate to the new SubmissionService.run()
+    const { submissionService } = await import('../services/submission.service');
+    const submission = await submissionService.run(
+      userId,
+      problemId,
+      language as ProgrammingLanguage,
+      code,
+      customInput,
+    );
 
-    // Submit as PENDING and return immediately — let polling handle the result
-    const { executionService } = await import('../services/execution');
-    const { testCaseRepository } = await import('../repositories/test-case.repository');
-    const testCases = await testCaseRepository.findAllByProblemId(problemId);
+    const statusMap: Record<string, string> = {
+      PENDING: 'pending', ACCEPTED: 'accepted', WRONG_ANSWER: 'wrong_answer',
+      TIME_LIMIT_EXCEEDED: 'time_limit_exceeded', MEMORY_LIMIT_EXCEEDED: 'memory_limit_exceeded',
+      RUNTIME_ERROR: 'runtime_error', COMPILE_ERROR: 'compile_error',
+    };
 
-    const executionResult = await executionService.execute({
-      sourceCode: code,
-      language: language as ProgrammingLanguage,
-      testCases: testCases.map((tc) => ({
-        id: tc.id,
-        input: tc.input,
-        expectedOutput: tc.expectedOutput,
-        weight: tc.weight,
-        isHidden: tc.isHidden,
-      })),
-      timeLimit: problem.timeLimit,
-      memoryLimit: problem.memoryLimit,
+    const detail = await prisma.submission.findUnique({
+      where: { id: submission.id },
+      include: { testResults: { select: { testCaseId: true, passed: true, actualOutput: true, expectedOutput: true, runtime: true } } },
     });
 
-    const submission = await prisma.submission.create({
-      data: {
-        userId,
-        problemId,
-        language: language as ProgrammingLanguage,
-        sourceCode: code,
-        status: executionResult.status as SubmissionStatus,
-        runtime: executionResult.runtime,
-        memoryUsed: executionResult.memoryUsed,
-        score: executionResult.score,
-        passedTestCases: executionResult.passedTestCases,
-        totalTestCases: executionResult.totalTestCases,
-      },
+    sendSuccess(res, 'Code executed', {
+      submissionId: submission.id,
+      status: statusMap[(detail?.status ?? 'PENDING')] ?? 'pending',
+      runtime: detail?.runtime ?? null,
+      memoryUsed: detail?.memoryUsed ?? null,
+      errorMessage: (detail as any)?.errorMessage ?? null,
+      testResults: (detail?.testResults ?? []),
     });
-
-    sendSuccess(res, 'Code executed', { submissionId: submission.id });
   } catch (err) {
     next(err);
   }
@@ -264,14 +250,15 @@ router.get('/analytics', authenticate, requireStudent, async (req: Request, res:
   try {
     const userId = (req as any).user?.userId;
     if (!userId) { res.status(401).json({ success: false, message: 'Unauthorized' }); return; }
-    const stats = await submissionRepository.getCodingStats(userId);
-    // Return the full CodingAnalytics shape the frontend expects
+    // FPRD-17: delegate to the full analytics in submissionService
+    const { submissionService } = await import('../services/submission.service');
+    const stats = await submissionService.getCodingStats(userId);
     sendSuccess(res, 'Analytics fetched', {
       stats,
       weeklyActivity: [],
       submissionTrend: [],
       difficultyDistribution: [],
-      languageUsage: [],
+      languageUsage: (stats as any).languageUsage ?? [],
     });
   } catch (err) {
     next(err);

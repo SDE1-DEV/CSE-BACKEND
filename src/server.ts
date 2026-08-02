@@ -70,6 +70,13 @@ const startServer = async (): Promise<void> => {
       startNotificationWorker();
       startAnalyticsWorker();
       startCleanupWorker();
+
+      // FPRD-17: Start judge worker for async code execution
+      if (process.env['EXECUTION_ENGINE'] !== 'mock') {
+        const { startJudgeWorker } = await import('./queues/judge.queue');
+        startJudgeWorker();
+      }
+
       logger.info('Queue workers started');
     }
 

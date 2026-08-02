@@ -32,6 +32,8 @@ export interface ExecutionResult {
   passedTestCases: number;
   totalTestCases: number;
   testCaseResults: TestCaseResult[];
+  compileError?: string;
+  stderr?: string;
 }
 
 /**

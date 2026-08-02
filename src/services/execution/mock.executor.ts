@@ -64,6 +64,8 @@ export class MockExecutor implements IExecutionService {
       passedTestCases: passedCount,
       totalTestCases: totalCount,
       testCaseResults,
+      compileError: undefined,
+      stderr: undefined,
     };
   }
 

@@ -14,6 +14,7 @@ export const QUEUE_NAMES = {
   ANALYTICS: 'analytics',
   CLEANUP: 'cleanup',
   SCHEDULED: 'scheduled',
+  JUDGE: 'judge',
 } as const;
 
 export type QueueName = (typeof QUEUE_NAMES)[keyof typeof QUEUE_NAMES];

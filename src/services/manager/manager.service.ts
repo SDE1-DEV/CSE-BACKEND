@@ -797,10 +797,11 @@ export class ManagerService {
     });
     if (!problem) throw new Error('Problem not found');
     const newProblem = await prisma.$transaction(async (tx) => {
-      const { id: _id, testCases, templates, createdAt, updatedAt, ...problemData } = problem;
+      const { id: _id, testCases, templates, createdAt, updatedAt, hints, ...problemData } = problem as any;
       const created = await tx.codingProblem.create({
         data: {
           ...problemData,
+          hints: hints ?? undefined,
           title: `${problem.title} (Copy)`,
           slug: `${problem.slug}-copy-${Date.now()}`,
           isPublished: false,

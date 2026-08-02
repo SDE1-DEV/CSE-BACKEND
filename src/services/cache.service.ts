@@ -22,6 +22,12 @@ export const CacheKeys = {
   DAILY_CHALLENGE: () => `daily_challenge:${new Date().toISOString().slice(0, 10)}`,
   CODING_STATS: (userId: string) => `coding_stats:${userId}`,
 
+  // FPRD-17: Question Library (Phase 23 — response caching)
+  QUESTION_LIBRARY_TOPICS: 'question_library:topics',
+  QUESTION_LIBRARY_LIST: (params: string) => `question_library:list:${params}`,
+  QUESTION_DETAIL: (slug: string) => `question:${slug}`,
+  JUDGE_LANGUAGES: 'judge:languages',
+
   // Dashboard
   DASHBOARD_SUMMARY: (userId: string) => `dashboard:${userId}`,
   ADMIN_DASHBOARD: 'admin:dashboard',

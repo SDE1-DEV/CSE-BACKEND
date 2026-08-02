@@ -100,6 +100,21 @@ services:
       - ./logs:/app/logs
     command: node dist/server.js
 
+  # ── Piston Code Execution Engine (FPRD-17) ────────────────────────────────
+  # Self-hosted open-source judge: https://github.com/engineer-man/piston
+  # Set EXECUTION_ENGINE=piston in .env to use this container
+  piston:
+    image: ghcr.io/engineer-man/piston:latest
+    container_name: cse_piston
+    restart: unless-stopped
+    privileged: true   # required for namespace isolation
+    ports:
+      - '2000:2000'
+    tmpfs:
+      - /piston/jobs
+    environment:
+      PISTON_LOG_LEVEL: warning
+
 volumes:
   postgres_data:
   redis_data:

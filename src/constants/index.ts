@@ -483,3 +483,42 @@ export const PLACEMENT_MESSAGES = {
   SETTINGS_UPDATED: 'Settings updated successfully',
   SETTING_NOT_FOUND: 'Setting not found',
 } as const;
+
+// ── FPRD-17: Online Judge Messages ───────────────────────────────────────────
+export const JUDGE_MESSAGES = {
+  // Execution
+  CODE_RUN_SUCCESS: 'Code executed successfully',
+  CODE_SUBMITTED: 'Solution submitted successfully',
+  CUSTOM_TEST_SUCCESS: 'Custom test executed successfully',
+
+  // Drafts (Phase 11)
+  DRAFT_SAVED: 'Draft saved successfully',
+  DRAFT_FETCHED: 'Draft fetched successfully',
+  DRAFT_DELETED: 'Draft deleted successfully',
+  DRAFT_NOT_FOUND: 'No draft found',
+
+  // Languages (Phase 2)
+  LANGUAGES_FETCHED: 'Supported languages fetched successfully',
+  LANGUAGE_NOT_SUPPORTED: 'Language not supported',
+
+  // Question Library (Phase 15)
+  QUESTIONS_FETCHED: 'Questions fetched successfully',
+  QUESTION_NOT_FOUND: 'Question not found',
+
+  // Dataset Import (Phase 18)
+  IMPORT_STARTED: 'Dataset import started',
+  IMPORT_COMPLETED: 'Dataset import completed',
+  IMPORT_FAILED: 'Dataset import failed',
+  IMPORT_NOT_FOUND: 'Import record not found',
+  IMPORT_INVALID_JSON: 'Invalid JSON format for import',
+  IMPORT_TOO_LARGE: 'Import batch exceeds maximum size (10,000 problems)',
+
+  // User progress (Phase 21)
+  PROGRESS_FETCHED: 'User topic progress fetched successfully',
+
+  // Judge stats (Phase 22)
+  JUDGE_STATS_FETCHED: 'Judge statistics fetched successfully',
+
+  // Output comparison (Phase 9)
+  COMPARISON_FETCHED: 'Output comparison fetched successfully',
+} as const;

@@ -77,6 +77,32 @@ enum ProgrammingLanguage {
   JAVA
   PYTHON
   JAVASCRIPT
+  TYPESCRIPT
+  GO
+  RUST
+  CSHARP
+  KOTLIN
+}
+
+enum SourceType {
+  ORIGINAL
+  COMMUNITY
+  LICENSED
+  INTERNAL
+}
+
+enum ImportStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  ROLLED_BACK
+}
+
+enum JudgeStatus {
+  QUEUED
+  RUNNING
+  DONE
 }
 
 enum SubmissionStatus {
@@ -153,6 +179,11 @@ model User {
   testimonialsCreated   Testimonial[]          @relation("TestimonialCreator")
   mediaFilesUploaded    MediaFile[]            @relation("MediaFileUploader")
   contentVersions       ContentVersion[]       @relation("ContentVersionEditor")
+
+  // FPRD-17 relations
+  codeDrafts            CodeDraft[]
+  datasetImports        DatasetImport[]
+  userTopicProgress     UserTopicProgress[]
 
   @@index([email])
   @@index([role])
@@ -446,6 +477,7 @@ model ProblemCategory {
   deletedAt    DateTime?
 
   problems CodingProblem[]
+  userTopicProgress UserTopicProgress[]
 
   @@index([slug])
   @@index([isActive])
@@ -468,30 +500,44 @@ model CodingProblem {
   sampleOutput     String?
   explanation      String?
   difficulty       ProblemDifficulty @default(EASY)
-  timeLimit        Int               @default(1000)   // milliseconds
+  timeLimit        Int               @default(2000)   // milliseconds
   memoryLimit      Int               @default(256)    // MB
+  outputLimit      Int               @default(64)     // KB — Phase 12
   acceptanceRate   Float             @default(0)
   points           Int               @default(0)
   isPublished      Boolean           @default(false)
+  // FPRD-17 Phase 17 — extended schema
+  hints            Json?             // array of strings
+  notes            String?
+  estimatedTime    Int?              // minutes
+  xp               Int               @default(0)
+  license          String?           @default("ORIGINAL")
+  sourceType       SourceType        @default(ORIGINAL)
+  submissionCount  Int               @default(0)
+  acceptedCount    Int               @default(0)
   createdAt        DateTime          @default(now())
   updatedAt        DateTime          @updatedAt
   deletedAt        DateTime?
 
-  category     ProblemCategory     @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-  testCases    TestCase[]
-  templates    CodeTemplate[]
-  submissions  Submission[]
-  favorites    FavoriteProblem[]
-  discussions  ProblemDiscussion[]
-  tags         ProblemTagRelation[]
-  companies    ProblemCompany[]
+  category        ProblemCategory     @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  testCases       TestCase[]
+  templates       CodeTemplate[]
+  submissions     Submission[]
+  favorites       FavoriteProblem[]
+  discussions     ProblemDiscussion[]
+  tags            ProblemTagRelation[]
+  companies       ProblemCompany[]
   dailyChallenges DailyChallenge[]
+  codeDrafts      CodeDraft[]
+  relatedFrom     RelatedProblem[]    @relation("FromProblem")
+  relatedTo       RelatedProblem[]    @relation("ToProblem")
 
   @@index([categoryId])
   @@index([difficulty])
   @@index([slug])
   @@index([isPublished])
   @@index([deletedAt])
+  @@index([sourceType])
   @@map("coding_problems")
 }
 
@@ -563,9 +609,12 @@ model TestCase {
   expectedOutput String
   isSample       Boolean @default(false)
   isHidden       Boolean @default(false)
+  isJudgeOnly    Boolean @default(false)   // FPRD-17 Phase 6 — judge-only test cases
   weight         Int     @default(1)
+  displayOrder   Int     @default(0)
 
-  problem CodingProblem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  problem         CodingProblem          @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  submissionResults SubmissionTestResult[]
 
   @@index([problemId])
   @@map("test_cases")
@@ -591,21 +640,48 @@ model Submission {
   language        ProgrammingLanguage
   sourceCode      String
   status          SubmissionStatus  @default(PENDING)
+  judgeStatus     JudgeStatus       @default(QUEUED)  // FPRD-17 async queue
   runtime         Int?              // milliseconds
   memoryUsed      Int?              // MB
   score           Int               @default(0)
   passedTestCases Int               @default(0)
   totalTestCases  Int               @default(0)
+  errorMessage    String?           // compile/runtime error message
+  stderr          String?           // stderr output
+  compileOutput   String?           // compile log
+  isRun           Boolean           @default(false)   // true for /run, false for /submit
   submittedAt     DateTime          @default(now())
 
-  user    User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  problem CodingProblem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  user           User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  problem        CodingProblem     @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  testResults    SubmissionTestResult[]
 
   @@index([userId])
   @@index([problemId])
   @@index([submittedAt])
   @@index([status])
+  @@index([judgeStatus])
   @@map("submissions")
+}
+
+// FPRD-17 Phase 5/9 — per-test-case results stored for output comparison
+model SubmissionTestResult {
+  id             String     @id @default(uuid())
+  submissionId   String
+  testCaseId     String
+  passed         Boolean    @default(false)
+  actualOutput   String?
+  expectedOutput String
+  runtime        Int?       // ms
+  memoryUsed     Int?       // MB
+  errorMessage   String?
+
+  submission Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  testCase   TestCase   @relation(fields: [testCaseId], references: [id], onDelete: Cascade)
+
+  @@index([submissionId])
+  @@index([testCaseId])
+  @@map("submission_test_results")
 }
 
 model FavoriteProblem {
@@ -1469,4 +1545,95 @@ model ContentVersion {
   @@index([editedBy])
   @@index([createdAt])
   @@map("content_versions")
+}
+
+// ── FPRD-17 Phase 11 — Code Autosave (Draft) ─────────────────────────────────
+
+model CodeDraft {
+  id        String              @id @default(uuid())
+  userId    String
+  problemId String
+  language  ProgrammingLanguage
+  code      String
+  savedAt   DateTime            @default(now())
+  updatedAt DateTime            @updatedAt
+
+  user    User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  problem CodingProblem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, problemId, language])
+  @@index([userId])
+  @@index([problemId])
+  @@map("code_drafts")
+}
+
+// ── FPRD-17 Phase 17 — Related Problems ──────────────────────────────────────
+
+model RelatedProblem {
+  id         String @id @default(uuid())
+  fromId     String
+  toId       String
+
+  from CodingProblem @relation("FromProblem", fields: [fromId], references: [id], onDelete: Cascade)
+  to   CodingProblem @relation("ToProblem",   fields: [toId],   references: [id], onDelete: Cascade)
+
+  @@unique([fromId, toId])
+  @@index([fromId])
+  @@index([toId])
+  @@map("related_problems")
+}
+
+// ── FPRD-17 Phase 18 — Dataset Import Pipeline ────────────────────────────────
+
+model DatasetImport {
+  id              String       @id @default(uuid())
+  filename        String
+  sourceType      SourceType   @default(ORIGINAL)
+  status          ImportStatus @default(PENDING)
+  totalProblems   Int          @default(0)
+  importedCount   Int          @default(0)
+  failedCount     Int          @default(0)
+  skippedCount    Int          @default(0)
+  errorLog        Json?
+  importReport    Json?
+  startedAt       DateTime?
+  completedAt     DateTime?
+  importedBy      String
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  importer User @relation(fields: [importedBy], references: [id], onDelete: Cascade)
+
+  @@index([importedBy])
+  @@index([status])
+  @@index([createdAt])
+  @@map("dataset_imports")
+}
+
+// ── FPRD-17 Phase 21 — User Per-Topic Progress ────────────────────────────────
+
+model UserTopicProgress {
+  id             String   @id @default(uuid())
+  userId         String
+  categoryId     String
+  solved         Int      @default(0)
+  attempted      Int      @default(0)
+  bookmarked     Int      @default(0)
+  totalEasy      Int      @default(0)
+  totalMedium    Int      @default(0)
+  totalHard      Int      @default(0)
+  solvedEasy     Int      @default(0)
+  solvedMedium   Int      @default(0)
+  solvedHard     Int      @default(0)
+  completionPct  Float    @default(0)
+  avgRuntime     Float    @default(0)
+  updatedAt      DateTime @updatedAt
+
+  user     User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category ProblemCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, categoryId])
+  @@index([userId])
+  @@index([categoryId])
+  @@map("user_topic_progress")
 }

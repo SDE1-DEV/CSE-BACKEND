@@ -94,4 +94,9 @@ export const env = {
   // PRD-08.1: Email verification toggle
   // Set ENABLE_EMAIL_VERIFICATION=false in development to skip OTP verification
   isEmailVerificationEnabled: () => process.env['ENABLE_EMAIL_VERIFICATION'] !== 'false',
+
+  // FPRD-17: Execution engine
+  EXECUTION_ENGINE: getEnvVar('EXECUTION_ENGINE', 'mock'),   // 'piston' | 'mock'
+  PISTON_API_URL: getEnvVar('PISTON_API_URL', 'https://emkc.org/api/v2/piston'),
+  PISTON_API_KEY: getEnvVar('PISTON_API_KEY', ''),
 };

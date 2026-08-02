@@ -98,6 +98,14 @@ router.use('/', noteRoutes);
 import codingRoutes from './coding.routes';
 router.use('/coding', codingRoutes);
 
+// ── FPRD-17: Online Judge + Question Library ──────────────────────────────────
+import judgeRoutes from './judge.routes';
+import questionLibraryRoutes from './question-library.routes';
+import datasetImportRoutes from './dataset-import.routes';
+router.use('/judge', judgeRoutes);
+router.use('/questions', questionLibraryRoutes);
+router.use('/dataset-import', datasetImportRoutes);
+
 router.use('/problem-categories', problemCategoryRoutes);
 router.use('/problems', codingProblemRoutes);
 router.use('/testcases', testCaseRoutes);
@@ -147,6 +155,10 @@ router.use('/admin', adminRoutes);
 
 // Manager Console — /api/manager/* (MANAGER or SUPER_ADMIN role required)
 router.use('/manager', managerRoutes);
+
+// FPRD-17 Phase 22 — Manager Problem/Judge Management
+import managerProblemsRoutes from './manager-problems.routes';
+router.use('/manager/judge', managerProblemsRoutes);
 
 // GET /api/my-events — top-level shortcut
 router.get('/my-events', authenticate, requireStudent, getMyEvents);
