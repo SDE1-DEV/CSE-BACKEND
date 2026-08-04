@@ -1,7 +1,7 @@
 import { User } from '@prisma/client';
 import { userRepository } from '../repositories/user.repository';
 import { prisma } from '../config/database';
-import { supabase, STORAGE_BUCKET, RESUME_BUCKET } from '../config/supabase';
+import { supabase, AVATAR_BUCKET, RESUME_BUCKET } from '../config/supabase';
 import { AppError } from '../middlewares/error.middleware';
 import { HTTP_STATUS, MESSAGES } from '../constants';
 import { IUpdateProfileDto, IUserProfile, IPublicProfile } from '../interfaces/user.interface';
@@ -164,11 +164,11 @@ export class UserService {
         try {
           // URL format: https://<project>.supabase.co/storage/v1/object/public/<bucket>/<path>
           const urlObj = new URL(user.profileImage);
-          const marker = `/object/public/${STORAGE_BUCKET}/`;
+          const marker = `/object/public/${AVATAR_BUCKET}/`;
           const markerIdx = urlObj.pathname.indexOf(marker);
           if (markerIdx !== -1) {
             const oldStoragePath = urlObj.pathname.slice(markerIdx + marker.length);
-            const { error: removeErr } = await supabase.storage.from(STORAGE_BUCKET).remove([oldStoragePath]);
+            const { error: removeErr } = await supabase.storage.from(AVATAR_BUCKET).remove([oldStoragePath]);
             if (removeErr) {
               logger.warn('[Avatar] Could not delete old avatar (non-critical)', { oldStoragePath, error: removeErr.message });
             } else {
@@ -182,7 +182,7 @@ export class UserService {
 
       // Upload to Supabase Storage
       const { error: uploadError } = await supabase.storage
-        .from(STORAGE_BUCKET)
+        .from(AVATAR_BUCKET)
         .upload(filePath, file.buffer, {
           contentType: file.mimetype,
           upsert: true,
@@ -192,14 +192,14 @@ export class UserService {
         logger.error('[Avatar] Supabase storage upload failed', { error: uploadError.message, code: (uploadError as any).statusCode });
         throw new AppError(
           HTTP_STATUS.INTERNAL_SERVER_ERROR,
-          `Storage upload failed: ${uploadError.message}`,
+          `Avatar upload failed: Storage bucket '${AVATAR_BUCKET}' — ${uploadError.message}`,
         );
       }
 
       logger.info('[Avatar] Uploaded to Supabase', { filePath });
 
       // Get public URL
-      const { data: urlData } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl(filePath);
+      const { data: urlData } = supabase.storage.from(AVATAR_BUCKET).getPublicUrl(filePath);
       const publicUrl = urlData.publicUrl;
 
       logger.info('[Avatar] Got public URL', { publicUrl });
@@ -228,11 +228,11 @@ export class UserService {
     if (user.profileImage) {
       try {
         const urlObj = new URL(user.profileImage);
-        const marker = `/object/public/${STORAGE_BUCKET}/`;
+        const marker = `/object/public/${AVATAR_BUCKET}/`;
         const markerIdx = urlObj.pathname.indexOf(marker);
         if (markerIdx !== -1) {
           const oldStoragePath = urlObj.pathname.slice(markerIdx + marker.length);
-          await supabase.storage.from(STORAGE_BUCKET).remove([oldStoragePath]);
+          await supabase.storage.from(AVATAR_BUCKET).remove([oldStoragePath]);
         }
       } catch {
         // Non-critical
@@ -439,7 +439,10 @@ export class UserService {
 
       if (uploadError) {
         logger.error('[Resume] Supabase upload failed', { error: uploadError.message });
-        throw new AppError(HTTP_STATUS.INTERNAL_SERVER_ERROR, `Resume upload failed: ${uploadError.message}`);
+        throw new AppError(
+          HTTP_STATUS.INTERNAL_SERVER_ERROR,
+          `Resume upload failed: Storage bucket '${RESUME_BUCKET}' — ${uploadError.message}`,
+        );
       }
 
       const { data: urlData } = supabase.storage.from(RESUME_BUCKET).getPublicUrl(storagePath);

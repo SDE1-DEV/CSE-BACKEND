@@ -18,6 +18,7 @@ import { connectDatabase, disconnectDatabase } from './config/database';
 import { getRedisClient, disconnectRedis } from './config/redis';
 import { logger } from './utils/logger';
 import { runBootstrap } from './bootstrap';
+import { validateStorageBuckets } from './config/supabase';
 import { registerActivityListeners } from './events/activity-listener';
 import { registerNotificationListeners } from './events/notification-listener';
 import { wsGateway } from './websocket/gateway';
@@ -40,7 +41,10 @@ const startServer = async (): Promise<void> => {
     // 3. Run bootstrap (creates SUPER_ADMIN if none exists)
     await runBootstrap();
 
-    // 4. Connect to Redis (non-blocking — graceful fallback if unavailable)
+    // 4. Validate Supabase storage buckets (auto-create in development)
+    await validateStorageBuckets();
+
+    // 5. Connect to Redis (non-blocking — graceful fallback if unavailable)
     const redis = getRedisClient();
     if (redis) {
       try {
@@ -53,18 +57,18 @@ const startServer = async (): Promise<void> => {
       logger.warn('Redis not configured — caching and queues will operate in fallback mode');
     }
 
-    // 5. Register domain event listeners
+    // 6. Register domain event listeners
     registerActivityListeners();
     registerNotificationListeners();
     logger.info('Event listeners registered');
 
-    // 5. Create HTTP server
+    // 7. Create HTTP server
     const server = http.createServer(app);
 
-    // 6. Initialize WebSocket gateway
+    // 8. Initialize WebSocket gateway
     wsGateway.initialize(server);
 
-    // 7. Start queue workers (only in non-test environments)
+    // 9. Start queue workers (only in non-test environments)
     if (!env.isTest()) {
       startEmailWorker();
       startNotificationWorker();
@@ -80,12 +84,12 @@ const startServer = async (): Promise<void> => {
       logger.info('Queue workers started');
     }
 
-    // 8. Start cron scheduler
+    // 10. Start cron scheduler
     if (!env.isTest()) {
       startScheduler();
     }
 
-    // 9. Start listening
+    // 11. Start listening
     server.listen(env.PORT, () => {
       logger.info('Server started successfully', {
         port: env.PORT,
