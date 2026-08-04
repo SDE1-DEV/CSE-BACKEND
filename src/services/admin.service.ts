@@ -302,7 +302,7 @@ export class AdminService {
     const settings = await platformSettingRepository.findAll();
     // Transform to platform settings object expected by frontend
     const settingsObj: any = {
-      platformName: 'CSE Student Platform',
+      platformName: 'CAMPUSRANK',
       supportEmail: 'support@example.com',
       maxUploadSize: 10,
       maintenanceMode: false,

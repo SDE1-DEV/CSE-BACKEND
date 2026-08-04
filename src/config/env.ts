@@ -70,7 +70,7 @@ export const env = {
   SMTP_PORT: parseInt(getEnvVar('SMTP_PORT', '587'), 10),
   SMTP_USER: getEnvVar('SMTP_USER', ''),
   SMTP_PASSWORD: getEnvVar('SMTP_PASSWORD', ''),
-  SMTP_FROM_NAME: getEnvVar('SMTP_FROM_NAME', 'CSE Student Platform'),
+  SMTP_FROM_NAME: getEnvVar('SMTP_FROM_NAME', 'CAMPUSRANK'),
 
   // Client
   CLIENT_URL: getEnvVar('CLIENT_URL', 'http://localhost:5173'),

@@ -5,12 +5,12 @@ const options: swaggerJsdoc.Options = {
   definition: {
     openapi: '3.0.0',
     info: {
-      title: 'CSE Student Platform API',
+      title: 'CAMPUSRANK API',
       version: '7.0.0',
       description:
-        'Backend API for the CSE Student Platform — Authentication, User Management, Learning Ecosystem, Coding Practice Platform, Project Hub / Team Collaboration, Placement Ecosystem (PRD-05), and Role Management / Manager Console / Super Admin Platform (PRD-07)',
+        'Backend API for CAMPUSRANK — Authentication, User Management, Learning Ecosystem, Coding Practice Platform, Project Hub / Team Collaboration, Placement Ecosystem, and Role Management / Manager Console / Super Admin Platform.',
       contact: {
-        name: 'CSE Student Platform',
+        name: 'CAMPUSRANK',
       },
     },
     servers: [

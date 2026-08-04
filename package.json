@@ -1,7 +1,7 @@
 {
-  "name": "cse-student-platform",
+  "name": "campusrank-backend",
   "version": "1.0.0",
-  "description": "CSE Student Platform Backend API",
+  "description": "CAMPUSRANK Backend API",
   "main": "dist/server.js",
   "scripts": {
     "build": "tsc",

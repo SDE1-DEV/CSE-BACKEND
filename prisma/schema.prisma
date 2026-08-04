@@ -24,6 +24,20 @@ model User {
   linkedinUrl            String?
   portfolioUrl           String?
   bio                    String?
+  // FPRD-23: New profile fields
+  username               String?             @unique
+  headline               String?
+  twitterUrl             String?
+  youtubeUrl             String?
+  leetcodeUrl            String?
+  codechefUrl            String?
+  hackerrankUrl          String?
+  codeforcesUrl          String?
+  gfgUrl                 String?
+  mediumUrl              String?
+  resumeUrl              String?
+  profileVisibility      String?             @default("PUBLIC")
+  lastSeen               DateTime?
   role                   Role                @default(STUDENT)
   isVerified             Boolean             @default(false)
   profileCompletion      Int                 @default(0)
@@ -66,6 +80,7 @@ model User {
 
   @@index([email])
   @@index([role])
+  @@index([username])
   @@map("users")
 }
 

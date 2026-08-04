@@ -15,11 +15,26 @@ export class UserRepository {
     return prisma.user.findUnique({ where: { email } });
   }
 
+  async findByUsername(username: string): Promise<User | null> {
+    return prisma.user.findUnique({ where: { username } });
+  }
+
+  async findByUsernameOrId(usernameOrId: string): Promise<User | null> {
+    return prisma.user.findFirst({
+      where: {
+        OR: [{ id: usernameOrId }, { username: usernameOrId }],
+      },
+    });
+  }
+
   async update(id: string, data: Prisma.UserUpdateInput): Promise<User> {
     return prisma.user.update({ where: { id }, data });
   }
 
-  async updateProfile(id: string, data: IUpdateProfileDto & { profileCompletion?: number }): Promise<User> {
+  async updateProfile(
+    id: string,
+    data: Partial<IUpdateProfileDto> & { profileCompletion?: number; lastSeen?: Date; [key: string]: unknown },
+  ): Promise<User> {
     return prisma.user.update({
       where: { id },
       data: {
@@ -50,7 +65,7 @@ export class UserRepository {
     });
   }
 
-  async updateProfileImage(id: string, imageUrl: string, completion: number): Promise<User> {
+  async updateProfileImage(id: string, imageUrl: string | null, completion: number): Promise<User> {
     return prisma.user.update({
       where: { id },
       data: { profileImage: imageUrl, profileCompletion: completion },

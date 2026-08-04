@@ -50,10 +50,10 @@ export const sendVerificationEmail = async (email: string, otp: string): Promise
     await sendMail({
       from: `"${env.SMTP_FROM_NAME}" <${env.SMTP_USER}>`,
       to: email,
-      subject: 'Verify Your Email — CSE Student Platform',
+      subject: 'Verify Your Email — CAMPUSRANK',
       html: `<div style="${baseStyle}">
         <h2>Email Verification</h2>
-        <p>Welcome to CSE Student Platform! Use the OTP below to verify your email.</p>
+        <p>Welcome to CAMPUSRANK! Use the OTP below to verify your email.</p>
         ${otpBlock(otp)}
         <p>This OTP expires in <strong>10 minutes</strong>.</p>
         <p>If you didn't request this, please ignore this email.</p>
@@ -72,7 +72,7 @@ export const sendPasswordResetEmail = async (email: string, otp: string): Promis
     await sendMail({
       from: `"${env.SMTP_FROM_NAME}" <${env.SMTP_USER}>`,
       to: email,
-      subject: 'Password Reset OTP — CSE Student Platform',
+      subject: 'Password Reset OTP — CAMPUSRANK',
       html: `<div style="${baseStyle}">
         <h2>Password Reset</h2>
         <p>You requested to reset your password. Use the OTP below to proceed.</p>
@@ -98,10 +98,10 @@ export const sendTeamInvitationEmail = async (
     await sendMail({
       from: `"${env.SMTP_FROM_NAME}" <${env.SMTP_USER}>`,
       to: email,
-      subject: `Team Invitation: ${teamName} — CSE Student Platform`,
+      subject: `Team Invitation: ${teamName} — CAMPUSRANK`,
       html: `<div style="${baseStyle}">
         <h2>You've Been Invited!</h2>
-        <p><strong>${senderName}</strong> has invited you to join the team <strong>${teamName}</strong> on CSE Student Platform.</p>
+        <p><strong>${senderName}</strong> has invited you to join the team <strong>${teamName}</strong> on CAMPUSRANK.</p>
         <p>Log in to your account to accept or reject the invitation.</p>
         <a href="${env.CLIENT_URL}/teams/invitations" style="display:inline-block;background:#4f46e5;color:white;padding:12px 24px;border-radius:6px;text-decoration:none;margin:16px 0;">View Invitation</a>
         <p>This invitation will expire in 7 days.</p>
@@ -182,7 +182,7 @@ export const sendWeeklyLearningSummaryEmail = async (
     await sendMail({
       from: `"${env.SMTP_FROM_NAME}" <${env.SMTP_USER}>`,
       to: email,
-      subject: `Your Weekly Learning Summary — CSE Student Platform`,
+      subject: `Your Weekly Learning Summary — CAMPUSRANK`,
       html: `<div style="${baseStyle}">
         <h2>Great work this week, ${userName}! 🎉</h2>
         <p>Here's your learning summary for the past 7 days:</p>

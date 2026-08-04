@@ -89,7 +89,7 @@ app.use(
   swaggerUi.serve,
   swaggerUi.setup(swaggerSpec, {
     explorer: true,
-    customSiteTitle: 'CSE Student Platform API',
+    customSiteTitle: 'CAMPUSRANK API',
   }),
 );
 
