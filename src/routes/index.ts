@@ -40,6 +40,10 @@ import projectDashboardRoutes from './project-dashboard.routes';
 import { getMyTeams } from '../controllers/team.controller';
 import { getTeamActivity } from '../controllers/activity-log.controller';
 
+// ── FPRD-20: Student Dashboard ────────────────────────────────────────────────
+import dashboardRoutes from './dashboard.routes';
+import leaderboardRoutes from './leaderboard.routes';
+
 // ── PRD-05: Placement Ecosystem + Events + Notifications + Analytics + Admin ──
 import jobPostingRoutes from './job-posting.routes';
 import jobApplicationRoutes from './job-application.routes';
@@ -120,6 +124,12 @@ router.use('/coding/search', codingSearchRoutes);
 router.get('/stats/coding', authenticate, requireStudent, getCodingStats);
 
 // ── PRD-04: Project Hub & Team Collaboration ──────────────────────────────────
+// ── FPRD-20: Student Dashboard + Leaderboard ─────────────────────────────────
+// Mount BEFORE project-dashboard so /dashboard/daily-tasks and
+// /dashboard/activity are handled here, not by projectDashboardRoutes.
+router.use('/dashboard', dashboardRoutes);
+router.use('/leaderboard', leaderboardRoutes);
+
 router.use('/project-categories', projectCategoryRoutes);
 router.use('/project-technologies', projectTechnologyRoutes);
 router.use('/projects', projectHubRoutes);
