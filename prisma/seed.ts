@@ -445,8 +445,10 @@ async function main() {
     { name: 'Netflix', slug: 'netflix', industry: 'Entertainment', headquarters: 'Los Gatos, CA', website: 'https://netflix.com', verified: true },
     { name: 'Uber', slug: 'uber', industry: 'Ride-sharing', headquarters: 'San Francisco, CA', website: 'https://uber.com', verified: true },
   ]
+  const companyMap: Record<string, string> = {}
   for (const co of companies) {
-    await prisma.company.upsert({ where: { slug: co.slug }, update: {}, create: co })
+    const rec = await prisma.company.upsert({ where: { slug: co.slug }, update: {}, create: co })
+    companyMap[co.slug] = rec.id
   }
 
   // FPRD-16: NO demo problems seeded — Question Bank uses empty states until real dataset is imported.
