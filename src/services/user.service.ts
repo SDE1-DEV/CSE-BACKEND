@@ -233,7 +233,7 @@ export class UserService {
     for (const key of allowedKeys) {
       if (links[key] !== undefined) filtered[key] = links[key];
     }
-    const updated = await userRepository.updateProfile(userId, filtered);
+    const updated = await userRepository.updateProfile(userId, filtered as Partial<IUpdateProfileDto>);
     return this.sanitizeUser(updated);
   }
 

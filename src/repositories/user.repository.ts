@@ -33,7 +33,7 @@ export class UserRepository {
 
   async updateProfile(
     id: string,
-    data: Partial<IUpdateProfileDto> & { profileCompletion?: number; lastSeen?: Date; [key: string]: unknown },
+    data: Partial<IUpdateProfileDto> & { profileCompletion?: number; lastSeen?: Date },
   ): Promise<User> {
     return prisma.user.update({
       where: { id },
