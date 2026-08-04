@@ -30,6 +30,8 @@ export interface IUserProfile {
   gfgUrl: string | null;
   mediumUrl: string | null;
   resumeUrl: string | null;
+  resumeFileName: string | null;
+  resumeUploadedAt: Date | null;
   profileVisibility: string | null;
   lastSeen: Date | null;
   createdAt: Date;

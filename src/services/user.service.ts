@@ -1,7 +1,7 @@
 import { User } from '@prisma/client';
 import { userRepository } from '../repositories/user.repository';
 import { prisma } from '../config/database';
-import { supabase, STORAGE_BUCKET } from '../config/supabase';
+import { supabase, STORAGE_BUCKET, RESUME_BUCKET } from '../config/supabase';
 import { AppError } from '../middlewares/error.middleware';
 import { HTTP_STATUS, MESSAGES } from '../constants';
 import { IUpdateProfileDto, IUserProfile, IPublicProfile } from '../interfaces/user.interface';
@@ -41,6 +41,8 @@ export class UserService {
       gfgUrl: user.gfgUrl ?? null,
       mediumUrl: user.mediumUrl ?? null,
       resumeUrl: user.resumeUrl ?? null,
+      resumeFileName: (user as any).resumeFileName ?? null,
+      resumeUploadedAt: (user as any).resumeUploadedAt ?? null,
       profileVisibility: user.profileVisibility ?? 'PUBLIC',
       lastSeen: user.lastSeen ?? null,
       createdAt: user.createdAt,
@@ -141,46 +143,78 @@ export class UserService {
       throw new AppError(HTTP_STATUS.NOT_FOUND, MESSAGES.USER_NOT_FOUND);
     }
 
+    // Validate file type explicitly
+    const ALLOWED = ['image/jpeg', 'image/png', 'image/webp'];
+    if (!ALLOWED.includes(file.mimetype)) {
+      throw new AppError(HTTP_STATUS.BAD_REQUEST, 'Invalid image type. Only JPEG, PNG and WebP are allowed.');
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      throw new AppError(HTTP_STATUS.BAD_REQUEST, 'Image must be under 5MB.');
+    }
+
     const ext = path.extname(file.originalname).toLowerCase() || '.jpg';
     const fileName = `${userId}-${Date.now()}${ext}`;
     const filePath = `avatars/${fileName}`;
 
+    logger.info('[Avatar] Starting upload', { userId, filePath, size: file.size, mime: file.mimetype });
+
     try {
-      // Delete old image if exists
+      // Delete old image if exists — extract storage path from public URL
       if (user.profileImage) {
         try {
-          const oldPath = user.profileImage.split('/').slice(-2).join('/');
-          await supabase.storage.from(STORAGE_BUCKET).remove([oldPath]);
-        } catch {
-          // Non-critical
+          // URL format: https://<project>.supabase.co/storage/v1/object/public/<bucket>/<path>
+          const urlObj = new URL(user.profileImage);
+          const marker = `/object/public/${STORAGE_BUCKET}/`;
+          const markerIdx = urlObj.pathname.indexOf(marker);
+          if (markerIdx !== -1) {
+            const oldStoragePath = urlObj.pathname.slice(markerIdx + marker.length);
+            const { error: removeErr } = await supabase.storage.from(STORAGE_BUCKET).remove([oldStoragePath]);
+            if (removeErr) {
+              logger.warn('[Avatar] Could not delete old avatar (non-critical)', { oldStoragePath, error: removeErr.message });
+            } else {
+              logger.info('[Avatar] Old avatar deleted', { oldStoragePath });
+            }
+          }
+        } catch (e) {
+          logger.warn('[Avatar] Old avatar deletion skipped', { error: (e as Error).message });
         }
       }
 
       // Upload to Supabase Storage
-      const { error } = await supabase.storage.from(STORAGE_BUCKET).upload(filePath, file.buffer, {
-        contentType: file.mimetype,
-        upsert: true,
-      });
+      const { error: uploadError } = await supabase.storage
+        .from(STORAGE_BUCKET)
+        .upload(filePath, file.buffer, {
+          contentType: file.mimetype,
+          upsert: true,
+        });
 
-      if (error) {
-        logger.error('Supabase storage upload failed', { error });
-        throw new AppError(HTTP_STATUS.INTERNAL_SERVER_ERROR, MESSAGES.FILE_UPLOAD_FAILED);
+      if (uploadError) {
+        logger.error('[Avatar] Supabase storage upload failed', { error: uploadError.message, code: (uploadError as any).statusCode });
+        throw new AppError(
+          HTTP_STATUS.INTERNAL_SERVER_ERROR,
+          `Storage upload failed: ${uploadError.message}`,
+        );
       }
+
+      logger.info('[Avatar] Uploaded to Supabase', { filePath });
 
       // Get public URL
       const { data: urlData } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl(filePath);
       const publicUrl = urlData.publicUrl;
+
+      logger.info('[Avatar] Got public URL', { publicUrl });
 
       // Update user's profileImage in DB
       const mergedUser = { ...user, profileImage: publicUrl };
       const completion = calculateProfileCompletion(mergedUser as any);
 
       await userRepository.updateProfileImage(userId, publicUrl, completion);
+      logger.info('[Avatar] DB updated', { userId });
 
       return { profileImage: publicUrl };
     } catch (error) {
       if (error instanceof AppError) throw error;
-      logger.error('Profile image upload failed', { error });
+      logger.error('[Avatar] Profile image upload failed unexpectedly', { error: (error as Error).message });
       throw new AppError(HTTP_STATUS.INTERNAL_SERVER_ERROR, MESSAGES.FILE_UPLOAD_FAILED);
     }
   }
@@ -193,8 +227,13 @@ export class UserService {
 
     if (user.profileImage) {
       try {
-        const oldPath = user.profileImage.split('/').slice(-2).join('/');
-        await supabase.storage.from(STORAGE_BUCKET).remove([oldPath]);
+        const urlObj = new URL(user.profileImage);
+        const marker = `/object/public/${STORAGE_BUCKET}/`;
+        const markerIdx = urlObj.pathname.indexOf(marker);
+        if (markerIdx !== -1) {
+          const oldStoragePath = urlObj.pathname.slice(markerIdx + marker.length);
+          await supabase.storage.from(STORAGE_BUCKET).remove([oldStoragePath]);
+        }
       } catch {
         // Non-critical
       }
@@ -274,17 +313,25 @@ export class UserService {
   }
 
   async getProfileAnalytics(userId: string) {
-    const [submissions, progress, teams] = await Promise.all([
-      prisma.submission.findMany({ where: { userId } }),
+    const [submissions, distinctSolved, progress, teams] = await Promise.all([
+      prisma.submission.findMany({ where: { userId, isRun: false } }),
+      // Distinct problems solved (same logic as getCodingStats)
+      prisma.submission.findMany({
+        where: { userId, status: 'ACCEPTED', isRun: false },
+        distinct: ['problemId'],
+        select: { problemId: true },
+      }),
       prisma.userProgress.findMany({ where: { userId, completed: true } }),
       prisma.teamMember.findMany({ where: { userId } }),
     ]);
 
+    const totalSolved = distinctSolved.length;
     const accepted = submissions.filter((s) => s.status === 'ACCEPTED');
 
     return {
       totalSubmissions: submissions.length,
-      accepted: accepted.length,
+      // accepted = distinct problems solved (not raw accepted submission count)
+      accepted: totalSolved,
       rejected: submissions.filter((s) => s.status === 'WRONG_ANSWER').length,
       acceptanceRate: submissions.length > 0 ? Math.round((accepted.length / submissions.length) * 100) : 0,
       lessonsCompleted: progress.length,
@@ -337,6 +384,118 @@ export class UserService {
     if (progress.length >= 10) achievements.push({ id: 4, name: '10 Lessons', icon: '🎓', earned: true });
 
     return achievements;
+  }
+
+  // ── Resume file upload ──────────────────────────────────────────────────────
+
+  async uploadResume(
+    userId: string,
+    file: Express.Multer.File,
+  ): Promise<{ resumeUrl: string; resumeFileName: string; resumeUploadedAt: Date }> {
+    const user = await userRepository.findById(userId);
+    if (!user) throw new AppError(HTTP_STATUS.NOT_FOUND, MESSAGES.USER_NOT_FOUND);
+
+    const ALLOWED_RESUME_TYPES = [
+      'application/pdf',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    ];
+    if (!ALLOWED_RESUME_TYPES.includes(file.mimetype)) {
+      throw new AppError(HTTP_STATUS.BAD_REQUEST, 'Invalid file type. Only PDF and DOCX are allowed.');
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      throw new AppError(HTTP_STATUS.BAD_REQUEST, 'Resume must be under 10MB.');
+    }
+
+    const ext = path.extname(file.originalname).toLowerCase() || '.pdf';
+    const safeOriginalName = file.originalname.replace(/[^a-zA-Z0-9._-]/g, '_');
+    const storagePath = `${userId}/${Date.now()}_${safeOriginalName}`;
+
+    logger.info('[Resume] Starting upload', { userId, storagePath, size: file.size, mime: file.mimetype });
+
+    try {
+      // Delete old resume from storage if exists
+      if ((user as any).resumeUrl) {
+        try {
+          const urlObj = new URL((user as any).resumeUrl as string);
+          const marker = `/object/public/${RESUME_BUCKET}/`;
+          const markerIdx = urlObj.pathname.indexOf(marker);
+          if (markerIdx !== -1) {
+            const oldPath = urlObj.pathname.slice(markerIdx + marker.length);
+            await supabase.storage.from(RESUME_BUCKET).remove([oldPath]);
+            logger.info('[Resume] Old resume deleted', { oldPath });
+          }
+        } catch (e) {
+          logger.warn('[Resume] Old resume deletion skipped', { error: (e as Error).message });
+        }
+      }
+
+      // Upload to Supabase Storage
+      const { error: uploadError } = await supabase.storage
+        .from(RESUME_BUCKET)
+        .upload(storagePath, file.buffer, {
+          contentType: file.mimetype,
+          upsert: true,
+        });
+
+      if (uploadError) {
+        logger.error('[Resume] Supabase upload failed', { error: uploadError.message });
+        throw new AppError(HTTP_STATUS.INTERNAL_SERVER_ERROR, `Resume upload failed: ${uploadError.message}`);
+      }
+
+      const { data: urlData } = supabase.storage.from(RESUME_BUCKET).getPublicUrl(storagePath);
+      const resumeUrl = urlData.publicUrl;
+      const resumeUploadedAt = new Date();
+
+      await userRepository.updateProfile(userId, {
+        resumeUrl,
+        resumeFileName: safeOriginalName,
+        resumeUploadedAt,
+      } as any);
+
+      logger.info('[Resume] DB updated', { userId, resumeUrl });
+      return { resumeUrl, resumeFileName: safeOriginalName, resumeUploadedAt };
+    } catch (error) {
+      if (error instanceof AppError) throw error;
+      logger.error('[Resume] Upload failed unexpectedly', { error: (error as Error).message });
+      throw new AppError(HTTP_STATUS.INTERNAL_SERVER_ERROR, 'Resume upload failed.');
+    }
+  }
+
+  async deleteResume(userId: string): Promise<IUserProfile> {
+    const user = await userRepository.findById(userId);
+    if (!user) throw new AppError(HTTP_STATUS.NOT_FOUND, MESSAGES.USER_NOT_FOUND);
+
+    if ((user as any).resumeUrl) {
+      try {
+        const urlObj = new URL((user as any).resumeUrl as string);
+        const marker = `/object/public/${RESUME_BUCKET}/`;
+        const markerIdx = urlObj.pathname.indexOf(marker);
+        if (markerIdx !== -1) {
+          const storagePath = urlObj.pathname.slice(markerIdx + marker.length);
+          await supabase.storage.from(RESUME_BUCKET).remove([storagePath]);
+        }
+      } catch (e) {
+        logger.warn('[Resume] Storage delete skipped', { error: (e as Error).message });
+      }
+    }
+
+    const updated = await userRepository.updateProfile(userId, {
+      resumeUrl: null,
+      resumeFileName: null,
+      resumeUploadedAt: null,
+    } as any);
+
+    return this.sanitizeUser(updated);
+  }
+
+  async getResumeInfo(userId: string): Promise<{ resumeUrl: string | null; resumeFileName: string | null; resumeUploadedAt: Date | null }> {
+    const user = await userRepository.findById(userId);
+    if (!user) throw new AppError(HTTP_STATUS.NOT_FOUND, MESSAGES.USER_NOT_FOUND);
+    return {
+      resumeUrl: (user as any).resumeUrl ?? null,
+      resumeFileName: (user as any).resumeFileName ?? null,
+      resumeUploadedAt: (user as any).resumeUploadedAt ?? null,
+    };
   }
 }
 

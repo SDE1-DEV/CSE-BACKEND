@@ -36,6 +36,8 @@ model User {
   gfgUrl                 String?
   mediumUrl              String?
   resumeUrl              String?
+  resumeFileName         String?
+  resumeUploadedAt       DateTime?
   profileVisibility      String?             @default("PUBLIC")
   lastSeen               DateTime?
   role                   Role                @default(STUDENT)

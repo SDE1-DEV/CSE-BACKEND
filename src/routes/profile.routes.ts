@@ -257,4 +257,62 @@ router.patch(
   changePassword as any,
 );
 
+// ── Resume upload ─────────────────────────────────────────────────────────────
+
+const resumeUpload = multer({
+  storage: multer.memoryStorage(),
+  fileFilter: (_req, file, cb) => {
+    const ALLOWED = [
+      'application/pdf',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    ];
+    if (ALLOWED.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Invalid file type. Only PDF and DOCX are allowed.'));
+    }
+  },
+  limits: { fileSize: 10 * 1024 * 1024, files: 1 },
+}).single('resume');
+
+// PATCH /api/profile/resume — upload or replace resume
+router.patch(
+  '/resume',
+  authenticate,
+  uploadLimiter,
+  resumeUpload,
+  async (req: AuthenticatedRequest, res, next) => {
+    try {
+      if (!req.user) throw new AppError(HTTP_STATUS.UNAUTHORIZED, MESSAGES.UNAUTHORIZED);
+      if (!req.file) throw new AppError(HTTP_STATUS.BAD_REQUEST, 'No file provided');
+      const result = await userService.uploadResume(req.user.userId, req.file);
+      sendSuccess(res, 'Resume uploaded successfully', result);
+    } catch (err) {
+      next(err);
+    }
+  },
+);
+
+// GET /api/profile/resume — get resume info
+router.get('/resume', authenticate, async (req: AuthenticatedRequest, res, next) => {
+  try {
+    if (!req.user) throw new AppError(HTTP_STATUS.UNAUTHORIZED, MESSAGES.UNAUTHORIZED);
+    const result = await userService.getResumeInfo(req.user.userId);
+    sendSuccess(res, 'Resume info fetched', result);
+  } catch (err) {
+    next(err);
+  }
+});
+
+// DELETE /api/profile/resume — delete resume
+router.delete('/resume', authenticate, async (req: AuthenticatedRequest, res, next) => {
+  try {
+    if (!req.user) throw new AppError(HTTP_STATUS.UNAUTHORIZED, MESSAGES.UNAUTHORIZED);
+    await userService.deleteResume(req.user.userId);
+    sendSuccess(res, 'Resume deleted successfully', { resumeUrl: null });
+  } catch (err) {
+    next(err);
+  }
+});
+
 export default router;
