@@ -304,6 +304,17 @@ router.get('/resume', authenticate, async (req: AuthenticatedRequest, res, next)
   }
 });
 
+// GET /api/profile/resume/signed-url — get a 1-hour signed URL for resume access
+router.get('/resume/signed-url', authenticate, async (req: AuthenticatedRequest, res, next) => {
+  try {
+    if (!req.user) throw new AppError(HTTP_STATUS.UNAUTHORIZED, MESSAGES.UNAUTHORIZED);
+    const result = await userService.getResumeSignedUrl(req.user.userId);
+    sendSuccess(res, 'Signed URL generated', result);
+  } catch (err) {
+    next(err);
+  }
+});
+
 // DELETE /api/profile/resume — delete resume
 router.delete('/resume', authenticate, async (req: AuthenticatedRequest, res, next) => {
   try {

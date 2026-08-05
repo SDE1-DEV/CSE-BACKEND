@@ -36,7 +36,7 @@ interface BucketSpec {
 
 const REQUIRED_BUCKETS: BucketSpec[] = [
   { name: AVATAR_BUCKET, public: true },   // avatars are publicly readable
-  { name: RESUME_BUCKET, public: false },  // resumes are private (signed URLs)
+  { name: RESUME_BUCKET, public: true },   // resumes need public URL for preview/download
 ];
 
 /**
@@ -60,10 +60,20 @@ export const validateStorageBuckets = async (): Promise<void> => {
         continue;
       }
 
-      const exists = buckets?.some((b) => b.name === spec.name) ?? false;
+      const existingBucket = buckets?.find((b) => b.name === spec.name);
 
-      if (exists) {
-        logger.info(`✓ Bucket '${spec.name}' found`);
+      if (existingBucket) {
+        // Bucket exists — ensure it has correct public/private setting
+        if (existingBucket.public !== spec.public) {
+          try {
+            await supabase.storage.updateBucket(spec.name, { public: spec.public });
+            logger.info(`✓ Bucket '${spec.name}' updated to public=${spec.public}`);
+          } catch (updateErr) {
+            logger.warn(`⚠ Could not update bucket '${spec.name}' visibility: ${(updateErr as Error).message}`);
+          }
+        } else {
+          logger.info(`✓ Bucket '${spec.name}' found (public=${spec.public})`);
+        }
         continue;
       }
 

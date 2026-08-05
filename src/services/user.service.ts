@@ -500,6 +500,51 @@ export class UserService {
       resumeUploadedAt: (user as any).resumeUploadedAt ?? null,
     };
   }
+
+  async getResumeSignedUrl(userId: string): Promise<{ signedUrl: string | null; fileName: string | null }> {
+    const user = await userRepository.findById(userId);
+    if (!user) throw new AppError(HTTP_STATUS.NOT_FOUND, MESSAGES.USER_NOT_FOUND);
+
+    const resumeUrl = (user as any).resumeUrl as string | null;
+    const resumeFileName = (user as any).resumeFileName as string | null;
+
+    if (!resumeUrl) {
+      return { signedUrl: null, fileName: null };
+    }
+
+    try {
+      // Extract storage path from the public URL
+      const urlObj = new URL(resumeUrl);
+      const publicMarker = `/object/public/${RESUME_BUCKET}/`;
+      const signedMarker = `/object/sign/${RESUME_BUCKET}/`;
+      let storagePath: string | null = null;
+
+      const publicIdx = urlObj.pathname.indexOf(publicMarker);
+      if (publicIdx !== -1) {
+        storagePath = decodeURIComponent(urlObj.pathname.slice(publicIdx + publicMarker.length));
+      }
+
+      if (!storagePath) {
+        // Fallback: just return the stored URL
+        return { signedUrl: resumeUrl, fileName: resumeFileName };
+      }
+
+      // Generate 1-hour signed URL
+      const { data, error } = await supabase.storage
+        .from(RESUME_BUCKET)
+        .createSignedUrl(storagePath, 3600);
+
+      if (error || !data?.signedUrl) {
+        logger.warn('[Resume] Signed URL generation failed, using public URL', { error: error?.message });
+        return { signedUrl: resumeUrl, fileName: resumeFileName };
+      }
+
+      return { signedUrl: data.signedUrl, fileName: resumeFileName };
+    } catch (err) {
+      logger.warn('[Resume] getResumeSignedUrl error', { error: (err as Error).message });
+      return { signedUrl: resumeUrl, fileName: resumeFileName };
+    }
+  }
 }
 
 export const userService = new UserService();
