@@ -12,7 +12,7 @@ const REFRESH_COOKIE_OPTIONS = {
   secure: env.isProduction(),
   sameSite: 'strict' as const,
   path: '/api/auth',
-  maxAge: 7 * 24 * 60 * 60 * 1000,
+  maxAge: 90 * 24 * 60 * 60 * 1000, // 90 days — matches REFRESH_EXPIRY in .env
 };
 
 /**

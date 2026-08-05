@@ -57,6 +57,8 @@ export const sendVerificationEmail = async (email: string, otp: string): Promise
         ${otpBlock(otp)}
         <p>This OTP expires in <strong>10 minutes</strong>.</p>
         <p>If you didn't request this, please ignore this email.</p>
+        <hr style="margin:20px 0;border:none;border-top:1px solid #eee;" />
+        <p style="font-size:12px;color:#999;">Need help? Contact us at <a href="mailto:campusrank2026@gmail.com">campusrank2026@gmail.com</a></p>
       </div>`,
     });
     logger.info(`Verification email sent`, { to: email });
@@ -79,6 +81,8 @@ export const sendPasswordResetEmail = async (email: string, otp: string): Promis
         ${otpBlock(otp, '#ef4444')}
         <p>This OTP expires in <strong>10 minutes</strong>.</p>
         <p>If you didn't request this, secure your account immediately.</p>
+        <hr style="margin:20px 0;border:none;border-top:1px solid #eee;" />
+        <p style="font-size:12px;color:#999;">Need help? Contact us at <a href="mailto:campusrank2026@gmail.com">campusrank2026@gmail.com</a></p>
       </div>`,
     });
     logger.info(`Password reset email sent`, { to: email });
@@ -105,6 +109,8 @@ export const sendTeamInvitationEmail = async (
         <p>Log in to your account to accept or reject the invitation.</p>
         <a href="${env.CLIENT_URL}/teams/invitations" style="display:inline-block;background:#4f46e5;color:white;padding:12px 24px;border-radius:6px;text-decoration:none;margin:16px 0;">View Invitation</a>
         <p>This invitation will expire in 7 days.</p>
+        <hr style="margin:20px 0;border:none;border-top:1px solid #eee;" />
+        <p style="font-size:12px;color:#999;">Need help? Contact us at <a href="mailto:campusrank2026@gmail.com">campusrank2026@gmail.com</a></p>
       </div>`,
     });
     logger.info(`Team invitation email sent`, { to: email, teamName });
