@@ -325,68 +325,60 @@ export class AnalyticsService {
       });
     }
 
-    // Fetch all counts in parallel buckets
-    const userGrowth = await Promise.all(
-      points.map(async ({ start, end }) => {
-        const [newUsers, activeUsers, students, managers] = await Promise.all([
-          prisma.user.count({ where: { createdAt: { gte: start, lt: end } } }),
-          prisma.user.count({ where: { lastLoginAt: { gte: start, lt: end } } }),
-          prisma.user.count({ where: { role: Role.STUDENT, createdAt: { gte: start, lt: end } } }),
-          prisma.user.count({ where: { role: Role.MANAGER, createdAt: { gte: start, lt: end } } }),
-        ]);
-        return { newUsers, activeUsers, students, managers };
-      }),
-    );
+    // ── Fetch chart data one bucket at a time to prevent connection pool exhaustion.
+    //
+    // The naive approach of Promise.all(points.map(...)) fires every category for every
+    // bucket simultaneously. With 12 monthly buckets × ~13 queries each that's ~156
+    // concurrent Prisma calls against a pool of 9 — guaranteed timeouts.
+    //
+    // Instead we iterate buckets sequentially. Within each bucket we still parallelise
+    // the independent queries across the six categories (bounded to ≤13 connections at
+    // a time), keeping latency reasonable while staying well within pool limits.
 
-    const learningActivity = await Promise.all(
-      points.map(async ({ start, end }) => {
-        const [content, completions] = await Promise.all([
-          // NEW: LearningContent replaces Lesson
-          prisma.learningContent.count({ where: { createdAt: { gte: start, lt: end } } }),
-          // NEW: LearningProgress replaces UserProgress
-          prisma.learningProgress.count({
-            where: { status: 'COMPLETED', completedAt: { gte: start, lt: end } },
-          }),
-        ]);
-        return { lessons: content, completions };
-      }),
-    );
+    const userGrowth:       { newUsers: number; activeUsers: number; students: number; managers: number }[] = [];
+    const learningActivity: { lessons: number; completions: number }[] = [];
+    const codingActivity:   { submissions: number; accepted: number }[] = [];
+    const projectActivity:  number[] = [];
+    const placementActivity: { applications: number; offered: number }[] = [];
+    const eventActivity:    { events: number; registrations: number }[] = [];
 
-    const codingActivity = await Promise.all(
-      points.map(async ({ start, end }) => {
-        const [submissions, accepted] = await Promise.all([
-          prisma.submission.count({ where: { submittedAt: { gte: start, lt: end } } }),
-          prisma.submission.count({ where: { status: 'ACCEPTED', submittedAt: { gte: start, lt: end } } }),
-        ]);
-        return { submissions, accepted };
-      }),
-    );
-
-    const projectActivity = await Promise.all(
-      points.map(async ({ start, end }) =>
+    for (const { start, end } of points) {
+      const [
+        newUsers, activeUsers, students, managers,
+        content, completions,
+        submissions, accepted,
+        projects,
+        applications, offered,
+        eventsCount, registrations,
+      ] = await Promise.all([
+        // User growth
+        prisma.user.count({ where: { createdAt: { gte: start, lt: end } } }),
+        prisma.user.count({ where: { lastLoginAt: { gte: start, lt: end } } }),
+        prisma.user.count({ where: { role: Role.STUDENT, createdAt: { gte: start, lt: end } } }),
+        prisma.user.count({ where: { role: Role.MANAGER, createdAt: { gte: start, lt: end } } }),
+        // Learning (NEW CMS models)
+        prisma.learningContent.count({ where: { createdAt: { gte: start, lt: end } } }),
+        prisma.learningProgress.count({ where: { status: 'COMPLETED', completedAt: { gte: start, lt: end } } }),
+        // Coding
+        prisma.submission.count({ where: { submittedAt: { gte: start, lt: end } } }),
+        prisma.submission.count({ where: { status: 'ACCEPTED', submittedAt: { gte: start, lt: end } } }),
+        // Projects
         prisma.project.count({ where: { createdAt: { gte: start, lt: end } } }),
-      ),
-    );
+        // Placement
+        prisma.jobApplication.count({ where: { appliedAt: { gte: start, lt: end } } }),
+        prisma.jobApplication.count({ where: { status: 'OFFERED', appliedAt: { gte: start, lt: end } } }),
+        // Events
+        prisma.event.count({ where: { createdAt: { gte: start, lt: end } } }),
+        prisma.eventRegistration.count({ where: { registeredAt: { gte: start, lt: end } } }),
+      ]);
 
-    const placementActivity = await Promise.all(
-      points.map(async ({ start, end }) => {
-        const [applications, offered] = await Promise.all([
-          prisma.jobApplication.count({ where: { appliedAt: { gte: start, lt: end } } }),
-          prisma.jobApplication.count({ where: { status: 'OFFERED', appliedAt: { gte: start, lt: end } } }),
-        ]);
-        return { applications, offered };
-      }),
-    );
-
-    const eventActivity = await Promise.all(
-      points.map(async ({ start, end }) => {
-        const [events, registrations] = await Promise.all([
-          prisma.event.count({ where: { createdAt: { gte: start, lt: end } } }),
-          prisma.eventRegistration.count({ where: { registeredAt: { gte: start, lt: end } } }),
-        ]);
-        return { events, registrations };
-      }),
-    );
+      userGrowth.push({ newUsers, activeUsers, students, managers });
+      learningActivity.push({ lessons: content, completions });
+      codingActivity.push({ submissions, accepted });
+      projectActivity.push(projects);
+      placementActivity.push({ applications, offered });
+      eventActivity.push({ events: eventsCount, registrations });
+    }
 
     const labels = points.map((p) => p.label);
 
