@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { User } from '@prisma/client';
 import { userRepository } from '../repositories/user.repository';
 import { prisma } from '../config/database';
@@ -296,14 +295,20 @@ export class UserService {
         activities.push({ type: 'solved', label: `Solved ${s.problem.title}`, time: s.submittedAt, icon: 'Code2' });
       }
 
-      const progress = await prisma.userProgress.findMany({
-        where: { userId, completed: true },
+      // Learning progress — new Learning CMS model
+      const learningProgress = await prisma.learningProgress.findMany({
+        where: { userId, status: 'COMPLETED' },
         orderBy: { completedAt: 'desc' },
         take: 5,
-        include: { lesson: { select: { title: true } } },
+        include: { content: { select: { topicName: true } } },
       });
-      for (const p of progress) {
-        activities.push({ type: 'lesson', label: `Completed lesson: ${p.lesson.title}`, time: p.completedAt ?? p.updatedAt, icon: 'BookOpen' });
+      for (const p of learningProgress) {
+        activities.push({
+          type: 'lesson',
+          label: `Completed: ${p.content.topicName}`,
+          time: p.completedAt ?? p.updatedAt,
+          icon: 'BookOpen',
+        });
       }
     } catch {
       // Return empty if tables don't have data
@@ -314,15 +319,16 @@ export class UserService {
   }
 
   async getProfileAnalytics(userId: string) {
-    const [submissions, distinctSolved, progress, teams] = await Promise.all([
+    const [submissions, distinctSolved, learningCompleted, teams] = await Promise.all([
       prisma.submission.findMany({ where: { userId, isRun: false } }),
-      // Distinct problems solved (same logic as getCodingStats)
+      // Distinct problems solved
       prisma.submission.findMany({
         where: { userId, status: 'ACCEPTED', isRun: false },
         distinct: ['problemId'],
         select: { problemId: true },
       }),
-      prisma.userProgress.findMany({ where: { userId, completed: true } }),
+      // Learning CMS progress — replaces legacy userProgress
+      prisma.learningProgress.count({ where: { userId, status: 'COMPLETED' } }),
       prisma.teamMember.findMany({ where: { userId } }),
     ]);
 
@@ -331,11 +337,10 @@ export class UserService {
 
     return {
       totalSubmissions: submissions.length,
-      // accepted = distinct problems solved (not raw accepted submission count)
       accepted: totalSolved,
       rejected: submissions.filter((s) => s.status === 'WRONG_ANSWER').length,
       acceptanceRate: submissions.length > 0 ? Math.round((accepted.length / submissions.length) * 100) : 0,
-      lessonsCompleted: progress.length,
+      lessonsCompleted: learningCompleted,
       teamsJoined: teams.length,
     };
   }
@@ -372,17 +377,18 @@ export class UserService {
   }
 
   async getProfileAchievements(userId: string) {
-    const [submissions, progress] = await Promise.all([
+    const [submissions, learningCompleted] = await Promise.all([
       prisma.submission.findMany({ where: { userId, status: 'ACCEPTED' } }),
-      prisma.userProgress.findMany({ where: { userId, completed: true } }),
+      // Learning CMS progress — replaces legacy userProgress
+      prisma.learningProgress.count({ where: { userId, status: 'COMPLETED' } }),
     ]);
 
     const achievements = [];
 
     if (submissions.length >= 1) achievements.push({ id: 1, name: 'First Solve', icon: '🎯', earned: true, earnedAt: submissions[0]?.submittedAt });
     if (submissions.length >= 100) achievements.push({ id: 2, name: '100 Problems', icon: '💯', earned: true });
-    if (progress.length >= 1) achievements.push({ id: 3, name: 'First Lesson', icon: '📚', earned: true });
-    if (progress.length >= 10) achievements.push({ id: 4, name: '10 Lessons', icon: '🎓', earned: true });
+    if (learningCompleted >= 1) achievements.push({ id: 3, name: 'First Lesson', icon: '📚', earned: true });
+    if (learningCompleted >= 10) achievements.push({ id: 4, name: '10 Lessons', icon: '🎓', earned: true });
 
     return achievements;
   }

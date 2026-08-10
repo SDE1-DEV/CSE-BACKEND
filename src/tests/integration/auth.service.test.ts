@@ -69,15 +69,29 @@ describe('AuthService', () => {
     it('creates user and enqueues verification email', async () => {
       vi.mocked(userRepository.existsByEmail).mockResolvedValue(false);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      vi.mocked(userRepository.create).mockResolvedValue({} as any);
+      const mockUser: any = {
+        id: 'user-1',
+        email: 'john@test.com',
+        fullName: 'John',
+        role: 'STUDENT',
+        passwordHash: 'hashed',
+        isVerified: true,
+        profileCompletion: 0,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+      vi.mocked(userRepository.create).mockResolvedValue(mockUser);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       vi.mocked(authRepository.upsertEmailVerification).mockResolvedValue({} as any);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      vi.mocked(authRepository.createRefreshToken).mockResolvedValue({} as any);
 
       const result = await authService.register('John', 'john@test.com', 'Password1!');
 
-      // Message differs based on ENABLE_EMAIL_VERIFICATION flag — just ensure registration succeeds
+      // register() returns { user, tokens } — verify the shape
       expect(result).toBeDefined();
-      expect(result.message).toBeDefined();
+      expect((result as any).user).toBeDefined();
+      expect((result as any).tokens).toBeDefined();
       expect(userRepository.create).toHaveBeenCalledOnce();
     });
 

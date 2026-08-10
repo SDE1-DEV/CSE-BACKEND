@@ -140,6 +140,13 @@ router.post(
   auditAction({ action: 'CONTENT_CREATED', module: 'LEARNING', entity: 'LearningContent' }),
   createContent,
 );
+router.patch(
+  '/content/reorder',
+  validate(reorderContentSchema),
+  auditAction({ action: 'CONTENT_REORDERED', module: 'LEARNING', entity: 'LearningContent' }),
+  reorderContent,
+);
+
 router.get(
   '/content/:id',
   validate(getContentByIdSchema),
@@ -173,12 +180,6 @@ router.post(
   validate(publishContentSchema),
   auditAction({ action: 'CONTENT_UNPUBLISHED', module: 'LEARNING', entity: 'LearningContent' }),
   unpublishContent,
-);
-router.patch(
-  '/content/reorder',
-  validate(reorderContentSchema),
-  auditAction({ action: 'CONTENT_REORDERED', module: 'LEARNING', entity: 'LearningContent' }),
-  reorderContent,
 );
 
 router.post(

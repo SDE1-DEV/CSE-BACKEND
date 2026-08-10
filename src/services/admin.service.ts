@@ -1,18 +1,27 @@
-// @ts-nocheck
+// NOTE: admin.service.ts has been updated to use the new Learning CMS models.
+// prisma.roadmap is no longer in the schema — use prisma.course instead.
 import { prisma } from '../config/database';
 import { platformSettingRepository } from '../repositories/platform-setting.repository';
 
-// Map resource names to Prisma models — lazily evaluated so removed models
-// (prisma.roadmap) are accessed only when actually needed, not at module load.
+// Map resource names to Prisma models — lazily evaluated.
+// roadmaps have been replaced by the Learning CMS (courses/levels).
+// Keep the resource map for other models that still exist.
 const getResourceModel = (name: string) => {
-  const map: Record<string, any> = {
-    roadmaps: (prisma as any).roadmap,
-    problems: prisma.codingProblem,
-    projects: prisma.project,
-    jobs: prisma.jobPosting,
-    events: prisma.event,
+  const map: Record<string, { findMany: Function; count: Function; create: Function; update: Function; delete: Function; deleteMany: Function }> = {
+    problems: prisma.codingProblem as any,
+    projects: prisma.project as any,
+    jobs: prisma.jobPosting as any,
+    events: prisma.event as any,
   };
   return map[name];
+};
+
+// Used by generic CRUD methods below
+const RESOURCE_MODEL_MAP: Record<string, { findMany: Function; count: Function; create: Function; update: Function; delete: Function; deleteMany: Function }> = {
+  problems: prisma.codingProblem as any,
+  projects: prisma.project as any,
+  jobs: prisma.jobPosting as any,
+  events: prisma.event as any,
 };
 
 export class AdminService {
@@ -24,7 +33,7 @@ export class AdminService {
 
     const [
       totalUsers,
-      totalRoadmaps,
+      totalCourses,
       totalProblems,
       totalProjects,
       totalTeams,
@@ -34,7 +43,7 @@ export class AdminService {
       activeUsersToday,
     ] = await Promise.all([
       prisma.user.count(),
-      prisma.roadmap.count(),
+      prisma.course.count(),
       prisma.codingProblem.count(),
       prisma.project.count(),
       prisma.team.count(),
@@ -46,7 +55,7 @@ export class AdminService {
 
     return {
       totalUsers,
-      totalRoadmaps,
+      totalRoadmaps: totalCourses,
       totalProblems,
       totalProjects,
       totalTeams,
@@ -218,7 +227,7 @@ export class AdminService {
     const [
       totalUsers,
       activeUsers,
-      publishedRoadmaps,
+      publishedCourses,
       codingProblems,
       projects,
       teams,
@@ -234,7 +243,8 @@ export class AdminService {
         },
       }),
 
-      prisma.roadmap.count({ where: { isPublished: true } }),
+      // Learning CMS: count published courses (replaces legacy roadmap count)
+      prisma.course.count({ where: { status: 'PUBLISHED' } }),
       prisma.codingProblem.count({ where: { isPublished: true } }),
       prisma.project.count(),
       prisma.team.count(),
@@ -251,7 +261,7 @@ export class AdminService {
       }),
     ]);
 
-    const platformGrowth = dailyRegistrations.map((g) => ({
+    const platformGrowth = (dailyRegistrations as Array<{ createdAt: Date; _count: { id: number } }>).map((g) => ({
       date: g.createdAt.toISOString().split('T')[0],
       count: g._count.id,
     }));
@@ -260,7 +270,7 @@ export class AdminService {
       stats: {
         totalUsers,
         activeUsers,
-        publishedRoadmaps,
+        publishedRoadmaps: publishedCourses,
         codingProblems,
         projects,
         teams,

@@ -39,8 +39,9 @@ describe('Auth API', () => {
   describe('POST /api/v1/auth/register', () => {
     it('returns 201 on successful registration', async () => {
       vi.mocked(authService.register).mockResolvedValue({
-        message: 'Registration successful. Please verify your email.',
-      });
+        user: { id: 'u1', email: 'john@example.com', fullName: 'John Doe', role: 'STUDENT' } as any,
+        tokens: { accessToken: 'access-token', refreshToken: 'refresh-token' },
+      } as any);
 
       const response = await request(app)
         .post('/api/v1/auth/register')
