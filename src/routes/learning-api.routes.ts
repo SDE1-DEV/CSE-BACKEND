@@ -19,7 +19,6 @@ import {
   updateLessonProgress,
   getBookmarks,
   getRecentlyViewed,
-  getContinueLearning,
   addBookmark,
   removeBookmark,
 } from '../controllers/lesson.controller';
@@ -129,33 +128,26 @@ router.get('/roadmaps', async (req: Request, res: Response, next: NextFunction) 
     const result = await roadmapService.getRoadmaps(req.query as any, isAdmin);
     const userId = (req as any).user?.userId as string | undefined;
 
-    // Batch-fetch lesson counts for all returned roadmaps in one query
+    // Batch-fetch lesson counts using raw SQL (prisma.lesson is not in schema)
     const roadmapIds = result.data.map((r: any) => r.id);
     const lessonCounts: Record<string, number> = {};
     if (roadmapIds.length > 0) {
       try {
-        const rows = await (prisma as any).lesson.groupBy({
-          by: ['sectionId'],
-          where: {
-            section: { roadmapId: { in: roadmapIds }, deletedAt: null },
-            deletedAt: null,
-            ...(isAdmin ? {} : { isPublished: true }),
-          },
-          _count: { _all: true },
-        });
-        // Map sectionId → roadmapId for accumulation
-        const sectionToRoadmap = await (prisma as any).roadmapSection.findMany({
-          where: { id: { in: rows.map((r: any) => r.sectionId) }, deletedAt: null },
-          select: { id: true, roadmapId: true },
-        });
-        const sectionRoadmapMap: Record<string, string> = {};
-        for (const s of sectionToRoadmap) sectionRoadmapMap[s.id] = s.roadmapId;
+        const rows = await prisma.$queryRaw<{ roadmap_id: string; cnt: bigint }[]>`
+          SELECT rs."roadmapId" AS roadmap_id, COUNT(l.id) AS cnt
+          FROM "lessons"          l
+          JOIN "roadmap_sections" rs ON rs.id = l."sectionId"
+          WHERE rs."roadmapId" = ANY(${roadmapIds})
+            AND l."deletedAt"  IS NULL
+            AND rs."deletedAt" IS NULL
+            ${isAdmin ? prisma.$queryRaw`` : prisma.$queryRaw`AND l."isPublished" = true`}
+          GROUP BY rs."roadmapId"
+        `;
         for (const r of rows) {
-          const rid = sectionRoadmapMap[r.sectionId];
-          if (rid) lessonCounts[rid] = (lessonCounts[rid] ?? 0) + r._count._all;
+          lessonCounts[r.roadmap_id] = Number(r.cnt);
         }
       } catch {
-        // Legacy lesson/roadmapSection models not available — lessonCounts stays empty
+        // table may not exist — lessonCounts stays empty
       }
     }
 
@@ -163,19 +155,19 @@ router.get('/roadmaps', async (req: Request, res: Response, next: NextFunction) 
     const progressMap: Record<string, { pct: number; completed: number }> = {};
     if (userId && roadmapIds.length > 0) {
       try {
-        // Single query: count all completed lessons for ALL returned roadmaps at once
-        const completedRows = await (prisma as any).userProgress.groupBy({
-          by: ['roadmapId'],
-          where: {
-            userId,
-            completed: true,
-            roadmapId: { in: roadmapIds },
-          },
-          _count: { _all: true },
-        });
+        const completedRows = await prisma.$queryRaw<{ roadmap_id: string; cnt: bigint }[]>`
+          SELECT rs."roadmapId" AS roadmap_id, COUNT(lp.id) AS cnt
+          FROM "lesson_progress"  lp
+          JOIN "lessons"          l  ON l.id  = lp."lessonId"  AND l."deletedAt"  IS NULL
+          JOIN "roadmap_sections" rs ON rs.id = l."sectionId"  AND rs."deletedAt" IS NULL
+          WHERE lp."userId"    = ${userId}
+            AND rs."roadmapId" = ANY(${roadmapIds})
+            AND lp.completed   = true
+          GROUP BY rs."roadmapId"
+        `;
         const completedByRoadmap: Record<string, number> = {};
         for (const r of completedRows) {
-          if (r.roadmapId) completedByRoadmap[r.roadmapId] = r._count._all;
+          completedByRoadmap[r.roadmap_id] = Number(r.cnt);
         }
         for (const rid of roadmapIds) {
           const total = lessonCounts[rid] ?? 0;
@@ -186,7 +178,7 @@ router.get('/roadmaps', async (req: Request, res: Response, next: NextFunction) 
           };
         }
       } catch {
-        // Legacy userProgress model not available — progressMap stays empty (0% progress shown)
+        // lesson_progress may not exist — progressMap stays empty
       }
     }
 
@@ -221,19 +213,21 @@ router.post('/roadmaps/:id/bookmark', authenticate, async (req: Request, res: Re
     const userId = (req as any).user?.userId;
     if (!userId) { res.status(401).json({ success: false, message: 'Unauthorized' }); return; }
 
-    // Check if we have a first published lesson for this roadmap to proxy the bookmark
-    const firstLesson = await (prisma as any).lesson.findFirst({
-      where: {
-        section: { roadmapId: req.params.id, deletedAt: null },
-        deletedAt: null,
-        isPublished: true,
-      },
-      orderBy: [{ section: { order: 'asc' } }, { order: 'asc' }],
-      select: { id: true },
-    }).catch(() => null);
+    // Check if we have a first published lesson for this roadmap — use raw SQL
+    const firstLessonRows = await prisma.$queryRaw<{ id: string }[]>`
+      SELECT l.id
+      FROM "lessons"          l
+      JOIN "roadmap_sections" rs ON rs.id = l."sectionId"
+      WHERE rs."roadmapId"  = ${req.params.id}
+        AND rs."deletedAt"  IS NULL
+        AND l."deletedAt"   IS NULL
+        AND l."isPublished" = true
+      ORDER BY rs."order" ASC, l."order" ASC
+      LIMIT 1
+    `.catch(() => [] as { id: string }[]);
 
-    if (firstLesson) {
-      const result = await lessonService.addBookmark(firstLesson.id, userId);
+    if (firstLessonRows.length > 0) {
+      const result = await lessonService.addBookmark(firstLessonRows[0].id, userId);
       sendSuccess(res, 'Roadmap bookmark toggled', { isBookmarked: result.isBookmarked });
     } else {
       sendSuccess(res, 'Roadmap bookmark toggled', { isBookmarked: true });
@@ -338,12 +332,15 @@ router.delete('/bookmarks/:bookmarkId', authenticate, async (req: Request, res: 
   try {
     const userId = (req as any).user?.userId;
     if (!userId) { res.status(401).json({ success: false, message: 'Unauthorized' }); return; }
-    const bm = await prisma.bookmark.findUnique({ where: { id: req.params.bookmarkId } });
-    if (!bm || bm.userId !== userId) {
+    // Use raw SQL — prisma.bookmark is not in schema
+    const bm = await prisma.$queryRaw<{ id: string; userId: string }[]>`
+      SELECT id, "userId" FROM "bookmarks" WHERE id = ${req.params.bookmarkId} LIMIT 1
+    `;
+    if (bm.length === 0 || bm[0].userId !== userId) {
       res.status(404).json({ success: false, message: LEARNING_MESSAGES.BOOKMARK_NOT_FOUND });
       return;
     }
-    await prisma.bookmark.delete({ where: { id: req.params.bookmarkId } });
+    await prisma.$executeRaw`DELETE FROM "bookmarks" WHERE id = ${req.params.bookmarkId}`;
     sendSuccess(res, LEARNING_MESSAGES.BOOKMARK_REMOVED, null);
   } catch (err) {
     next(err);
@@ -351,9 +348,12 @@ router.delete('/bookmarks/:bookmarkId', authenticate, async (req: Request, res: 
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
-// CONTINUE / RECENT / STATS
+// RECENT / STATS
+// NOTE: /continue, /dashboard, /roadmap are handled by learning-student.routes.ts
+//       which is mounted BEFORE this router in routes/index.ts.
+//       Do NOT re-register them here to avoid the legacy getContinueLearning
+//       (which used prisma.recentlyViewed) shadowing the new CMS endpoint.
 // ─────────────────────────────────────────────────────────────────────────────
-router.get('/continue', authenticate, getContinueLearning);
 router.get('/recent', authenticate, getRecentlyViewed);
 router.get('/stats', authenticate, getLearningStats);
 

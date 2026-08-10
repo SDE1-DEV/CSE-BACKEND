@@ -1,11 +1,10 @@
-// @ts-nocheck
-import { Roadmap } from '@prisma/client';
-
+// roadmap.repository.ts now uses raw SQL — no Prisma Roadmap model needed
 import {
   roadmapRepository,
   RoadmapFilters,
   RoadmapSort,
   PaginationOptions,
+  RoadmapDTO,
 } from '../repositories/roadmap.repository';
 import { categoryRepository } from '../repositories/category.repository';
 import { AppError } from '../middlewares/error.middleware';
@@ -71,7 +70,7 @@ export class RoadmapService {
   async getRoadmaps(
     query: GetRoadmapsQuery,
     isAdmin = false,
-  ): Promise<{ data: Roadmap[]; total: number; page: number; limit: number; totalPages: number }> {
+  ): Promise<{ data: RoadmapDTO[]; total: number; page: number; limit: number; totalPages: number }> {
     const page = query.page ?? 1;
     const limit = Math.min(query.limit ?? 10, 100);
 
@@ -122,13 +121,12 @@ export class RoadmapService {
       }
     }
 
-    const updateData: Parameters<typeof roadmapRepository.update>[1] = { ...data };
+    const updateData: Record<string, unknown> = { ...data };
     if (data.categoryId) {
-      delete (updateData as Record<string, unknown>).categoryId;
-      (updateData as Record<string, unknown>).category = { connect: { id: data.categoryId } };
+      // raw repo takes categoryId directly — no relation syntax needed
     }
 
-    const updated = await roadmapRepository.update(id, updateData);
+    const updated = await roadmapRepository.update(id, updateData as Record<string, unknown>);
 
     // Invalidate caches
     await Promise.all([

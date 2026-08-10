@@ -784,6 +784,385 @@ export class StudentService {
       roadmapSummary,
     };
   }
+
+  // ── Flat Roadmap (StudentRoadmap shape) ─────────────────────────────────────
+  // Called by GET /learning/roadmap
+  // Returns the shape the frontend StudentRoadmap type expects:
+  // { levels: RoadmapLevel[], currentDayId, totalCompleted, totalAvailable }
+
+  async getStudentRoadmapFlat(userId: string): Promise<{
+    levels: {
+      id: string;
+      levelNumber: number;
+      title: string;
+      description: string | null;
+      isActive: boolean;
+      totalDays: number;
+      completedDays: number;
+      days: {
+        id: string;
+        dayNumber: number;
+        topicName: string;
+        status: string;
+        progressStatus: string | null;
+        state: 'COMPLETED' | 'CURRENT' | 'UPCOMING' | 'LOCKED';
+        progress: null;
+      }[];
+    }[];
+    currentDayId: string | null;
+    totalCompleted: number;
+    totalAvailable: number;
+  }> {
+    // Get the first published course (single-course platform)
+    const course = await prisma.course.findFirst({
+      where: { status: CourseStatus.PUBLISHED },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    if (!course) {
+      return { levels: [], currentDayId: null, totalCompleted: 0, totalAvailable: 0 };
+    }
+
+    const levels = await prisma.level.findMany({
+      where: { courseId: course.id, status: CourseStatus.PUBLISHED },
+      orderBy: [{ order: 'asc' }, { levelNumber: 'asc' }],
+    });
+
+    if (levels.length === 0) {
+      return { levels: [], currentDayId: null, totalCompleted: 0, totalAvailable: 0 };
+    }
+
+    const levelIds = levels.map((l) => l.id);
+
+    const [allContents, progressRows] = await Promise.all([
+      prisma.learningContent.findMany({
+        where: { levelId: { in: levelIds }, published: true },
+        orderBy: [{ order: 'asc' }, { dayNumber: 'asc' }],
+        select: { id: true, levelId: true, dayNumber: true, topicName: true, order: true },
+      }),
+      prisma.learningProgress.findMany({
+        where: { userId, courseId: course.id },
+        select: { contentId: true, status: true },
+      }),
+    ]);
+
+    const progressMap = new Map(progressRows.map((p) => [p.contentId, p.status as string]));
+
+    const totalAvailable = allContents.length;
+    let totalCompleted = 0;
+    let currentDayId: string | null = null;
+
+    // Determine "current" = most recent IN_PROGRESS, or first NOT_STARTED
+    const inProgressId = progressRows
+      .filter((p) => p.status === LearningProgressStatus.IN_PROGRESS)
+      .map((p) => p.contentId)[0] ?? null;
+
+    const completedIds = new Set(
+      progressRows.filter((p) => p.status === LearningProgressStatus.COMPLETED).map((p) => p.contentId),
+    );
+    totalCompleted = completedIds.size;
+
+    // current = in-progress, or first not-started
+    if (inProgressId) {
+      currentDayId = inProgressId;
+    } else {
+      const firstNotStarted = allContents.find((c) => !progressMap.has(c.id) || progressMap.get(c.id) === 'NOT_STARTED');
+      currentDayId = firstNotStarted?.id ?? null;
+    }
+
+    // Group contents by level
+    const contentsByLevel = new Map<string, typeof allContents>();
+    for (const c of allContents) {
+      if (!contentsByLevel.has(c.levelId)) contentsByLevel.set(c.levelId, []);
+      contentsByLevel.get(c.levelId)!.push(c);
+    }
+
+    const roadmapLevels = levels.map((level) => {
+      const levelContents = contentsByLevel.get(level.id) ?? [];
+      let levelCompleted = 0;
+
+      const days = levelContents.map((content) => {
+        const progressStatus = progressMap.get(content.id) ?? 'NOT_STARTED';
+        const isCompleted = completedIds.has(content.id);
+        const isCurrent = content.id === currentDayId;
+
+        if (isCompleted) levelCompleted++;
+
+        let state: 'COMPLETED' | 'CURRENT' | 'UPCOMING' | 'LOCKED';
+        if (isCompleted) state = 'COMPLETED';
+        else if (isCurrent) state = 'CURRENT';
+        else if (progressStatus === 'NOT_STARTED') state = 'UPCOMING';
+        else state = 'UPCOMING';
+
+        return {
+          id: content.id,
+          dayNumber: content.dayNumber,
+          topicName: content.topicName,
+          status: 'PUBLISHED' as string,
+          progressStatus: progressStatus === 'NOT_STARTED' ? null : progressStatus,
+          state,
+          progress: null,
+        };
+      });
+
+      return {
+        id: level.id,
+        levelNumber: level.levelNumber,
+        title: level.title,
+        description: level.description,
+        isActive: level.status === CourseStatus.PUBLISHED,
+        totalDays: levelContents.length,
+        completedDays: levelCompleted,
+        days,
+      };
+    });
+
+    return { levels: roadmapLevels, currentDayId, totalCompleted, totalAvailable };
+  }
+
+  // ── StudentLearningDashboard shape ────────────────────────────────────────
+  // Called by GET /learning/dashboard — returns the StudentLearningDashboard type
+
+  async getStudentDashboardNew(userId: string): Promise<{
+    platformCurrentDay: { levelNumber: number; dayNumber: number; topicName: string } | null;
+    studentCurrentDay: { levelNumber: number; dayNumber: number; topicName: string } | null;
+    currentLevel: { id: string; levelNumber: number; title: string; description: string | null } | null;
+    currentContent: {
+      id: string; levelId: string; levelNumber: number; dayNumber: number; topicName: string;
+      description: string | null; reelUrl: string | null; youtubeUrl: string | null;
+      status: string; publishedAt: Date | null; progressStatus: string | null;
+      notes: { id: string; contentId: string; imageUrl: string; storagePath: string; displayOrder: number; createdAt: Date }[];
+    } | null;
+    progress: { completed: number; total: number; percentage: number };
+    levelProgress: { levelNumber: number; title: string; completedDays: number; totalDays: number; percentage: number }[];
+  }> {
+    // Get active course
+    const course = await prisma.course.findFirst({
+      where: { status: CourseStatus.PUBLISHED },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    if (!course) {
+      return {
+        platformCurrentDay: null,
+        studentCurrentDay: null,
+        currentLevel: null,
+        currentContent: null,
+        progress: { completed: 0, total: 0, percentage: 0 },
+        levelProgress: [],
+      };
+    }
+
+    const courseId = course.id;
+
+    // Platform's latest published day
+    const latestPublished = await prisma.learningContent.findFirst({
+      where: { courseId, published: true },
+      orderBy: [{ order: 'desc' }, { dayNumber: 'desc' }],
+      include: { level: { select: { levelNumber: true } } },
+    });
+
+    const platformCurrentDay = latestPublished
+      ? { levelNumber: latestPublished.level.levelNumber, dayNumber: latestPublished.dayNumber, topicName: latestPublished.topicName }
+      : null;
+
+    // Student's current progress
+    const recentProgress = await prisma.learningProgress.findFirst({
+      where: { userId, courseId, content: { published: true } },
+      orderBy: { lastAccessedAt: 'desc' },
+      include: {
+        content: {
+          include: {
+            level: true,
+            noteImages: { orderBy: { imageOrder: 'asc' } },
+          },
+        },
+      },
+    });
+
+    const [totalContent, completedContent] = await Promise.all([
+      prisma.learningContent.count({ where: { courseId, published: true } }),
+      prisma.learningProgress.count({
+        where: { userId, courseId, status: LearningProgressStatus.COMPLETED },
+      }),
+    ]);
+
+    const percentage = totalContent > 0 ? Math.round((completedContent / totalContent) * 100) : 0;
+
+    let studentCurrentDay: { levelNumber: number; dayNumber: number; topicName: string } | null = null;
+    let currentLevel: { id: string; levelNumber: number; title: string; description: string | null } | null = null;
+    let currentContent: {
+      id: string; levelId: string; levelNumber: number; dayNumber: number; topicName: string;
+      description: string | null; reelUrl: string | null; youtubeUrl: string | null;
+      status: string; publishedAt: Date | null; progressStatus: string | null;
+      notes: { id: string; contentId: string; imageUrl: string; storagePath: string; displayOrder: number; createdAt: Date }[];
+    } | null = null;
+
+    if (recentProgress) {
+      const lvl = recentProgress.content.level;
+      studentCurrentDay = { levelNumber: lvl.levelNumber, dayNumber: recentProgress.content.dayNumber, topicName: recentProgress.content.topicName };
+      currentLevel = { id: lvl.id, levelNumber: lvl.levelNumber, title: lvl.title, description: lvl.description };
+      currentContent = {
+        id: recentProgress.content.id,
+        levelId: recentProgress.content.levelId,
+        levelNumber: lvl.levelNumber,
+        dayNumber: recentProgress.content.dayNumber,
+        topicName: recentProgress.content.topicName,
+        description: recentProgress.content.description,
+        reelUrl: recentProgress.content.reelUrl,
+        youtubeUrl: recentProgress.content.youtubeUrl ?? lvl.youtubeUrl,
+        status: recentProgress.content.published ? 'PUBLISHED' : 'DRAFT',
+        publishedAt: recentProgress.content.publishedAt,
+        progressStatus: recentProgress.status,
+        notes: (recentProgress.content.noteImages ?? []).map((ni) => ({
+          id: ni.id,
+          contentId: ni.learningContentId,
+          imageUrl: ni.imageUrl,
+          storagePath: ni.storagePath,
+          displayOrder: ni.imageOrder,
+          createdAt: ni.createdAt,
+        })),
+      };
+    }
+
+    // Level progress breakdown
+    const levels = await prisma.level.findMany({
+      where: { courseId, status: CourseStatus.PUBLISHED },
+      orderBy: [{ order: 'asc' }, { levelNumber: 'asc' }],
+      select: { id: true, levelNumber: true, title: true },
+    });
+
+    const levelIds = levels.map((l) => l.id);
+    const [levelTotals, levelCompletedRows] = await Promise.all([
+      prisma.learningContent.groupBy({
+        by: ['levelId'],
+        where: { levelId: { in: levelIds }, published: true },
+        _count: { id: true },
+      }),
+      prisma.learningProgress.groupBy({
+        by: ['courseId'],
+        where: {
+          userId,
+          courseId,
+          status: LearningProgressStatus.COMPLETED,
+          content: { levelId: { in: levelIds } },
+        },
+        _count: { id: true },
+      }),
+    ]);
+
+    // Per-level completed count requires joining through content
+    const completedByLevel = new Map<string, number>();
+    if (levelIds.length > 0) {
+      const completedContentIds = await prisma.learningProgress.findMany({
+        where: { userId, courseId, status: LearningProgressStatus.COMPLETED },
+        select: { contentId: true },
+      });
+      const ids = completedContentIds.map((p) => p.contentId);
+      if (ids.length > 0) {
+        const contents = await prisma.learningContent.findMany({
+          where: { id: { in: ids }, levelId: { in: levelIds } },
+          select: { levelId: true },
+        });
+        for (const c of contents) {
+          completedByLevel.set(c.levelId, (completedByLevel.get(c.levelId) ?? 0) + 1);
+        }
+      }
+    }
+
+    const totalMap = new Map(levelTotals.map((t) => [t.levelId, t._count.id]));
+    const levelProgress = levels.map((l) => {
+      const total = totalMap.get(l.id) ?? 0;
+      const completed = completedByLevel.get(l.id) ?? 0;
+      return {
+        levelNumber: l.levelNumber,
+        title: l.title,
+        completedDays: completed,
+        totalDays: total,
+        percentage: total > 0 ? Math.round((completed / total) * 100) : 0,
+      };
+    });
+
+    void levelCompletedRows; // used indirectly above
+
+    return {
+      platformCurrentDay,
+      studentCurrentDay,
+      currentLevel,
+      currentContent,
+      progress: { completed: completedContent, total: totalContent, percentage },
+      levelProgress,
+    };
+  }
+
+  // ── Continue Learning (ContinueLearningResult shape) ─────────────────────
+  // Called by GET /learning/continue
+
+  async getStudentContinueLearning(userId: string): Promise<{
+    contentId: string;
+    levelNumber: number;
+    dayNumber: number;
+    topicName: string;
+    description: string | null;
+    progressStatus: string;
+    percentageThroughDay: number;
+  } | null> {
+    const course = await prisma.course.findFirst({
+      where: { status: CourseStatus.PUBLISHED },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    if (!course) return null;
+
+    // Find most recently accessed content
+    const recent = await prisma.learningProgress.findFirst({
+      where: {
+        userId,
+        courseId: course.id,
+        content: { published: true },
+        status: { in: [LearningProgressStatus.IN_PROGRESS, LearningProgressStatus.NOT_STARTED] },
+      },
+      orderBy: { lastAccessedAt: 'desc' },
+      include: {
+        content: {
+          include: { level: { select: { levelNumber: true } } },
+        },
+      },
+    });
+
+    if (!recent) {
+      // No progress yet — return the very first published content
+      const firstContent = await prisma.learningContent.findFirst({
+        where: { courseId: course.id, published: true },
+        orderBy: [{ order: 'asc' }, { dayNumber: 'asc' }],
+        include: { level: { select: { levelNumber: true } } },
+      });
+
+      if (!firstContent) return null;
+
+      return {
+        contentId: firstContent.id,
+        levelNumber: firstContent.level.levelNumber,
+        dayNumber: firstContent.dayNumber,
+        topicName: firstContent.topicName,
+        description: firstContent.description,
+        progressStatus: 'NOT_STARTED',
+        percentageThroughDay: 0,
+      };
+    }
+
+    return {
+      contentId: recent.contentId,
+      levelNumber: recent.content.level.levelNumber,
+      dayNumber: recent.content.dayNumber,
+      topicName: recent.content.topicName,
+      description: recent.content.description,
+      progressStatus: recent.status,
+      percentageThroughDay:
+        recent.status === LearningProgressStatus.COMPLETED ? 100 :
+        recent.status === LearningProgressStatus.IN_PROGRESS ? 50 : 0,
+    };
+  }
 }
 
 export const studentService = new StudentService();

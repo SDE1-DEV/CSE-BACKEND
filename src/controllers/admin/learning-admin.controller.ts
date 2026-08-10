@@ -277,23 +277,27 @@ export const listContent = async (
   try {
     const rawData = await contentService.getContentList(req.query as any, true);
 
-    // Transform backend boolean `published` + level info into frontend-expected shape
-    const enriched = await Promise.all(
-      rawData.data.map(async (item) => {
-        const level = await prisma.level.findUnique({
-          where: { id: item.levelId },
-          select: { levelNumber: true, title: true },
-        }).catch(() => null);
+    // Batch-fetch all level data in a single query (no N+1)
+    const levelIds = [...new Set(rawData.data.map((item) => item.levelId))];
+    const levels = levelIds.length > 0
+      ? await prisma.level.findMany({
+          where: { id: { in: levelIds } },
+          select: { id: true, levelNumber: true, title: true },
+        }).catch(() => [] as { id: string; levelNumber: number; title: string }[])
+      : [] as { id: string; levelNumber: number; title: string }[];
 
-        return {
-          ...item,
-          status: item.published ? 'PUBLISHED' : 'DRAFT',
-          levelNumber: level?.levelNumber ?? 0,
-          levelTitle: level?.title ?? '',
-          notes: (item as any).noteImages ?? [],
-        };
-      }),
-    );
+    const levelMap = new Map(levels.map((l) => [l.id, l]));
+
+    const enriched = rawData.data.map((item) => {
+      const level = levelMap.get(item.levelId);
+      return {
+        ...item,
+        status: item.published ? 'PUBLISHED' : 'DRAFT',
+        levelNumber: level?.levelNumber ?? 0,
+        levelTitle: level?.title ?? '',
+        notes: (item as any).noteImages ?? [],
+      };
+    });
 
     sendSuccess(res, LEARNING_CMS_MESSAGES.CONTENTS_FETCHED, {
       ...rawData,
@@ -495,11 +499,10 @@ export const getAdminDashboard = async (
   next: NextFunction,
 ): Promise<void> => {
   try {
-    // Run all queries safely — if tables are empty or don't exist yet, return zeros
+    // Run all summary queries in parallel — single round-trip
     const [
       totalCourses,
       totalLevels,
-      totalContent,
       publishedContent,
       draftContent,
       totalNotes,
@@ -507,23 +510,22 @@ export const getAdminDashboard = async (
     ] = await Promise.all([
       prisma.course.count().catch(() => 0),
       prisma.level.count().catch(() => 0),
-      prisma.learningContent.count().catch(() => 0),
       prisma.learningContent.count({ where: { published: true } }).catch(() => 0),
       prisma.learningContent.count({ where: { published: false } }).catch(() => 0),
       prisma.learningNoteImage.count().catch(() => 0),
       prisma.learningProgress.count({ where: { status: 'COMPLETED' } }).catch(() => 0),
     ]);
 
+    const totalContent = publishedContent + draftContent;
+
     // Current active day (most recently published)
     const latestPublished = await prisma.learningContent.findFirst({
       where: { published: true },
       orderBy: { publishedAt: 'desc' },
-      include: {
-        level: { select: { levelNumber: true } },
-      },
+      include: { level: { select: { levelNumber: true } } },
     }).catch(() => null);
 
-    // Student engagement stats
+    // Student engagement — two distinct-user counts
     const [studentsStarted, studentsCompletedAll] = await Promise.all([
       prisma.learningProgress.findMany({
         distinct: ['userId'],
@@ -536,50 +538,71 @@ export const getAdminDashboard = async (
       }).then((r) => r.length).catch(() => 0),
     ]);
 
-    // Level breakdown
+    // Level list
     const levels = await prisma.level.findMany({
       orderBy: [{ order: 'asc' }, { levelNumber: 'asc' }],
       select: { id: true, levelNumber: true, title: true },
-    }).catch(() => []);
+    }).catch(() => [] as { id: string; levelNumber: number; title: string }[]);
 
-    const levelBreakdown = await Promise.all(
-      levels.map(async (lvl) => {
-        const [totalDays, publishedDays, startedCount, completedCount] = await Promise.all([
-          prisma.learningContent.count({ where: { levelId: lvl.id } }).catch(() => 0),
-          prisma.learningContent.count({ where: { levelId: lvl.id, published: true } }).catch(() => 0),
-          prisma.learningProgress.findMany({
-            where: { content: { levelId: lvl.id } },
-            distinct: ['userId'],
-            select: { userId: true },
-          }).then((r) => r.length).catch(() => 0),
-          prisma.learningProgress.findMany({
-            where: { content: { levelId: lvl.id }, status: 'COMPLETED' },
-            distinct: ['userId'],
-            select: { userId: true },
-          }).then((r) => r.length).catch(() => 0),
-        ]);
+    const levelIds = levels.map((l) => l.id);
 
-        return {
-          levelNumber: lvl.levelNumber,
-          title: lvl.title,
-          totalDays,
-          publishedDays,
-          studentsStarted: startedCount,
-          studentsCompleted: completedCount,
-        };
-      }),
-    );
+    // Batch all level breakdown queries — one query per metric instead of 4×N
+    const [contentTotals, contentPublished, progressStarted, progressCompleted] = levelIds.length > 0
+      ? await Promise.all([
+          prisma.learningContent.groupBy({
+            by: ['levelId'],
+            where: { levelId: { in: levelIds } },
+            _count: { id: true },
+          }).catch(() => [] as { levelId: string; _count: { id: number } }[]),
 
-    const totalDays = totalContent;
-    const completionRate = totalDays > 0 && studentsStarted > 0
-      ? Math.round((totalCompletedLessons / (totalDays * studentsStarted)) * 100)
+          prisma.learningContent.groupBy({
+            by: ['levelId'],
+            where: { levelId: { in: levelIds }, published: true },
+            _count: { id: true },
+          }).catch(() => [] as { levelId: string; _count: { id: number } }[]),
+
+          // Students who have any progress for content in each level
+          prisma.$queryRaw<{ level_id: string; cnt: bigint }[]>`
+            SELECT lc."levelId" AS level_id, COUNT(DISTINCT lp."userId") AS cnt
+            FROM "learning_progress" lp
+            JOIN "learning_contents" lc ON lc.id = lp."contentId"
+            WHERE lc."levelId" = ANY(${levelIds})
+            GROUP BY lc."levelId"
+          `.catch(() => [] as { level_id: string; cnt: bigint }[]),
+
+          // Students who completed ALL content in each level (approximate: any COMPLETED)
+          prisma.$queryRaw<{ level_id: string; cnt: bigint }[]>`
+            SELECT lc."levelId" AS level_id, COUNT(DISTINCT lp."userId") AS cnt
+            FROM "learning_progress" lp
+            JOIN "learning_contents" lc ON lc.id = lp."contentId"
+            WHERE lc."levelId" = ANY(${levelIds})
+              AND lp.status = 'COMPLETED'
+            GROUP BY lc."levelId"
+          `.catch(() => [] as { level_id: string; cnt: bigint }[]),
+        ])
+      : [[], [], [], []];
+
+    const totalMap = new Map((contentTotals as { levelId: string; _count: { id: number } }[]).map((r) => [r.levelId, r._count.id]));
+    const pubMap = new Map((contentPublished as { levelId: string; _count: { id: number } }[]).map((r) => [r.levelId, r._count.id]));
+    const startMap = new Map((progressStarted as { level_id: string; cnt: bigint }[]).map((r) => [r.level_id, Number(r.cnt)]));
+    const compMap = new Map((progressCompleted as { level_id: string; cnt: bigint }[]).map((r) => [r.level_id, Number(r.cnt)]));
+
+    const levelBreakdown = levels.map((lvl) => ({
+      levelNumber: lvl.levelNumber,
+      title: lvl.title,
+      totalDays: totalMap.get(lvl.id) ?? 0,
+      publishedDays: pubMap.get(lvl.id) ?? 0,
+      studentsStarted: startMap.get(lvl.id) ?? 0,
+      studentsCompleted: compMap.get(lvl.id) ?? 0,
+    }));
+
+    const completionRate = totalContent > 0 && studentsStarted > 0
+      ? Math.round((totalCompletedLessons / (totalContent * studentsStarted)) * 100)
       : 0;
 
-    // Shape matches AdminLearningDashboardStats in frontend types
-    // Include both the canonical fields AND short aliases the tests expect
     sendSuccess(res, 'Learning CMS dashboard fetched successfully', {
       totalLevels,
-      totalLearningDays: totalDays,
+      totalLearningDays: totalContent,
       publishedCount: publishedContent,
       draftsCount: draftContent,
       unpublishedCount: 0,
@@ -594,10 +617,9 @@ export const getAdminDashboard = async (
       totalCompletedLessons,
       completionRate,
       levelBreakdown,
-      // Short aliases used by frontend AdminLearningDashboardStats type
       courses: { total: totalCourses, published: publishedContent, draft: draftContent },
       levels: { total: totalLevels },
-      content: { total: totalDays, published: publishedContent, draft: draftContent },
+      content: { total: totalContent, published: publishedContent, draft: draftContent },
       notes: { total: totalNotes },
     });
   } catch (error) {

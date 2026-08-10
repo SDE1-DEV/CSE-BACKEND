@@ -569,6 +569,7 @@ export const LEARNING_CMS_MESSAGES = {
   DASHBOARD_FETCHED: 'Learning dashboard fetched successfully',
   ROADMAP_FETCHED: 'Learning roadmap fetched successfully',
   CURRENT_LESSON_FETCHED: 'Current lesson fetched successfully',
+  CONTINUE_LEARNING_FETCHED: 'Continue learning fetched successfully',
 } as const;
 
 export const MAX_NOTES_IMAGES = 5;

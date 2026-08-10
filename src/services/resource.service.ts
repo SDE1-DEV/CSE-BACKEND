@@ -1,30 +1,28 @@
-// @ts-nocheck
-import { LearningResource } from '@prisma/client';
-import { resourceRepository } from '../repositories/resource.repository';
+import { RawResource, resourceRepository } from '../repositories/resource.repository';
 import { lessonRepository } from '../repositories/lesson.repository';
 import { AppError } from '../middlewares/error.middleware';
 import { HTTP_STATUS, LEARNING_MESSAGES } from '../constants';
 import { CreateResourceInput, UpdateResourceInput } from '../validators/resource.validator';
 
 export class ResourceService {
-  async createResource(data: CreateResourceInput): Promise<LearningResource> {
+  async createResource(data: CreateResourceInput): Promise<RawResource> {
     const lesson = await lessonRepository.findById(data.lessonId);
     if (!lesson) {
       throw new AppError(HTTP_STATUS.NOT_FOUND, LEARNING_MESSAGES.LESSON_NOT_FOUND);
     }
 
     return resourceRepository.create({
+      lessonId: data.lessonId,
       type: data.type,
       title: data.title,
       url: data.url,
       duration: data.duration ?? null,
       author: data.author ?? null,
       thumbnail: data.thumbnail ?? null,
-      lesson: { connect: { id: data.lessonId } },
     });
   }
 
-  async getResourceById(id: string): Promise<LearningResource> {
+  async getResourceById(id: string): Promise<RawResource> {
     const resource = await resourceRepository.findById(id);
     if (!resource) {
       throw new AppError(HTTP_STATUS.NOT_FOUND, LEARNING_MESSAGES.RESOURCE_NOT_FOUND);
@@ -32,7 +30,7 @@ export class ResourceService {
     return resource;
   }
 
-  async getResourcesByLesson(lessonId: string): Promise<LearningResource[]> {
+  async getResourcesByLesson(lessonId: string): Promise<RawResource[]> {
     const lesson = await lessonRepository.findById(lessonId);
     if (!lesson) {
       throw new AppError(HTTP_STATUS.NOT_FOUND, LEARNING_MESSAGES.LESSON_NOT_FOUND);
@@ -40,7 +38,7 @@ export class ResourceService {
     return resourceRepository.findByLessonId(lessonId);
   }
 
-  async updateResource(id: string, data: UpdateResourceInput): Promise<LearningResource> {
+  async updateResource(id: string, data: UpdateResourceInput): Promise<RawResource> {
     const resource = await resourceRepository.findById(id);
     if (!resource) {
       throw new AppError(HTTP_STATUS.NOT_FOUND, LEARNING_MESSAGES.RESOURCE_NOT_FOUND);

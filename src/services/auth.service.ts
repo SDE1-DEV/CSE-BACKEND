@@ -116,41 +116,50 @@ export class AuthService {
   /**
    * Refresh token rotation: issues a new refresh token and invalidates the old one.
    * PRD-06: Section 13 — Security Hardening (refresh token rotation)
+   *
+   * Performance: parallel token validation + user lookup where possible.
    */
   async refresh(refreshToken: string): Promise<{ accessToken: string; refreshToken: string }> {
-    const stored = await authRepository.findRefreshToken(refreshToken);
+    // 1. Validate JWT first (no DB hit) — fail fast on tampered tokens
+    let payload: ReturnType<typeof verifyRefreshToken>;
+    try {
+      payload = verifyRefreshToken(refreshToken);
+    } catch {
+      throw new AppError(HTTP_STATUS.UNAUTHORIZED, MESSAGES.TOKEN_INVALID);
+    }
+
+    // 2. Fetch stored token + user in parallel (single round-trip each)
+    const [stored, user] = await Promise.all([
+      authRepository.findRefreshToken(refreshToken),
+      userRepository.findById(payload.userId),
+    ]);
 
     if (!stored) {
       throw new AppError(HTTP_STATUS.UNAUTHORIZED, MESSAGES.TOKEN_INVALID);
     }
 
     if (new Date() > stored.expiresAt) {
-      await authRepository.deleteRefreshToken(refreshToken);
+      // Clean up expired token without blocking the error response
+      void authRepository.deleteRefreshToken(refreshToken).catch(() => null);
       throw new AppError(HTTP_STATUS.UNAUTHORIZED, MESSAGES.TOKEN_INVALID);
     }
 
-    let payload: ReturnType<typeof verifyRefreshToken>;
-    try {
-      payload = verifyRefreshToken(refreshToken);
-    } catch {
-      await authRepository.deleteRefreshToken(refreshToken);
-      throw new AppError(HTTP_STATUS.UNAUTHORIZED, MESSAGES.TOKEN_INVALID);
-    }
-
-    const user = await userRepository.findById(payload.userId);
     if (!user) {
       throw new AppError(HTTP_STATUS.UNAUTHORIZED, MESSAGES.TOKEN_INVALID);
     }
 
-    // Include permissions for MANAGER role (PRD-07)
+    // 3. Build token payload (only MANAGER needs a DB permission lookup)
     const tokenPayload = await this.buildTokenPayload(user);
 
-    // Rotate: delete old token, issue new pair
-    await authRepository.deleteRefreshToken(refreshToken);
+    // 4. Rotate: delete old token and create new one — run in parallel
+    const expiresAt = parseExpiry(env.REFRESH_EXPIRY);
     const newAccessToken = generateAccessToken(tokenPayload);
     const newRefreshToken = generateRefreshToken(tokenPayload);
-    const expiresAt = parseExpiry(env.REFRESH_EXPIRY);
-    await authRepository.createRefreshToken(user.id, newRefreshToken, expiresAt);
+
+    await Promise.all([
+      authRepository.deleteRefreshToken(refreshToken),
+      authRepository.createRefreshToken(user.id, newRefreshToken, expiresAt),
+    ]);
 
     return { accessToken: newAccessToken, refreshToken: newRefreshToken };
   }

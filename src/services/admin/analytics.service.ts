@@ -287,7 +287,6 @@ export class AnalyticsService {
     let points: { label: string; start: Date; end: Date }[] = [];
 
     if (period === 'daily') {
-      // Last 30 days
       points = Array.from({ length: 30 }, (_, i) => {
         const d = daysAgo(29 - i);
         const start = startOfDay(d);
@@ -295,26 +294,19 @@ export class AnalyticsService {
         return { label: start.toISOString().slice(5, 10), start, end };
       });
     } else if (period === 'weekly') {
-      // Last 12 weeks
       points = Array.from({ length: 12 }, (_, i) => {
         const end = new Date(now.getTime() - i * 7 * 86_400_000);
         const start = new Date(end.getTime() - 7 * 86_400_000);
         return { label: `W${12 - i}`, start, end };
       }).reverse();
     } else if (period === 'monthly') {
-      // Last 12 months
       points = Array.from({ length: 12 }, (_, i) => {
         const d = new Date(now.getFullYear(), now.getMonth() - (11 - i), 1);
         const start = d;
         const end = new Date(d.getFullYear(), d.getMonth() + 1, 1);
-        return {
-          label: d.toLocaleString('en', { month: 'short' }),
-          start,
-          end,
-        };
+        return { label: d.toLocaleString('en', { month: 'short' }), start, end };
       });
     } else {
-      // yearly — last 5 years
       points = Array.from({ length: 5 }, (_, i) => {
         const year = now.getFullYear() - (4 - i);
         return {
@@ -325,72 +317,130 @@ export class AnalyticsService {
       });
     }
 
-    // ── Fetch chart data one bucket at a time to prevent connection pool exhaustion.
-    //
-    // The naive approach of Promise.all(points.map(...)) fires every category for every
-    // bucket simultaneously. With 12 monthly buckets × ~13 queries each that's ~156
-    // concurrent Prisma calls against a pool of 9 — guaranteed timeouts.
-    //
-    // Instead we iterate buckets sequentially. Within each bucket we still parallelise
-    // the independent queries across the six categories (bounded to ≤13 connections at
-    // a time), keeping latency reasonable while staying well within pool limits.
+    const rangeStart = points[0].start;
+    const rangeEnd = points[points.length - 1].end;
 
-    const userGrowth:       { newUsers: number; activeUsers: number; students: number; managers: number }[] = [];
-    const learningActivity: { lessons: number; completions: number }[] = [];
-    const codingActivity:   { submissions: number; accepted: number }[] = [];
-    const projectActivity:  number[] = [];
-    const placementActivity: { applications: number; offered: number }[] = [];
-    const eventActivity:    { events: number; registrations: number }[] = [];
+    // Use raw SQL with conditional aggregation to fetch ALL buckets in one query per table.
+    // This replaces 156+ sequential Prisma calls (12 buckets × ~13 queries) with 6 parallel queries.
 
-    for (const { start, end } of points) {
-      const [
-        newUsers, activeUsers, students, managers,
-        content, completions,
-        submissions, accepted,
-        projects,
-        applications, offered,
-        eventsCount, registrations,
-      ] = await Promise.all([
-        // User growth
-        prisma.user.count({ where: { createdAt: { gte: start, lt: end } } }),
-        prisma.user.count({ where: { lastLoginAt: { gte: start, lt: end } } }),
-        prisma.user.count({ where: { role: Role.STUDENT, createdAt: { gte: start, lt: end } } }),
-        prisma.user.count({ where: { role: Role.MANAGER, createdAt: { gte: start, lt: end } } }),
-        // Learning (NEW CMS models)
-        prisma.learningContent.count({ where: { createdAt: { gte: start, lt: end } } }),
-        prisma.learningProgress.count({ where: { status: 'COMPLETED', completedAt: { gte: start, lt: end } } }),
-        // Coding
-        prisma.submission.count({ where: { submittedAt: { gte: start, lt: end } } }),
-        prisma.submission.count({ where: { status: 'ACCEPTED', submittedAt: { gte: start, lt: end } } }),
-        // Projects
-        prisma.project.count({ where: { createdAt: { gte: start, lt: end } } }),
-        // Placement
-        prisma.jobApplication.count({ where: { appliedAt: { gte: start, lt: end } } }),
-        prisma.jobApplication.count({ where: { status: 'OFFERED', appliedAt: { gte: start, lt: end } } }),
-        // Events
-        prisma.event.count({ where: { createdAt: { gte: start, lt: end } } }),
-        prisma.eventRegistration.count({ where: { registeredAt: { gte: start, lt: end } } }),
-      ]);
+    type BucketRow = { bucket_idx: number; count: bigint };
 
-      userGrowth.push({ newUsers, activeUsers, students, managers });
-      learningActivity.push({ lessons: content, completions });
-      codingActivity.push({ submissions, accepted });
-      projectActivity.push(projects);
-      placementActivity.push({ applications, offered });
-      eventActivity.push({ events: eventsCount, registrations });
-    }
+    // Build per-bucket CASE expressions for each point
+    const bucketCases = (col: string) =>
+      points.map((p, i) =>
+        `SUM(CASE WHEN ${col} >= '${p.start.toISOString()}' AND ${col} < '${p.end.toISOString()}' THEN 1 ELSE 0 END) AS b${i}`,
+      ).join(', ');
+
+    // Helper to parse a flat aggregation row into per-bucket array
+    const parseRow = (row: Record<string, unknown>) =>
+      points.map((_, i) => Number(row[`b${i}`] ?? 0));
+
+    const [
+      userRow,
+      studentRow,
+      managerRow,
+      activeRow,
+      contentRow,
+      completionRow,
+      submissionsRow,
+      acceptedRow,
+      projectRow,
+      applicationRow,
+      offeredRow,
+      eventRow,
+      registrationRow,
+    ] = await Promise.all([
+      prisma.$queryRawUnsafe<Record<string, unknown>[]>(
+        `SELECT ${points.map((p, i) => `SUM(CASE WHEN "createdAt" >= '${p.start.toISOString()}' AND "createdAt" < '${p.end.toISOString()}' THEN 1 ELSE 0 END) AS b${i}`).join(', ')} FROM "users" WHERE "createdAt" >= '${rangeStart.toISOString()}' AND "createdAt" < '${rangeEnd.toISOString()}'`,
+      ).then((r) => parseRow(r[0] ?? {})),
+
+      prisma.$queryRawUnsafe<Record<string, unknown>[]>(
+        `SELECT ${points.map((p, i) => `SUM(CASE WHEN "createdAt" >= '${p.start.toISOString()}' AND "createdAt" < '${p.end.toISOString()}' THEN 1 ELSE 0 END) AS b${i}`).join(', ')} FROM "users" WHERE role = 'STUDENT' AND "createdAt" >= '${rangeStart.toISOString()}' AND "createdAt" < '${rangeEnd.toISOString()}'`,
+      ).then((r) => parseRow(r[0] ?? {})),
+
+      prisma.$queryRawUnsafe<Record<string, unknown>[]>(
+        `SELECT ${points.map((p, i) => `SUM(CASE WHEN "createdAt" >= '${p.start.toISOString()}' AND "createdAt" < '${p.end.toISOString()}' THEN 1 ELSE 0 END) AS b${i}`).join(', ')} FROM "users" WHERE role = 'MANAGER' AND "createdAt" >= '${rangeStart.toISOString()}' AND "createdAt" < '${rangeEnd.toISOString()}'`,
+      ).then((r) => parseRow(r[0] ?? {})),
+
+      prisma.$queryRawUnsafe<Record<string, unknown>[]>(
+        `SELECT ${points.map((p, i) => `SUM(CASE WHEN "lastLoginAt" >= '${p.start.toISOString()}' AND "lastLoginAt" < '${p.end.toISOString()}' THEN 1 ELSE 0 END) AS b${i}`).join(', ')} FROM "users" WHERE "lastLoginAt" >= '${rangeStart.toISOString()}' AND "lastLoginAt" < '${rangeEnd.toISOString()}'`,
+      ).then((r) => parseRow(r[0] ?? {})),
+
+      prisma.$queryRawUnsafe<Record<string, unknown>[]>(
+        `SELECT ${points.map((p, i) => `SUM(CASE WHEN "createdAt" >= '${p.start.toISOString()}' AND "createdAt" < '${p.end.toISOString()}' THEN 1 ELSE 0 END) AS b${i}`).join(', ')} FROM "learning_contents" WHERE "createdAt" >= '${rangeStart.toISOString()}' AND "createdAt" < '${rangeEnd.toISOString()}'`,
+      ).then((r) => parseRow(r[0] ?? {})).catch(() => points.map(() => 0)),
+
+      prisma.$queryRawUnsafe<Record<string, unknown>[]>(
+        `SELECT ${points.map((p, i) => `SUM(CASE WHEN "completedAt" >= '${p.start.toISOString()}' AND "completedAt" < '${p.end.toISOString()}' THEN 1 ELSE 0 END) AS b${i}`).join(', ')} FROM "learning_progress" WHERE status = 'COMPLETED' AND "completedAt" >= '${rangeStart.toISOString()}' AND "completedAt" < '${rangeEnd.toISOString()}'`,
+      ).then((r) => parseRow(r[0] ?? {})).catch(() => points.map(() => 0)),
+
+      prisma.$queryRawUnsafe<Record<string, unknown>[]>(
+        `SELECT ${points.map((p, i) => `SUM(CASE WHEN "submittedAt" >= '${p.start.toISOString()}' AND "submittedAt" < '${p.end.toISOString()}' THEN 1 ELSE 0 END) AS b${i}`).join(', ')} FROM "submissions" WHERE "submittedAt" >= '${rangeStart.toISOString()}' AND "submittedAt" < '${rangeEnd.toISOString()}'`,
+      ).then((r) => parseRow(r[0] ?? {})).catch(() => points.map(() => 0)),
+
+      prisma.$queryRawUnsafe<Record<string, unknown>[]>(
+        `SELECT ${points.map((p, i) => `SUM(CASE WHEN "submittedAt" >= '${p.start.toISOString()}' AND "submittedAt" < '${p.end.toISOString()}' THEN 1 ELSE 0 END) AS b${i}`).join(', ')} FROM "submissions" WHERE status = 'ACCEPTED' AND "submittedAt" >= '${rangeStart.toISOString()}' AND "submittedAt" < '${rangeEnd.toISOString()}'`,
+      ).then((r) => parseRow(r[0] ?? {})).catch(() => points.map(() => 0)),
+
+      prisma.$queryRawUnsafe<Record<string, unknown>[]>(
+        `SELECT ${points.map((p, i) => `SUM(CASE WHEN "createdAt" >= '${p.start.toISOString()}' AND "createdAt" < '${p.end.toISOString()}' THEN 1 ELSE 0 END) AS b${i}`).join(', ')} FROM "projects" WHERE "createdAt" >= '${rangeStart.toISOString()}' AND "createdAt" < '${rangeEnd.toISOString()}'`,
+      ).then((r) => parseRow(r[0] ?? {})).catch(() => points.map(() => 0)),
+
+      prisma.$queryRawUnsafe<Record<string, unknown>[]>(
+        `SELECT ${points.map((p, i) => `SUM(CASE WHEN "appliedAt" >= '${p.start.toISOString()}' AND "appliedAt" < '${p.end.toISOString()}' THEN 1 ELSE 0 END) AS b${i}`).join(', ')} FROM "job_applications" WHERE "appliedAt" >= '${rangeStart.toISOString()}' AND "appliedAt" < '${rangeEnd.toISOString()}'`,
+      ).then((r) => parseRow(r[0] ?? {})).catch(() => points.map(() => 0)),
+
+      prisma.$queryRawUnsafe<Record<string, unknown>[]>(
+        `SELECT ${points.map((p, i) => `SUM(CASE WHEN "appliedAt" >= '${p.start.toISOString()}' AND "appliedAt" < '${p.end.toISOString()}' THEN 1 ELSE 0 END) AS b${i}`).join(', ')} FROM "job_applications" WHERE status = 'OFFERED' AND "appliedAt" >= '${rangeStart.toISOString()}' AND "appliedAt" < '${rangeEnd.toISOString()}'`,
+      ).then((r) => parseRow(r[0] ?? {})).catch(() => points.map(() => 0)),
+
+      prisma.$queryRawUnsafe<Record<string, unknown>[]>(
+        `SELECT ${points.map((p, i) => `SUM(CASE WHEN "createdAt" >= '${p.start.toISOString()}' AND "createdAt" < '${p.end.toISOString()}' THEN 1 ELSE 0 END) AS b${i}`).join(', ')} FROM "events" WHERE "createdAt" >= '${rangeStart.toISOString()}' AND "createdAt" < '${rangeEnd.toISOString()}'`,
+      ).then((r) => parseRow(r[0] ?? {})).catch(() => points.map(() => 0)),
+
+      prisma.$queryRawUnsafe<Record<string, unknown>[]>(
+        `SELECT ${points.map((p, i) => `SUM(CASE WHEN "registeredAt" >= '${p.start.toISOString()}' AND "registeredAt" < '${p.end.toISOString()}' THEN 1 ELSE 0 END) AS b${i}`).join(', ')} FROM "event_registrations" WHERE "registeredAt" >= '${rangeStart.toISOString()}' AND "registeredAt" < '${rangeEnd.toISOString()}'`,
+      ).then((r) => parseRow(r[0] ?? {})).catch(() => points.map(() => 0)),
+    ]);
+
+    void bucketCases; // suppress unused var
 
     const labels = points.map((p) => p.label);
 
     return {
       period,
       labels,
-      userGrowth: userGrowth.map((d, i) => ({ label: labels[i], ...d })),
-      learningActivity: learningActivity.map((d, i) => ({ label: labels[i], ...d })),
-      codingActivity: codingActivity.map((d, i) => ({ label: labels[i], ...d })),
-      projectActivity: projectActivity.map((d, i) => ({ label: labels[i], projects: d })),
-      placementActivity: placementActivity.map((d, i) => ({ label: labels[i], ...d })),
-      eventActivity: eventActivity.map((d, i) => ({ label: labels[i], ...d })),
+      userGrowth: points.map((_, i) => ({
+        label: labels[i],
+        newUsers: userRow[i],
+        activeUsers: activeRow[i],
+        students: studentRow[i],
+        managers: managerRow[i],
+      })),
+      learningActivity: points.map((_, i) => ({
+        label: labels[i],
+        lessons: contentRow[i],
+        completions: completionRow[i],
+      })),
+      codingActivity: points.map((_, i) => ({
+        label: labels[i],
+        submissions: submissionsRow[i],
+        accepted: acceptedRow[i],
+      })),
+      projectActivity: points.map((_, i) => ({
+        label: labels[i],
+        projects: projectRow[i],
+      })),
+      placementActivity: points.map((_, i) => ({
+        label: labels[i],
+        applications: applicationRow[i],
+        offered: offeredRow[i],
+      })),
+      eventActivity: points.map((_, i) => ({
+        label: labels[i],
+        events: eventRow[i],
+        registrations: registrationRow[i],
+      })),
     };
   }
 

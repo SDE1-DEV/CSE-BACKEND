@@ -394,7 +394,7 @@ export class LessonService {
         roadmapTitle: roadmap.title,
       },
       progress,
-      lastActivityAt: recentlyViewed.viewedAt?.toISOString() ?? new Date().toISOString(),
+      lastActivityAt: (recentlyViewed.viewedAt as Date | null)?.toISOString() ?? new Date().toISOString(),
     };
   }
 }

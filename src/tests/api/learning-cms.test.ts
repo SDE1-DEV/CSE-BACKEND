@@ -66,11 +66,14 @@ vi.mock('../../services/learning-cms/student.service', () => ({
     getStudentCourses: vi.fn(),
     getStudentCourse: vi.fn(),
     getStudentRoadmap: vi.fn(),
+    getStudentRoadmapFlat: vi.fn(),
     getCurrentLearning: vi.fn(),
     getContentForStudent: vi.fn(),
     updateProgress: vi.fn(),
     getProgress: vi.fn(),
     getStudentDashboard: vi.fn(),
+    getStudentDashboardNew: vi.fn(),
+    getStudentContinueLearning: vi.fn(),
   },
 }));
 
@@ -82,12 +85,15 @@ vi.mock('../../config/database', () => {
     learningNoteImage: { count: vi.fn().mockResolvedValue(0), findMany: vi.fn().mockResolvedValue([]) },
     learningProgress: { count: vi.fn().mockResolvedValue(0), findMany: vi.fn().mockResolvedValue([]), findFirst: vi.fn().mockResolvedValue(null), findUnique: vi.fn().mockResolvedValue(null), groupBy: vi.fn().mockResolvedValue([]) },
     auditLog: { create: vi.fn().mockResolvedValue({}) },
+    systemLog: { create: vi.fn().mockResolvedValue({}) },
     roadmap: null,
     codingProblem: { count: vi.fn().mockResolvedValue(0), findMany: vi.fn().mockResolvedValue([]) },
     project: { count: vi.fn().mockResolvedValue(0), findMany: vi.fn().mockResolvedValue([]) },
     user: { count: vi.fn().mockResolvedValue(0), findMany: vi.fn().mockResolvedValue([]) },
     managerPermission: { findUnique: vi.fn().mockResolvedValue(null) },
     $transaction: vi.fn().mockImplementation(async (fn: (tx: unknown) => Promise<unknown>) => fn(mockPrisma)),
+    $queryRaw: vi.fn().mockResolvedValue([]),
+    $executeRaw: vi.fn().mockResolvedValue(0),
     $connect: vi.fn(),
     $disconnect: vi.fn(),
   };
@@ -688,24 +694,19 @@ describe('Student: Dashboard', () => {
   beforeEach(() => vi.clearAllMocks());
 
   it('returns dashboard data — 200', async () => {
-    vi.mocked(studentService.getStudentDashboard).mockResolvedValue({
-      activeCourse: { ...mockCourse, progress: { completedDays: 1, totalDays: 3, progressPercentage: 33 } } as never,
-      currentLevel: mockLevel as never,
-      currentDay: 1,
-      currentTopic: 'What is Programming?',
-      overallProgress: 33,
-      levelProgress: 33,
-      completedDays: 1,
-      totalDays: 3,
-      continueLearningContent: null,
-      nextContent: null,
-      roadmapSummary: [],
-    });
+    vi.mocked(studentService.getStudentDashboardNew).mockResolvedValue({
+      platformCurrentDay: { levelNumber: 1, dayNumber: 1, topicName: 'What is Programming?' },
+      studentCurrentDay: { levelNumber: 1, dayNumber: 1, topicName: 'What is Programming?' },
+      currentLevel: { id: 'lvl-1', levelNumber: 1, title: 'Getting Started', description: null },
+      currentContent: null,
+      progress: { completed: 1, total: 3, percentage: 33 },
+      levelProgress: [{ levelNumber: 1, title: 'Getting Started', completedDays: 1, totalDays: 3, percentage: 33 }],
+    } as never);
     const res = await request(app)
       .get('/api/learning/dashboard')
       .set('Authorization', `Bearer ${studentToken}`);
     expect(res.status).toBe(200);
-    expect(res.body.data.overallProgress).toBe(33);
+    expect(res.body.data.progress.percentage).toBe(33);
   });
 
   it('401 — unauthenticated dashboard request', async () => {

@@ -80,8 +80,14 @@ router.use('/health', healthRoutes);
 // ── PRD-02: Learning Ecosystem ────────────────────────────────────────────────
 router.use('/categories', categoryRoutes);
 
+// Learning CMS Student routes FIRST — handles /learning/dashboard, /learning/roadmap,
+// /learning/continue, /learning/courses/*, /learning/content/*, /learning/progress
+// These MUST be registered before learningApiRoutes so the new CMS endpoints
+// win over any legacy routes with the same path.
+router.use('/learning', studentLearningRoutes);
+
 // /learning/* — all frontend-facing learning API routes (quiz, practice, stats, notes, etc.)
-// Mount FIRST so /learning/lessons/:id wins before generic /roadmaps CRUD
+// Mounts after studentLearningRoutes so legacy routes don't shadow new CMS endpoints.
 router.use('/learning', learningApiRoutes);
 
 // Learning extras at root for backwards-compat (slug roadmaps, body bookmarks, progress, activity)
@@ -166,8 +172,7 @@ router.use('/admin', superAdminRoutes);
 
 // Learning CMS Admin routes
 router.use('/admin/learning', adminLearningRoutes);
-// Learning CMS Student routes
-router.use('/learning', studentLearningRoutes);
+// Note: studentLearningRoutes is already mounted above at /learning (before learningApiRoutes)
 
 // Legacy admin routes (backward compat PRD-01 to PRD-06)
 router.use('/admin', adminRoutes);
