@@ -112,3 +112,15 @@ export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>['body'];
 export type RefreshTokenInput = z.infer<typeof refreshTokenSchema>['body'];
 export type ChangePasswordInput = z.infer<typeof changePasswordSchema>['body'];
 export type UpdateProfileInput = z.infer<typeof updateAuthProfileSchema>['body'];
+
+export const verifyEmailSchema = z.object({
+  body: z.object({
+    email: z.string().email('Invalid email address'),
+    otp: z
+      .string()
+      .length(6, 'OTP must be exactly 6 digits')
+      .regex(/^\d{6}$/, 'OTP must be numeric'),
+  }),
+});
+
+export type VerifyEmailInput = z.infer<typeof verifyEmailSchema>['body'];

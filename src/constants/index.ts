@@ -522,3 +522,55 @@ export const JUDGE_MESSAGES = {
   // Output comparison (Phase 9)
   COMPARISON_FETCHED: 'Output comparison fetched successfully',
 } as const;
+
+// ── Learning CMS Messages ─────────────────────────────────────────────────────
+export const LEARNING_CMS_MESSAGES = {
+  // Courses
+  COURSE_CREATED: 'Course created successfully',
+  COURSE_UPDATED: 'Course updated successfully',
+  COURSE_DELETED: 'Course deleted successfully',
+  COURSE_FETCHED: 'Course fetched successfully',
+  COURSES_FETCHED: 'Courses fetched successfully',
+  COURSE_NOT_FOUND: 'Course not found',
+  COURSE_SLUG_EXISTS: 'A course with this slug already exists',
+
+  // Levels
+  LEVEL_CREATED: 'Level created successfully',
+  LEVEL_UPDATED: 'Level updated successfully',
+  LEVEL_DELETED: 'Level deleted successfully',
+  LEVEL_FETCHED: 'Level fetched successfully',
+  LEVELS_FETCHED: 'Levels fetched successfully',
+  LEVEL_NOT_FOUND: 'Level not found',
+  LEVEL_NUMBER_EXISTS: 'A level with this number already exists for the course',
+
+  // Learning Content
+  CONTENT_CREATED: 'Learning content created successfully',
+  CONTENT_UPDATED: 'Learning content updated successfully',
+  CONTENT_DELETED: 'Learning content deleted successfully',
+  CONTENT_FETCHED: 'Learning content fetched successfully',
+  CONTENTS_FETCHED: 'Learning contents fetched successfully',
+  CONTENT_NOT_FOUND: 'Learning content not found',
+  CONTENT_DUPLICATE_DAY: 'Content for this day already exists in the level',
+  CONTENT_PUBLISHED: 'Learning content published successfully',
+  CONTENT_UNPUBLISHED: 'Learning content unpublished successfully',
+
+  // Learning Note Images
+  NOTE_UPLOADED: 'Note image uploaded successfully',
+  NOTE_DELETED: 'Note image deleted successfully',
+  NOTES_FETCHED: 'Note images fetched successfully',
+  NOTE_NOT_FOUND: 'Note image not found',
+  NOTE_LIMIT_EXCEEDED: 'Maximum number of note images exceeded',
+
+  // Learning Progress
+  PROGRESS_UPDATED: 'Learning progress updated successfully',
+  PROGRESS_FETCHED: 'Learning progress fetched successfully',
+
+  // Dashboard & Roadmap
+  DASHBOARD_FETCHED: 'Learning dashboard fetched successfully',
+  ROADMAP_FETCHED: 'Learning roadmap fetched successfully',
+  CURRENT_LESSON_FETCHED: 'Current lesson fetched successfully',
+} as const;
+
+export const MAX_NOTES_IMAGES = 5;
+export const MAX_NOTES_IMAGE_SIZE = 5 * 1024 * 1024;
+export const LEARNING_NOTES_BUCKET = 'learning-notes';

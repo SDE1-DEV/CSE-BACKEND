@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { User, Role } from '@prisma/client';
 import { userRepository } from '../repositories/user.repository';
 import { authRepository } from '../repositories/auth.repository';

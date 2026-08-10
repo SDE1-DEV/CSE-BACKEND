@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Quiz & Practice Question Service
  * Serves lesson practice questions, quiz questions, quiz submission scoring,

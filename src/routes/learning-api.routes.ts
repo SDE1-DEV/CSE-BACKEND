@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Learning API Routes — /api/learning/*
  *

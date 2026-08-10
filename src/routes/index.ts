@@ -61,6 +61,10 @@ import managerRoutes from './manager.routes';
 // /profile/* — alias for frontend profileService.ts (calls /profile, not /users/profile)
 import profileRoutes from './profile.routes';
 
+// ── Learning CMS (new) ────────────────────────────────────────────────────────
+import adminLearningRoutes from './admin-learning.routes';
+import studentLearningRoutes from './learning-student.routes';
+
 import { authenticate } from '../middlewares/authenticate.middleware';
 import { requireStudent } from '../middlewares/role.middleware';
 
@@ -159,6 +163,11 @@ router.use('/analytics', analyticsRoutes);
 // ── PRD-07: Super Admin routes FIRST (more specific) ─────────────────────────
 // These handle /admin/dashboard, /admin/users/:id/promote, /admin/managers, etc.
 router.use('/admin', superAdminRoutes);
+
+// Learning CMS Admin routes
+router.use('/admin/learning', adminLearningRoutes);
+// Learning CMS Student routes
+router.use('/learning', studentLearningRoutes);
 
 // Legacy admin routes (backward compat PRD-01 to PRD-06)
 router.use('/admin', adminRoutes);

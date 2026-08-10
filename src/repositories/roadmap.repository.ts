@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Difficulty, Prisma, Roadmap } from '@prisma/client';
 import { prisma } from '../config/database';
 

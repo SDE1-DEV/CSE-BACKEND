@@ -1,5 +1,9 @@
 import { z } from 'zod';
-import { Difficulty } from '@prisma/client';
+
+// Difficulty was removed from @prisma/client when the old learning schema was replaced.
+// Keep a local enum so legacy roadmap routes don't crash at startup.
+const Difficulty = { BEGINNER: 'BEGINNER', INTERMEDIATE: 'INTERMEDIATE', ADVANCED: 'ADVANCED' } as const;
+type Difficulty = typeof Difficulty[keyof typeof Difficulty];
 
 const slugRegex = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 

@@ -24,7 +24,6 @@ model User {
   linkedinUrl            String?
   portfolioUrl           String?
   bio                    String?
-  // FPRD-23: New profile fields
   username               String?             @unique
   headline               String?
   twitterUrl             String?
@@ -50,7 +49,6 @@ model User {
   activityLogs           ActivityLog[]       @relation("ActivityLogUser")
   auditLogsPerformed     AuditLog[]          @relation("AuditLogPerformer")
   bannersCreated         Banner[]            @relation("BannerCreator")
-  bookmarks              Bookmark[]
   contentVersions        ContentVersion[]    @relation("ContentVersionEditor")
   eventRegistrations     EventRegistration[]
   faqsCreated            Faq[]               @relation("FaqCreator")
@@ -59,11 +57,9 @@ model User {
   managerInvitationsSent ManagerInvitation[] @relation("ManagerInvitationInviter")
   managerPermissions     ManagerPermission[] @relation("ManagerPermissions")
   mediaFilesUploaded     MediaFile[]         @relation("MediaFileUploader")
-  notes                  Note[]
   notifications          Notification[]
   problemDiscussions     ProblemDiscussion[]
   uploadedProjectFiles   ProjectFile[]       @relation("ProjectFileUploader")
-  recentlyViewed         RecentlyViewed[]
   refreshTokens          RefreshToken[]
   resumes                Resume[]
   roleHistories          RoleHistory[]       @relation("RoleHistoryUser")
@@ -78,7 +74,7 @@ model User {
   ownedTeams             Team[]              @relation("TeamOwner")
   testimonialsCreated    Testimonial[]       @relation("TestimonialCreator")
   analytics              UserAnalytics?
-  userProgress           UserProgress[]
+  learningProgresses     LearningProgress[]
 
   @@index([email])
   @@index([role])
@@ -119,235 +115,111 @@ model PasswordReset {
   @@map("password_resets")
 }
 
-model Category {
-  id           String    @id @default(uuid())
-  title        String
-  slug         String    @unique
-  description  String?
-  icon         String?
-  displayOrder Int       @default(0)
-  isActive     Boolean   @default(true)
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
-  deletedAt    DateTime?
-  roadmaps     Roadmap[]
+model Course {
+  id          String       @id @default(uuid())
+  title       String
+  slug        String       @unique
+  description String?
+  thumbnail   String?
+  status      CourseStatus @default(DRAFT)
+  totalDays   Int          @default(0)
+  startDate   DateTime?
+  endDate     DateTime?
+  createdBy   String?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  levels      Level[]
+  contents    LearningContent[]
+  progresses  LearningProgress[]
 
   @@index([slug])
-  @@index([isActive])
-  @@index([displayOrder])
-  @@index([deletedAt])
-  @@map("categories")
+  @@index([status])
+  @@map("courses")
 }
 
-model Roadmap {
-  id               String           @id @default(uuid())
-  categoryId       String
-  title            String
-  slug             String           @unique
-  description      String?
-  thumbnail        String?
-  difficulty       Difficulty       @default(BEGINNER)
-  estimatedHours   Int?
-  prerequisites    String?
-  displayOrder     Int              @default(0)
-  isPublished      Boolean          @default(false)
-  createdAt        DateTime         @default(now())
-  updatedAt        DateTime         @updatedAt
-  banner           String?
-  learningOutcomes String?
-  seoDescription   String?
-  seoTitle         String?
-  tags             String?
-  visibility       String?          @default("PUBLIC")
-  deletedAt        DateTime?
-  sections         RoadmapSection[]
-  category         Category         @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-
-  @@index([slug])
-  @@index([categoryId])
-  @@index([isPublished])
-  @@index([difficulty])
-  @@index([displayOrder])
-  @@index([deletedAt])
-  @@map("roadmaps")
-}
-
-model RoadmapSection {
-  id          String    @id @default(uuid())
-  roadmapId   String
+model Level {
+  id          String       @id @default(uuid())
+  courseId    String
+  levelNumber Int
   title       String
   description String?
-  order       Int       @default(0)
-  deletedAt   DateTime?
-  lessons     Lesson[]
-  roadmap     Roadmap   @relation(fields: [roadmapId], references: [id], onDelete: Cascade)
+  order       Int          @default(0)
+  status      CourseStatus @default(DRAFT)
+  youtubeUrl  String?
+  createdBy   String?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  course      Course       @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  contents    LearningContent[]
 
-  @@index([roadmapId])
+  @@unique([courseId, levelNumber])
+  @@index([courseId])
   @@index([order])
-  @@index([deletedAt])
-  @@map("roadmap_sections")
+  @@map("levels")
 }
 
-model Lesson {
-  id                String                   @id @default(uuid())
-  sectionId         String
-  title             String
-  slug              String                   @unique
-  description       String?
-  contentType       ContentType              @default(NOTE)
-  estimatedMinutes  Int?
-  order             Int                      @default(0)
-  isPublished       Boolean                  @default(false)
-  createdAt         DateTime                 @default(now())
-  updatedAt         DateTime                 @updatedAt
-  content           String?
-  deletedAt         DateTime?
-  bookmarks         Bookmark[]
-  resources         LearningResource[]
-  practiceQuestions LessonPracticeQuestion[]
-  section           RoadmapSection           @relation(fields: [sectionId], references: [id], onDelete: Cascade)
-  notes             Note[]
-  quizQuestions     QuizQuestion[]
-  recentlyViewed    RecentlyViewed[]
-  progress          UserProgress[]
+model LearningContent {
+  id             String              @id @default(uuid())
+  courseId       String
+  levelId        String
+  dayNumber      Int
+  topicName      String
+  slug           String              @unique
+  description    String?
+  reelUrl        String?
+  youtubeUrl     String?
+  published      Boolean             @default(false)
+  publishedAt    DateTime?
+  order          Int                 @default(0)
+  createdBy      String?
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+  course         Course              @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  level          Level               @relation(fields: [levelId], references: [id], onDelete: Cascade)
+  noteImages     LearningNoteImage[]
+  progresses     LearningProgress[]
 
-  @@index([slug])
-  @@index([sectionId])
-  @@index([isPublished])
+  @@unique([courseId, dayNumber])
+  @@index([levelId])
+  @@index([published])
   @@index([order])
-  @@index([deletedAt])
-  @@map("lessons")
+  @@map("learning_contents")
 }
 
-model LearningResource {
-  id        String       @id @default(uuid())
-  lessonId  String
-  type      ResourceType
-  title     String
-  url       String
-  duration  Int?
-  author    String?
-  thumbnail String?
-  createdAt DateTime     @default(now())
-  updatedAt DateTime     @updatedAt
-  deletedAt DateTime?
-  lesson    Lesson       @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+model LearningNoteImage {
+  id                String          @id @default(uuid())
+  learningContentId String
+  imageUrl          String
+  storagePath       String
+  imageOrder        Int             @default(0)
+  createdAt         DateTime        @default(now())
+  learningContent   LearningContent @relation(fields: [learningContentId], references: [id], onDelete: Cascade)
 
-  @@index([lessonId])
-  @@index([deletedAt])
-  @@map("learning_resources")
+  @@index([learningContentId])
+  @@index([imageOrder])
+  @@map("learning_note_images")
 }
 
-model Note {
-  id        String   @id @default(uuid())
-  userId    String
-  lessonId  String
-  content   String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  lesson    Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+model LearningProgress {
+  id             String                  @id @default(uuid())
+  userId         String
+  courseId       String
+  contentId      String
+  status         LearningProgressStatus  @default(NOT_STARTED)
+  startedAt      DateTime?
+  completedAt    DateTime?
+  lastAccessedAt DateTime?
+  createdAt      DateTime                @default(now())
+  updatedAt      DateTime                @updatedAt
+  user           User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course         Course                  @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  content        LearningContent         @relation(fields: [contentId], references: [id], onDelete: Cascade)
 
-  @@unique([userId, lessonId])
-  @@map("notes")
-}
-
-model UserProgress {
-  id          String    @id @default(uuid())
-  userId      String
-  lessonId    String
-  roadmapId   String?
-  moduleId    String?
-  completed   Boolean   @default(false)
-  completedAt DateTime?
-  percentage  Float     @default(0)
-  lastOpened  DateTime?
-  timeSpent   Int       @default(0)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  lesson      Lesson    @relation(fields: [lessonId], references: [id], onDelete: Cascade)
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, lessonId])
+  @@unique([userId, contentId])
   @@index([userId])
-  @@index([lessonId])
-  @@map("user_progress")
-}
-
-model Bookmark {
-  id        String   @id @default(uuid())
-  userId    String
-  lessonId  String
-  createdAt DateTime @default(now())
-  lesson    Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, lessonId])
-  @@index([userId])
-  @@index([lessonId])
-  @@map("bookmarks")
-}
-
-model RecentlyViewed {
-  id       String   @id @default(uuid())
-  userId   String
-  lessonId String
-  viewedAt DateTime @default(now())
-  lesson   Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
-  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, lessonId])
-  @@index([userId])
-  @@index([lessonId])
-  @@map("recently_viewed")
-}
-
-model LessonPracticeQuestion {
-  id           String     @id @default(uuid())
-  lessonId     String
-  question     String
-  answer       String
-  hint         String?
-  difficulty   Difficulty @default(BEGINNER)
-  displayOrder Int        @default(0)
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
-  lesson       Lesson     @relation(fields: [lessonId], references: [id], onDelete: Cascade)
-
-  @@index([lessonId])
-  @@index([displayOrder])
-  @@map("lesson_practice_questions")
-}
-
-model QuizQuestion {
-  id           String       @id @default(uuid())
-  lessonId     String
-  question     String
-  explanation  String?
-  difficulty   Difficulty   @default(BEGINNER)
-  displayOrder Int          @default(0)
-  createdAt    DateTime     @default(now())
-  updatedAt    DateTime     @updatedAt
-  options      QuizOption[]
-  lesson       Lesson       @relation(fields: [lessonId], references: [id], onDelete: Cascade)
-
-  @@index([lessonId])
-  @@index([displayOrder])
-  @@map("quiz_questions")
-}
-
-model QuizOption {
-  id             String       @id @default(uuid())
-  quizQuestionId String
-  text           String
-  isCorrect      Boolean      @default(false)
-  displayOrder   Int          @default(0)
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
-  quizQuestion   QuizQuestion @relation(fields: [quizQuestionId], references: [id], onDelete: Cascade)
-
-  @@index([quizQuestionId])
-  @@map("quiz_options")
+  @@index([courseId])
+  @@index([contentId])
+  @@map("learning_progress")
 }
 
 model ProblemCategory {
@@ -1271,6 +1143,18 @@ enum Role {
   STUDENT
   MANAGER
   SUPER_ADMIN
+}
+
+enum CourseStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum LearningProgressStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
 }
 
 enum PermissionModule {

@@ -1,5 +1,12 @@
 import { z } from 'zod';
-import { ContentType } from '@prisma/client';
+
+// ContentType was removed from @prisma/client when the old learning schema was replaced.
+// Keep a local enum so legacy lesson routes don't crash at startup.
+const ContentType = {
+  NOTE: 'NOTE', VIDEO: 'VIDEO', ARTICLE: 'ARTICLE', QUIZ: 'QUIZ',
+  ASSIGNMENT: 'ASSIGNMENT', PROJECT: 'PROJECT', CODING_PROBLEM: 'CODING_PROBLEM',
+} as const;
+type ContentType = typeof ContentType[keyof typeof ContentType];
 
 const slugRegex = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 

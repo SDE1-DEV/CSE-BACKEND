@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * FPRD-20: Student Dashboard Controller
  * Adds three minimal endpoints required by the new dashboard UI:

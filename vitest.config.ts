@@ -8,6 +8,18 @@ export default defineConfig({
     setupFiles: ['./src/tests/setup.ts'],
     include: ['src/tests/**/*.test.ts'],
     exclude: ['dist/**', 'node_modules/**'],
+    env: {
+      NODE_ENV: 'test',
+      EXECUTION_ENGINE: 'mock',
+      JWT_SECRET: 'test-jwt-secret-for-testing',
+      JWT_REFRESH_SECRET: 'test-refresh-secret-for-testing',
+      SUPABASE_URL: 'https://placeholder.supabase.co',
+      SUPABASE_ANON_KEY: 'placeholder',
+      SUPABASE_SERVICE_ROLE_KEY: 'placeholder',
+      CLIENT_URL: 'http://localhost:5173',
+      REDIS_HOST: 'localhost',
+      REDIS_PORT: '6379',
+    },
     coverage: {
       provider: 'v8',
       reporter: ['text', 'lcov', 'html'],

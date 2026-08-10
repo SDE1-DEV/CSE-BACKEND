@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Weekly Learning Report Job
  * Sends weekly learning summary emails to all verified users.

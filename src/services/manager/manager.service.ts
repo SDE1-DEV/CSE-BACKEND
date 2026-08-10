@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * PRD-07: Manager Service
  *

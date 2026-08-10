@@ -1,15 +1,11 @@
 import multer, { FileFilterCallback } from 'multer';
 import { Request } from 'express';
-import { MAX_FILE_SIZE, ALLOWED_IMAGE_TYPES } from '../constants';
+import { MAX_FILE_SIZE, ALLOWED_IMAGE_TYPES, MAX_NOTES_IMAGE_SIZE } from '../constants';
 
 // Use memory storage for direct Supabase upload
 const storage = multer.memoryStorage();
 
-const fileFilter = (
-  _req: Request,
-  file: Express.Multer.File,
-  cb: FileFilterCallback,
-): void => {
+const fileFilter = (_req: Request, file: Express.Multer.File, cb: FileFilterCallback): void => {
   if (ALLOWED_IMAGE_TYPES.includes(file.mimetype)) {
     cb(null, true);
   } else {
@@ -50,7 +46,11 @@ export const uploadMedia = multer({
     if (ALLOWED_MEDIA_TYPES.includes(file.mimetype)) {
       cb(null, true);
     } else {
-      cb(new Error(`Invalid file type: ${file.mimetype}. Allowed: images, video, PDF, Word, PowerPoint, zip`));
+      cb(
+        new Error(
+          `Invalid file type: ${file.mimetype}. Allowed: images, video, PDF, Word, PowerPoint, zip`,
+        ),
+      );
     }
   },
   limits: {
@@ -58,3 +58,13 @@ export const uploadMedia = multer({
     files: 1,
   },
 }).single('file');
+
+// ── Learning Note Image upload ────────────────────────────────────────────────
+export const uploadLearningNoteImage = multer({
+  storage,
+  fileFilter,
+  limits: {
+    fileSize: MAX_NOTES_IMAGE_SIZE,
+    files: 1,
+  },
+}).single('noteImage');

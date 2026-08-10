@@ -18,6 +18,8 @@ process.env['CLIENT_URL'] = 'http://localhost:5173';
 process.env['SUPABASE_URL'] = 'https://placeholder.supabase.co';
 process.env['SUPABASE_ANON_KEY'] = 'placeholder';
 process.env['SUPABASE_SERVICE_ROLE_KEY'] = 'placeholder';
+// Force mock execution engine so piston.adapter is never required in tests
+process.env['EXECUTION_ENGINE'] = 'mock';
 
 // Mock Redis to avoid real connections in unit tests
 vi.mock('../config/redis', () => ({
@@ -65,6 +67,16 @@ vi.mock('../websocket/gateway', () => ({
     getConnectedCount: vi.fn(() => 0),
     getServer: vi.fn(() => null),
   },
+}));
+
+// Mock the execution service so piston.adapter is never imported
+vi.mock('../services/execution', () => ({
+  executionService: {
+    execute: vi.fn(),
+    runTests: vi.fn(),
+    getSupportedLanguages: vi.fn(() => []),
+  },
+  LANGUAGE_CONFIGS: {},
 }));
 
 // Mock metrics service to avoid prometheus registration issues in tests

@@ -1,5 +1,11 @@
 import { z } from 'zod';
-import { ResourceType } from '@prisma/client';
+
+// ResourceType was removed from @prisma/client when the old learning schema was replaced.
+const ResourceType = {
+  PDF: 'PDF', VIDEO: 'VIDEO', ARTICLE: 'ARTICLE', GITHUB: 'GITHUB',
+  DOCUMENTATION: 'DOCUMENTATION', PRACTICE_LINK: 'PRACTICE_LINK',
+} as const;
+type ResourceType = typeof ResourceType[keyof typeof ResourceType];
 
 export const createResourceSchema = z.object({
   body: z.object({

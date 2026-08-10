@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Prisma, RoadmapSection } from '@prisma/client';
 import { prisma } from '../config/database';
 

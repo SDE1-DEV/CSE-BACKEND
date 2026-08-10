@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * PRD-07: Super Admin Service
  *

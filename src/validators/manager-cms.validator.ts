@@ -15,10 +15,26 @@
  */
 
 import { z } from 'zod';
+
+// Difficulty, ContentType, ResourceType were removed from @prisma/client when
+// the old learning schema was replaced. Provide local shims so legacy manager
+// routes don't crash at startup.
+const Difficulty = { BEGINNER: 'BEGINNER', INTERMEDIATE: 'INTERMEDIATE', ADVANCED: 'ADVANCED' } as const;
+type Difficulty = typeof Difficulty[keyof typeof Difficulty];
+
+const ContentType = {
+  NOTE: 'NOTE', VIDEO: 'VIDEO', ARTICLE: 'ARTICLE', QUIZ: 'QUIZ',
+  ASSIGNMENT: 'ASSIGNMENT', PROJECT: 'PROJECT', CODING_PROBLEM: 'CODING_PROBLEM',
+} as const;
+type ContentType = typeof ContentType[keyof typeof ContentType];
+
+const ResourceType = {
+  PDF: 'PDF', VIDEO: 'VIDEO', ARTICLE: 'ARTICLE', GITHUB: 'GITHUB',
+  DOCUMENTATION: 'DOCUMENTATION', PRACTICE_LINK: 'PRACTICE_LINK',
+} as const;
+type ResourceType = typeof ResourceType[keyof typeof ResourceType];
+
 import {
-  Difficulty,
-  ContentType,
-  ResourceType,
   ProblemDifficulty,
   ProjectDifficulty,
   JobType,

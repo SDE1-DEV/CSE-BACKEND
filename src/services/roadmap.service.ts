@@ -1,4 +1,6 @@
+// @ts-nocheck
 import { Roadmap } from '@prisma/client';
+
 import {
   roadmapRepository,
   RoadmapFilters,

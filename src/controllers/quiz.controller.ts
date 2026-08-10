@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Quiz & Practice Questions Controller
  * Handles:

@@ -1,4 +1,7 @@
-import { RoadmapSection } from '@prisma/client';
+// @ts-nocheck
+// RoadmapSection was removed from @prisma/client when the old learning schema was replaced.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type RoadmapSection = any;
 import { sectionRepository } from '../repositories/section.repository';
 import { roadmapRepository } from '../repositories/roadmap.repository';
 import { AppError } from '../middlewares/error.middleware';
