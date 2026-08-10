@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { prisma } from '../config/database';
 import { analyticsRepository } from '../repositories/analytics.repository';
 
@@ -6,7 +5,8 @@ export class AnalyticsService {
   async getDashboard(userId: string) {
     const [
       analytics,
-      learningProgress,
+      // NEW: Use LearningProgress (current CMS model) instead of old userProgress
+      completedLearningCount,
       codingStats,
       activeProjects,
       jobApplications,
@@ -15,10 +15,9 @@ export class AnalyticsService {
     ] = await Promise.all([
       analyticsRepository.findByUserId(userId),
 
-      // Learning progress
-      prisma.userProgress.aggregate({
-        where: { userId, completed: true },
-        _count: { id: true },
+      // Learning progress — new CMS model
+      prisma.learningProgress.count({
+        where: { userId, status: 'COMPLETED' },
       }),
 
       // Coding statistics
@@ -54,8 +53,10 @@ export class AnalyticsService {
     ]);
 
     // Coding stats breakdown
-    const totalSubmissions = codingStats.reduce((acc: number, g: any) => acc + g._count.id, 0);
-    const acceptedSubmissions = codingStats.find((g: any) => g.status === 'ACCEPTED')?._count.id ?? 0;
+    const totalSubmissions = (codingStats as Array<{ status: string; _count: { id: number } }>)
+      .reduce((acc, g) => acc + g._count.id, 0);
+    const acceptedSubmissions = (codingStats as Array<{ status: string; _count: { id: number } }>)
+      .find((g) => g.status === 'ACCEPTED')?._count.id ?? 0;
 
     // Unique solved problems
     const solvedCount = await prisma.submission.findMany({
@@ -66,21 +67,22 @@ export class AnalyticsService {
 
     // Application breakdown
     const applicationsByStatus: Record<string, number> = {};
-    jobApplications.forEach((g: any) => {
+    (jobApplications as Array<{ status: string; _count: { id: number } }>).forEach((g) => {
       applicationsByStatus[g.status] = g._count.id;
     });
-    const totalApplications = jobApplications.reduce((acc: number, g: any) => acc + g._count.id, 0);
+    const totalApplications = (jobApplications as Array<{ status: string; _count: { id: number } }>)
+      .reduce((acc, g) => acc + g._count.id, 0);
 
     // Resume completion score (average based on sections count)
     const avgSections =
       resumes.length > 0
-        ? resumes.reduce((acc: number, r: any) => acc + r._count.sections, 0) / resumes.length
+        ? (resumes as Array<{ _count: { sections: number } }>).reduce((acc, r) => acc + r._count.sections, 0) / resumes.length
         : 0;
     const resumeCompletion = Math.min(Math.round((avgSections / 6) * 100), 100); // 6 standard sections
 
     return {
       learning: {
-        completedLessons: learningProgress._count.id,
+        completedLessons: completedLearningCount,
         currentStreak: analytics?.currentLearningStreak ?? 0,
         longestStreak: analytics?.longestLearningStreak ?? 0,
         totalStudyMinutes: analytics?.totalStudyMinutes ?? 0,

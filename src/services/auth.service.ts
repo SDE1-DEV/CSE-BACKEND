@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { User, Role } from '@prisma/client';
 import { userRepository } from '../repositories/user.repository';
 import { authRepository } from '../repositories/auth.repository';
@@ -12,7 +11,6 @@ import { TokenPair } from '../types';
 import { env } from '../config/env';
 import { managerPermissionRepository } from '../repositories/admin/manager-permission.repository';
 import { IUpdateProfileDto } from '../interfaces/user.interface';
-import { prisma } from '../config/database';
 
 const REFRESH_EXPIRY_MS = 7 * 24 * 60 * 60 * 1000; // 7 days default
 
@@ -233,9 +231,8 @@ export class AuthService {
       permissions = ['*'];
     }
 
-    const progress = await prisma.userProgress.findMany({
-      where: { userId },
-    });
+    // NOTE: userProgress (old lesson_progress) is not in the current schema.
+    // The new Learning CMS uses LearningProgress — omit legacy progress here.
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { passwordHash: _pw, fullName, ...rest } = user;
@@ -260,7 +257,7 @@ export class AuthService {
       role: rest.role,
       permissions,
       profile,
-      progress,
+      progress: [],
       status: rest.status,
       isVerified: rest.isVerified,
       profileCompletion: rest.profileCompletion,

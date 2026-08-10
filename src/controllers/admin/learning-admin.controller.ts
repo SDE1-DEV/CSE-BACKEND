@@ -6,6 +6,7 @@ import { AuthenticatedRequest } from '../../types';
 import { courseService } from '../../services/learning-cms/course.service';
 import { levelService } from '../../services/learning-cms/level.service';
 import { contentService } from '../../services/learning-cms/content.service';
+import { AppError } from '../../middlewares/error.middleware';
 
 export const listCourses = async (
   req: AuthenticatedRequest,
@@ -91,6 +92,124 @@ export const listLevels = async (
   }
 };
 
+/**
+ * GET /admin/learning/levels — flat list of ALL levels across all courses.
+ * Frontend calls this with ?includeInactive=true for level selects/lists.
+ */
+export const listAllLevels = async (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  try {
+    const includeInactive = req.query.includeInactive === 'true';
+    const { courseId } = req.query as { courseId?: string };
+
+    const where: Record<string, unknown> = {};
+    if (courseId) where['courseId'] = courseId;
+    if (!includeInactive) {
+      where['status'] = 'PUBLISHED';
+    }
+
+    const levels = await prisma.level.findMany({
+      where,
+      orderBy: [{ order: 'asc' }, { levelNumber: 'asc' }],
+      include: {
+        course: { select: { id: true, title: true, slug: true } },
+        _count: { select: { contents: true } },
+      },
+    });
+
+    // Map to the shape the frontend LearningLevel type expects:
+    // { id, levelNumber, title, description, displayOrder (=order), isActive (status!==ARCHIVED), ... }
+    const mapped = levels.map((lvl) => ({
+      id: lvl.id,
+      courseId: lvl.courseId,
+      levelNumber: lvl.levelNumber,
+      title: lvl.title,
+      description: lvl.description,
+      displayOrder: lvl.order,
+      isActive: lvl.status !== 'ARCHIVED',
+      status: lvl.status,
+      youtubeUrl: lvl.youtubeUrl,
+      course: (lvl as any).course,
+      contentCount: (lvl as any)._count.contents,
+      createdAt: lvl.createdAt,
+      updatedAt: lvl.updatedAt,
+    }));
+
+    sendSuccess(res, LEARNING_CMS_MESSAGES.LEVELS_FETCHED, mapped);
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * POST /admin/learning/levels — create a level (courseId comes from body).
+ */
+export const createLevelFlat = async (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  try {
+    const actorId = req.user!.userId;
+    const { courseId, ...rest } = req.body as { courseId: string; [key: string]: unknown };
+
+    if (!courseId) {
+      sendError(res, 'courseId is required', HTTP_STATUS.BAD_REQUEST);
+      return;
+    }
+
+    const data = await levelService.createLevel(courseId, rest as any, actorId);
+    // Return with the same mapped shape as listAllLevels
+    const mapped = {
+      ...data,
+      displayOrder: data.order,
+      isActive: data.status !== 'ARCHIVED',
+    };
+    sendCreated(res, LEARNING_CMS_MESSAGES.LEVEL_CREATED, mapped);
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * PATCH /admin/learning/levels/:id — partial update (frontend uses PATCH).
+ */
+export const patchLevel = async (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  try {
+    const actorId = req.user!.userId;
+    const { id } = req.params;
+
+    // Map displayOrder → order if frontend sends displayOrder
+    const body = { ...req.body };
+    if (body.displayOrder !== undefined && body.order === undefined) {
+      body.order = body.displayOrder;
+      delete body.displayOrder;
+    }
+    // Map isActive → status if frontend sends isActive
+    if (body.isActive !== undefined && body.status === undefined) {
+      body.status = body.isActive ? 'PUBLISHED' : 'ARCHIVED';
+      delete body.isActive;
+    }
+
+    const data = await levelService.updateLevel(id, body, actorId);
+    const mapped = {
+      ...data,
+      displayOrder: data.order,
+      isActive: data.status !== 'ARCHIVED',
+    };
+    sendSuccess(res, LEARNING_CMS_MESSAGES.LEVEL_UPDATED, mapped);
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const createLevel = async (
   req: AuthenticatedRequest,
   res: Response,
@@ -156,8 +275,30 @@ export const listContent = async (
   next: NextFunction,
 ): Promise<void> => {
   try {
-    const data = await contentService.getContentList(req.query, true);
-    sendSuccess(res, LEARNING_CMS_MESSAGES.CONTENTS_FETCHED, data);
+    const rawData = await contentService.getContentList(req.query as any, true);
+
+    // Transform backend boolean `published` + level info into frontend-expected shape
+    const enriched = await Promise.all(
+      rawData.data.map(async (item) => {
+        const level = await prisma.level.findUnique({
+          where: { id: item.levelId },
+          select: { levelNumber: true, title: true },
+        }).catch(() => null);
+
+        return {
+          ...item,
+          status: item.published ? 'PUBLISHED' : 'DRAFT',
+          levelNumber: level?.levelNumber ?? 0,
+          levelTitle: level?.title ?? '',
+          notes: (item as any).noteImages ?? [],
+        };
+      }),
+    );
+
+    sendSuccess(res, LEARNING_CMS_MESSAGES.CONTENTS_FETCHED, {
+      ...rawData,
+      data: enriched,
+    });
   } catch (error) {
     next(error);
   }
@@ -184,8 +325,22 @@ export const getContent = async (
 ): Promise<void> => {
   try {
     const { id } = req.params;
-    const data = await contentService.getContentById(id, true);
-    sendSuccess(res, LEARNING_CMS_MESSAGES.CONTENT_FETCHED, data);
+    const item = await contentService.getContentById(id, true);
+
+    const level = await prisma.level.findUnique({
+      where: { id: item.levelId },
+      select: { levelNumber: true, title: true },
+    }).catch(() => null);
+
+    const mapped = {
+      ...item,
+      status: item.published ? 'PUBLISHED' : 'DRAFT',
+      levelNumber: level?.levelNumber ?? 0,
+      levelTitle: level?.title ?? '',
+      notes: (item as any).noteImages ?? [],
+    };
+
+    sendSuccess(res, LEARNING_CMS_MESSAGES.CONTENT_FETCHED, mapped);
   } catch (error) {
     next(error);
   }
@@ -230,7 +385,10 @@ export const publishContent = async (
     const actorId = req.user!.userId;
     const { id } = req.params;
     const data = await contentService.publishContent(id, actorId);
-    sendSuccess(res, LEARNING_CMS_MESSAGES.CONTENT_PUBLISHED, data);
+    sendSuccess(res, LEARNING_CMS_MESSAGES.CONTENT_PUBLISHED, {
+      ...data,
+      status: 'PUBLISHED',
+    });
   } catch (error) {
     next(error);
   }
@@ -245,7 +403,10 @@ export const unpublishContent = async (
     const actorId = req.user!.userId;
     const { id } = req.params;
     const data = await contentService.unpublishContent(id, actorId);
-    sendSuccess(res, LEARNING_CMS_MESSAGES.CONTENT_UNPUBLISHED, data);
+    sendSuccess(res, LEARNING_CMS_MESSAGES.CONTENT_UNPUBLISHED, {
+      ...data,
+      status: 'UNPUBLISHED',
+    });
   } catch (error) {
     next(error);
   }
@@ -280,7 +441,7 @@ export const uploadNote = async (
       return;
     }
 
-    const data = await contentService.uploadNote(
+    await contentService.uploadNote(
       id,
       {
         buffer: req.file.buffer,
@@ -290,7 +451,10 @@ export const uploadNote = async (
       noteOrder,
       actorId,
     );
-    sendCreated(res, LEARNING_CMS_MESSAGES.NOTE_UPLOADED, data);
+
+    // Return ALL images for this content so the frontend can sync state
+    const allImages = await contentService.getNotes(id);
+    sendCreated(res, LEARNING_CMS_MESSAGES.NOTE_UPLOADED, { images: allImages });
   } catch (error) {
     next(error);
   }
@@ -331,74 +495,104 @@ export const getAdminDashboard = async (
   next: NextFunction,
 ): Promise<void> => {
   try {
+    // Run all queries safely — if tables are empty or don't exist yet, return zeros
     const [
-      totalCourses,
-      publishedCourses,
-      draftCourses,
-      archivedCourses,
       totalLevels,
-      publishedLevels,
       totalContent,
       publishedContent,
       draftContent,
       totalNotes,
-      todayContent,
-      latestPublished,
+      totalCompletedLessons,
     ] = await Promise.all([
-      prisma.course.count(),
-      prisma.course.count({ where: { status: 'PUBLISHED' } }),
-      prisma.course.count({ where: { status: 'DRAFT' } }),
-      prisma.course.count({ where: { status: 'ARCHIVED' } }),
-      prisma.level.count(),
-      prisma.level.count({ where: { status: 'PUBLISHED' } }),
-      prisma.learningContent.count(),
-      prisma.learningContent.count({ where: { published: true } }),
-      prisma.learningContent.count({ where: { published: false } }),
-      prisma.learningNoteImage.count(),
-      prisma.learningContent.count({
-        where: {
-          createdAt: {
-            gte: new Date(new Date().setHours(0, 0, 0, 0)),
-            lte: new Date(new Date().setHours(23, 59, 59, 999)),
-          },
-        },
-      }),
-      prisma.learningContent.findMany({
-        where: { published: true },
-        orderBy: { publishedAt: 'desc' },
-        take: 5,
-        select: {
-          id: true,
-          topicName: true,
-          dayNumber: true,
-          publishedAt: true,
-          course: { select: { id: true, title: true, slug: true } },
-          level: { select: { id: true, title: true, levelNumber: true } },
-        },
-      }),
+      prisma.level.count().catch(() => 0),
+      prisma.learningContent.count().catch(() => 0),
+      prisma.learningContent.count({ where: { published: true } }).catch(() => 0),
+      prisma.learningContent.count({ where: { published: false } }).catch(() => 0),
+      prisma.learningNoteImage.count().catch(() => 0),
+      prisma.learningProgress.count({ where: { status: 'COMPLETED' } }).catch(() => 0),
     ]);
 
+    // Current active day (most recently published)
+    const latestPublished = await prisma.learningContent.findFirst({
+      where: { published: true },
+      orderBy: { publishedAt: 'desc' },
+      include: {
+        level: { select: { levelNumber: true } },
+      },
+    }).catch(() => null);
+
+    // Student engagement stats
+    const [studentsStarted, studentsCompletedAll] = await Promise.all([
+      prisma.learningProgress.findMany({
+        distinct: ['userId'],
+        select: { userId: true },
+      }).then((r) => r.length).catch(() => 0),
+      prisma.learningProgress.groupBy({
+        by: ['userId'],
+        where: { status: 'COMPLETED' },
+        _count: { id: true },
+      }).then((r) => r.length).catch(() => 0),
+    ]);
+
+    // Level breakdown
+    const levels = await prisma.level.findMany({
+      orderBy: [{ order: 'asc' }, { levelNumber: 'asc' }],
+      select: { id: true, levelNumber: true, title: true },
+    }).catch(() => []);
+
+    const levelBreakdown = await Promise.all(
+      levels.map(async (lvl) => {
+        const [totalDays, publishedDays, startedCount, completedCount] = await Promise.all([
+          prisma.learningContent.count({ where: { levelId: lvl.id } }).catch(() => 0),
+          prisma.learningContent.count({ where: { levelId: lvl.id, published: true } }).catch(() => 0),
+          prisma.learningProgress.findMany({
+            where: { content: { levelId: lvl.id } },
+            distinct: ['userId'],
+            select: { userId: true },
+          }).then((r) => r.length).catch(() => 0),
+          prisma.learningProgress.findMany({
+            where: { content: { levelId: lvl.id }, status: 'COMPLETED' },
+            distinct: ['userId'],
+            select: { userId: true },
+          }).then((r) => r.length).catch(() => 0),
+        ]);
+
+        return {
+          levelNumber: lvl.levelNumber,
+          title: lvl.title,
+          totalDays,
+          publishedDays,
+          studentsStarted: startedCount,
+          studentsCompleted: completedCount,
+        };
+      }),
+    );
+
+    const totalDays = totalContent;
+    const completionRate = totalDays > 0 && studentsStarted > 0
+      ? Math.round((totalCompletedLessons / (totalDays * studentsStarted)) * 100)
+      : 0;
+
+    // Shape matches AdminLearningDashboardStats in frontend types
     sendSuccess(res, 'Learning CMS dashboard fetched successfully', {
-      courses: {
-        total: totalCourses,
-        published: publishedCourses,
-        draft: draftCourses,
-        archived: archivedCourses,
-      },
-      levels: {
-        total: totalLevels,
-        published: publishedLevels,
-      },
-      content: {
-        total: totalContent,
-        published: publishedContent,
-        draft: draftContent,
-        todayCount: todayContent,
-      },
-      notes: {
-        total: totalNotes,
-      },
-      latestPublished,
+      totalLevels,
+      totalLearningDays: totalDays,
+      publishedCount: publishedContent,
+      draftsCount: draftContent,
+      unpublishedCount: 0,  // published=false covers drafts; no separate unpublished flag
+      archivedCount: 0,
+      currentActiveDay: latestPublished ? {
+        levelNumber: latestPublished.level.levelNumber,
+        dayNumber: latestPublished.dayNumber,
+        topicName: latestPublished.topicName,
+      } : null,
+      studentsStarted,
+      studentsCompleted: studentsCompletedAll,
+      totalCompletedLessons,
+      completionRate,
+      levelBreakdown,
+      // Legacy fields (kept for backward compat)
+      notes: { total: totalNotes },
     });
   } catch (error) {
     next(error);

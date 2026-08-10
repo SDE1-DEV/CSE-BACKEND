@@ -28,6 +28,9 @@ import {
   updateCourse,
   deleteCourse,
   listLevels,
+  listAllLevels,
+  createLevelFlat,
+  patchLevel,
   createLevel,
   updateLevel,
   deleteLevel,
@@ -89,6 +92,31 @@ router.post(
   auditAction({ action: 'LEVEL_CREATED', module: 'LEARNING', entity: 'Level' }),
   createLevel,
 );
+
+// ── Flat levels API (frontend-facing) ─────────────────────────────────────────
+// GET  /admin/learning/levels            — list all levels (with ?includeInactive=true)
+// POST /admin/learning/levels            — create a level (courseId in body)
+// PATCH /admin/learning/levels/reorder   — reorder (MUST be before :id)
+// PATCH /admin/learning/levels/:id       — partial update
+// PUT   /admin/learning/levels/:id       — full update
+// DELETE /admin/learning/levels/:id      — delete
+router.get('/levels', listAllLevels);
+router.post(
+  '/levels',
+  auditAction({ action: 'LEVEL_CREATED', module: 'LEARNING', entity: 'Level' }),
+  createLevelFlat,
+);
+router.patch(
+  '/levels/reorder',
+  validate(reorderLevelsSchema),
+  auditAction({ action: 'LEVEL_REORDERED', module: 'LEARNING', entity: 'Level' }),
+  reorderLevels,
+);
+router.patch(
+  '/levels/:id',
+  auditAction({ action: 'LEVEL_UPDATED', module: 'LEARNING', entity: 'Level' }),
+  patchLevel,
+);
 router.put(
   '/levels/:id',
   validate(updateLevelSchema),
@@ -97,15 +125,8 @@ router.put(
 );
 router.delete(
   '/levels/:id',
-  validate(getCourseByIdSchema),
   auditAction({ action: 'LEVEL_DELETED', module: 'LEARNING', entity: 'Level' }),
   deleteLevel,
-);
-router.patch(
-  '/levels/reorder',
-  validate(reorderLevelsSchema),
-  auditAction({ action: 'LEVEL_REORDERED', module: 'LEARNING', entity: 'Level' }),
-  reorderLevels,
 );
 
 router.get(
@@ -127,6 +148,11 @@ router.get(
 router.put(
   '/content/:id',
   validate(updateContentSchema),
+  auditAction({ action: 'CONTENT_UPDATED', module: 'LEARNING', entity: 'LearningContent' }),
+  updateContent,
+);
+router.patch(
+  '/content/:id',
   auditAction({ action: 'CONTENT_UPDATED', module: 'LEARNING', entity: 'LearningContent' }),
   updateContent,
 );
@@ -165,6 +191,11 @@ router.post(
 router.delete(
   '/notes/:noteId',
   validate(deleteNoteSchema),
+  auditAction({ action: 'NOTE_IMAGE_DELETED', module: 'LEARNING', entity: 'LearningNoteImage' }),
+  deleteNote,
+);
+router.delete(
+  '/content/:contentId/notes/:noteId',
   auditAction({ action: 'NOTE_IMAGE_DELETED', module: 'LEARNING', entity: 'LearningNoteImage' }),
   deleteNote,
 );

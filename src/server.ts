@@ -29,6 +29,45 @@ import { startCleanupWorker } from './queues/cleanup.queue';
 import { closeAllQueues } from './queues/queue.config';
 import { startScheduler, stopScheduler } from './jobs/scheduler';
 
+/**
+ * Verifies the Learning CMS database tables are accessible after migration.
+ * This prevents the server from starting against an incomplete schema.
+ * Called once after connectDatabase(), before bootstrap.
+ */
+async function verifyLearningCmsSchema(): Promise<void> {
+  const { prisma } = await import('./config/database');
+  const tables = [
+    { name: 'courses',               check: () => prisma.course.count() },
+    { name: 'levels',                check: () => prisma.level.count() },
+    { name: 'learning_contents',     check: () => prisma.learningContent.count() },
+    { name: 'learning_note_images',  check: () => prisma.learningNoteImage.count() },
+    { name: 'learning_progress',     check: () => prisma.learningProgress.count() },
+  ];
+
+  const failed: string[] = [];
+
+  for (const t of tables) {
+    try {
+      await t.check();
+      logger.info(`✓ Schema check passed: ${t.name}`);
+    } catch (err) {
+      logger.error(`✗ Schema check FAILED: ${t.name}`, { error: (err as Error).message });
+      failed.push(t.name);
+    }
+  }
+
+  if (failed.length > 0) {
+    logger.error(
+      'LEARNING_CMS_SCHEMA_CHECK_FAILED — the following tables are missing: ' +
+      failed.join(', ') +
+      '. Run: npx prisma migrate deploy',
+    );
+    process.exit(1);
+  }
+
+  logger.info('✓ All Learning CMS schema tables verified successfully');
+}
+
 const startServer = async (): Promise<void> => {
   try {
     // 1. Validate environment variables
@@ -37,6 +76,9 @@ const startServer = async (): Promise<void> => {
 
     // 2. Connect to database
     await connectDatabase();
+
+    // 2.5. Verify Learning CMS schema is accessible (fail fast if migration not applied)
+    await verifyLearningCmsSchema();
 
     // 3. Run bootstrap (creates SUPER_ADMIN if none exists)
     await runBootstrap();
