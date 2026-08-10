@@ -1,13 +1,16 @@
-// @ts-nocheck
 /**
  * FPRD-09: Enterprise Analytics Service
  * All data is sourced from live database — zero mocked values.
+ *
+ * Learning metrics use the NEW CMS models:
+ *   Course, Level, LearningContent, LearningNoteImage, LearningProgress
+ * The old Roadmap / Lesson / LearningResource / UserProgress models no longer exist.
  */
 
 import os from 'os';
 import { prisma } from '../../config/database';
 import { getRedisClient, isRedisAvailable } from '../../config/redis';
-import { Role } from '@prisma/client';
+import { Role, CourseStatus } from '@prisma/client';
 
 // ── Helpers ────────────────────────────────────────────────────────────────────
 
@@ -114,14 +117,14 @@ export class AnalyticsService {
       prisma.user.count({ where: { lastLoginAt: { gte: last30 } } }),
       prisma.user.count({ where: { lastLoginAt: { gte: yesterday, lt: today } } }),
 
-      // Learning
-      prisma.roadmap.count(),
-      prisma.roadmap.count({ where: { isPublished: true } }),
-      prisma.roadmap.count({ where: { isPublished: false } }),
-      Promise.resolve(0), // archived — future feature
-      prisma.lesson.count(),
-      prisma.lesson.count({ where: { isPublished: true } }),
-      prisma.learningResource.count(),
+      // Learning (NEW CMS models: Course / Level / LearningContent / LearningNoteImage / LearningProgress)
+      prisma.course.count(),
+      prisma.course.count({ where: { status: CourseStatus.PUBLISHED } }),
+      prisma.course.count({ where: { status: CourseStatus.DRAFT } }),
+      Promise.resolve(0), // archived — reserved for future ARCHIVED status
+      prisma.learningContent.count(),
+      prisma.learningContent.count({ where: { published: true } }),
+      prisma.learningNoteImage.count(),
 
       // Coding
       prisma.codingProblem.count(),
@@ -165,10 +168,10 @@ export class AnalyticsService {
       ? Math.round(((totalNotifications - unreadNotifications) / totalNotifications) * 100)
       : 0;
 
-    // Most viewed roadmap (by lesson progress count proxy)
-    const topRoadmap = await prisma.roadmap.findFirst({
-      where: { isPublished: true },
-      include: { _count: { select: { sections: true } } },
+    // Most-recently-updated published course (proxy for most viewed)
+    const topCourse = await prisma.course.findFirst({
+      where: { status: CourseStatus.PUBLISHED },
+      include: { _count: { select: { levels: true } } },
       orderBy: { updatedAt: 'desc' },
     });
 
@@ -190,14 +193,14 @@ export class AnalyticsService {
         activeLast30,
       },
       learning: {
-        totalRoadmaps,
-        publishedRoadmaps,
-        draftRoadmaps,
-        archivedRoadmaps,
-        totalLessons,
-        publishedLessons,
-        totalResources,
-        mostViewedRoadmap: topRoadmap?.title ?? null,
+        totalCourses: totalRoadmaps,
+        publishedCourses: publishedRoadmaps,
+        draftCourses: draftRoadmaps,
+        archivedCourses: archivedRoadmaps,
+        totalContent: totalLessons,
+        publishedContent: publishedLessons,
+        totalNoteImages: totalResources,
+        mostViewedCourse: topCourse?.title ?? null,
       },
       coding: {
         totalProblems,
@@ -337,11 +340,15 @@ export class AnalyticsService {
 
     const learningActivity = await Promise.all(
       points.map(async ({ start, end }) => {
-        const [lessons, completions] = await Promise.all([
-          prisma.lesson.count({ where: { createdAt: { gte: start, lt: end } } }),
-          prisma.userProgress.count({ where: { completed: true, completedAt: { gte: start, lt: end } } }),
+        const [content, completions] = await Promise.all([
+          // NEW: LearningContent replaces Lesson
+          prisma.learningContent.count({ where: { createdAt: { gte: start, lt: end } } }),
+          // NEW: LearningProgress replaces UserProgress
+          prisma.learningProgress.count({
+            where: { status: 'COMPLETED', completedAt: { gte: start, lt: end } },
+          }),
         ]);
-        return { lessons, completions };
+        return { lessons: content, completions };
       }),
     );
 
@@ -508,22 +515,22 @@ export class AnalyticsService {
       const modelCounts = await Promise.all([
         prisma.user.count(),
         prisma.submission.count(),
-        prisma.lesson.count(),
+        prisma.learningContent.count(), // NEW: LearningContent replaces Lesson
         prisma.jobApplication.count(),
       ]);
       tableStats = [
         { table: 'users', rows: modelCounts[0] },
         { table: 'submissions', rows: modelCounts[1] },
-        { table: 'lessons', rows: modelCounts[2] },
+        { table: 'learning_contents', rows: modelCounts[2] },
         { table: 'job_applications', rows: modelCounts[3] },
       ];
     }
 
     // Total records across key tables
-    const [totalUsers, totalSubmissions, totalLessons, totalEvents] = await Promise.all([
+    const [totalUsers, totalSubmissions, totalLearningContent, totalEvents] = await Promise.all([
       prisma.user.count(),
       prisma.submission.count(),
-      prisma.lesson.count(),
+      prisma.learningContent.count(), // NEW: LearningContent replaces Lesson
       prisma.event.count(),
     ]);
 
@@ -534,7 +541,7 @@ export class AnalyticsService {
       summary: {
         totalUsers,
         totalSubmissions,
-        totalLessons,
+        totalLearningContent,
         totalEvents,
       },
     };

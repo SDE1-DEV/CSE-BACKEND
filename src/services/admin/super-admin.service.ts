@@ -59,7 +59,7 @@ export class SuperAdminService {
       prisma.user.count({ where: { role: Role.MANAGER } }),
       prisma.user.count({ where: { role: Role.STUDENT } }),
       prisma.user.count({ where: { lastLoginAt: { gte: today } } }),
-      prisma.roadmap.count({ where: { isPublished: true } }),
+      prisma.course.count({ where: { status: 'PUBLISHED' } }),
       prisma.codingProblem.count({ where: { isPublished: true } }),
       prisma.project.count({ where: { isPublished: true } }),
       prisma.jobPosting.count({ where: { isPublished: true } }),
@@ -79,7 +79,7 @@ export class SuperAdminService {
         newThisMonth: newUsersThisMonth,
       },
       content: {
-        roadmaps: totalRoadmaps,
+        courses: totalRoadmaps,
         problems: totalProblems,
         projects: totalProjects,
         jobs: totalJobs,
@@ -369,9 +369,9 @@ export class SuperAdminService {
       // Recent metrics
       recentMetrics,
     ] = await Promise.all([
-      prisma.lesson.count(),
-      prisma.lesson.count({ where: { isPublished: true } }),
-      prisma.roadmap.count(),
+      prisma.learningContent.count(),
+      prisma.learningContent.count({ where: { published: true } }),
+      prisma.course.count(),
 
       prisma.codingProblem.count(),
       prisma.submission.count(),
@@ -392,7 +392,7 @@ export class SuperAdminService {
     ]);
 
     return {
-      learning: { totalLessons, publishedLessons, totalRoadmaps },
+      learning: { totalLearningContent: totalLessons, publishedContent: publishedLessons, totalCourses: totalRoadmaps },
       coding: {
         totalProblems,
         totalSubmissions,
