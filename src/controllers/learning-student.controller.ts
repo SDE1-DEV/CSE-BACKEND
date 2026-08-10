@@ -57,8 +57,29 @@ export const getCurrent = async (
   try {
     const userId = req.user!.userId;
     const { courseId } = req.params;
-    const result = await studentService.getCurrentLearning(courseId, userId);
-    sendSuccess(res, LEARNING_CMS_MESSAGES.CURRENT_LESSON_FETCHED, result);
+    try {
+      const result = await studentService.getCurrentLearning(courseId, userId);
+      sendSuccess(res, LEARNING_CMS_MESSAGES.CURRENT_LESSON_FETCHED, result);
+    } catch (err: unknown) {
+      // No content available is a valid state — return empty instead of 404/500
+      if (
+        err instanceof Error &&
+        (err as { statusCode?: number }).statusCode === HTTP_STATUS.NOT_FOUND &&
+        err.message.includes('No learning content')
+      ) {
+        sendSuccess(res, 'No learning content yet', {
+          activeCourse: null,
+          currentLevel: null,
+          currentDay: null,
+          currentTopic: null,
+          continueLearningContent: null,
+          nextContent: null,
+          progress: { completedDays: 0, totalDays: 0, progressPercentage: 0 },
+        });
+        return;
+      }
+      throw err;
+    }
   } catch (error) {
     next(error);
   }

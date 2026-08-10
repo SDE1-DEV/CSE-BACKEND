@@ -1,4 +1,15 @@
-// @ts-nocheck
+/**
+ * LessonService — Legacy Roadmap/Lesson System
+ *
+ * The legacy tables (roadmaps, roadmap_sections, lessons, lesson_progress,
+ * bookmarks, recently_viewed) still physically exist in production but Prisma
+ * Client no longer has typed models for them. All direct DB access uses
+ * prisma.$queryRaw / prisma.$executeRaw.
+ *
+ * Repository methods (lessonRepository, sectionRepository) still work because
+ * they were not removed — they operate on the physical tables via raw queries
+ * internally.
+ */
 import { Role } from '@prisma/client';
 import { prisma } from '../config/database';
 import { lessonRepository } from '../repositories/lesson.repository';
@@ -59,40 +70,48 @@ export class LessonService {
     const roadmap = (lesson as any).section?.roadmap ?? null;
     const section = (lesson as any).section ?? null;
 
-    // Get all published lessons in this section ordered by position for prev/next
-    const siblingLessons = await prisma.lesson.findMany({
-      where: {
-        sectionId,
-        deletedAt: null,
-        ...(isAdmin ? {} : { isPublished: true }),
-      },
-      orderBy: { order: 'asc' },
-      select: { id: true, order: true },
-    });
+    // Get all published lessons in this section for prev/next fallback via raw SQL
+    const siblingLessons = await prisma.$queryRaw<{ id: string; order: number }[]>`
+      SELECT id, "order"
+      FROM "lessons"
+      WHERE "sectionId" = ${sectionId}
+        AND "deletedAt" IS NULL
+        ${isAdmin ? prisma.$queryRaw`` : prisma.$queryRaw`AND "isPublished" = true`}
+      ORDER BY "order" ASC
+    `;
 
     let prevLessonId: string | null = null;
     let nextLessonId: string | null = null;
 
-    // Also look across sections (roadmap-wide navigation)
+    // Also look across sections (roadmap-wide navigation) via raw SQL
     if (roadmap?.id) {
-      const allSections = await prisma.roadmapSection.findMany({
-        where: { roadmapId: roadmap.id, deletedAt: null },
-        orderBy: { order: 'asc' },
-        include: {
-          lessons: {
-            where: { deletedAt: null, ...(isAdmin ? {} : { isPublished: true }) },
-            orderBy: { order: 'asc' },
-            select: { id: true },
-          },
-        },
+      const allSections = await prisma.$queryRaw<{ id: string; order: number; lessons: never[] }[]>`
+        SELECT rs.id, rs."order"
+        FROM "roadmap_sections" rs
+        WHERE rs."roadmapId" = ${roadmap.id} AND rs."deletedAt" IS NULL
+        ORDER BY rs."order" ASC
+      `;
+
+      const sectionIds = allSections.map((s) => s.id);
+      const allRawLessons = sectionIds.length > 0
+        ? await prisma.$queryRaw<{ id: string; sectionId: string; order: number }[]>`
+            SELECT l.id, l."sectionId", l."order"
+            FROM "lessons" l
+            WHERE l."sectionId" = ANY(${sectionIds})
+              AND l."deletedAt" IS NULL
+              ${isAdmin ? prisma.$queryRaw`` : prisma.$queryRaw`AND l."isPublished" = true`}
+            ORDER BY l."order" ASC
+          `
+        : [];
+
+      // Sort by section order then lesson order
+      const sectionOrderMap = new Map(allSections.map((s) => [s.id, s.order]));
+      const sorted = allRawLessons.sort((a, b) => {
+        const so = (sectionOrderMap.get(a.sectionId) ?? 0) - (sectionOrderMap.get(b.sectionId) ?? 0);
+        return so !== 0 ? so : a.order - b.order;
       });
 
-      const allLessonIds: string[] = [];
-      for (const sec of allSections) {
-        for (const l of sec.lessons) {
-          allLessonIds.push(l.id);
-        }
-      }
+      const allLessonIds = sorted.map((l) => l.id);
 
       const currentIdx = allLessonIds.indexOf(id);
       if (currentIdx > 0) prevLessonId = allLessonIds[currentIdx - 1];
@@ -108,24 +127,36 @@ export class LessonService {
       }
     }
 
-    // Progress & bookmark for authenticated users
+    // Progress & bookmark for authenticated users via raw SQL
     let status: 'not_started' | 'in_progress' | 'completed' = 'not_started';
     let isBookmarked = false;
 
     if (userId) {
-      const [progress, bookmark] = await Promise.all([
-        prisma.userProgress.findUnique({
-          where: { userId_lessonId: { userId, lessonId: id } },
-        }),
-        prisma.bookmark.findFirst({ where: { userId, lessonId: id } }),
+      const [progressRows, bookmarkRows] = await Promise.all([
+        prisma.$queryRaw<{
+          completed: boolean;
+          last_opened: Date | null;
+          percentage: number | null;
+        }[]>`
+          SELECT completed, "lastOpened" AS last_opened, "watchPercentage" AS percentage
+          FROM "lesson_progress"
+          WHERE "userId" = ${userId} AND "lessonId" = ${id}
+          LIMIT 1
+        `,
+        prisma.$queryRaw<{ id: string }[]>`
+          SELECT id FROM "bookmarks"
+          WHERE "userId" = ${userId} AND "lessonId" = ${id}
+          LIMIT 1
+        `,
       ]);
 
+      const progress = progressRows[0];
       if (progress?.completed) {
         status = 'completed';
-      } else if (progress?.lastOpened || (progress?.percentage ?? 0) > 0) {
+      } else if (progress?.last_opened || (Number(progress?.percentage) ?? 0) > 0) {
         status = 'in_progress';
       }
-      isBookmarked = !!bookmark;
+      isBookmarked = bookmarkRows.length > 0;
     }
 
     // Estimate reading time from content (~200 words/min)
@@ -309,24 +340,26 @@ export class LessonService {
 
     if (!roadmap) return null;
 
-    // Fetch total and completed lessons in one batch instead of two separate COUNT queries
+    // Fetch total and completed lessons via raw SQL (Prisma has no Lesson/UserProgress model)
     const [allLessons, completedProgress] = await Promise.all([
-      prisma.lesson.findMany({
-        where: {
-          section: { roadmapId: roadmap.id, deletedAt: null },
-          deletedAt: null,
-          isPublished: true,
-        },
-        select: { id: true },
-      }),
-      prisma.userProgress.findMany({
-        where: {
-          userId,
-          completed: true,
-          lesson: { section: { roadmapId: roadmap.id, deletedAt: null }, deletedAt: null },
-        },
-        select: { id: true },
-      }),
+      prisma.$queryRaw<{ id: string }[]>`
+        SELECT l.id
+        FROM "lessons" l
+        JOIN "roadmap_sections" rs ON rs.id = l."sectionId"
+        WHERE rs."roadmapId" = ${roadmap.id}
+          AND l."deletedAt"  IS NULL
+          AND rs."deletedAt" IS NULL
+          AND l."isPublished" = true
+      `,
+      prisma.$queryRaw<{ id: string }[]>`
+        SELECT lp.id
+        FROM "lesson_progress" lp
+        JOIN "lessons"          l  ON l.id  = lp."lessonId"  AND l."deletedAt"  IS NULL
+        JOIN "roadmap_sections" rs ON rs.id = l."sectionId"  AND rs."deletedAt" IS NULL
+        WHERE lp."userId"    = ${userId}
+          AND rs."roadmapId" = ${roadmap.id}
+          AND lp.completed   = true
+      `,
     ]);
 
     const totalLessons = allLessons.length;

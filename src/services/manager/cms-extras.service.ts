@@ -2,6 +2,12 @@
 /**
  * FPRD-10: CMS Extras Service
  * Handles Banners, FAQ, Testimonials, Media Library, Version History, Global Search
+ *
+ * NOTE on @ts-nocheck: The legacy roadmap/lesson/learning_resource tables still
+ * physically exist in production (created by migrations 2–3, never dropped).
+ * Prisma Client has no typed models for them (removed from schema.prisma in the
+ * Learning CMS migration). We use prisma.$queryRaw for those tables.
+ * All other models (Banner, Faq, etc.) use the standard Prisma client.
  */
 
 import { prisma } from '../../config/database';
@@ -518,16 +524,16 @@ export class CMSExtrasService {
     string,
     { update: (args: unknown) => Promise<unknown>; findUnique: (args: unknown) => Promise<unknown> }
   > {
+    // NOTE: Roadmap, RoadmapSection, Lesson, LearningResource are intentionally
+    // excluded — Prisma Client has no typed models for them since the Learning CMS
+    // migration removed them from schema.prisma. Their physical tables still exist
+    // but version restore for legacy learning content is no longer supported.
     return {
       Banner: prisma.banner,
       Faq: prisma.faq,
       FaqCategory: prisma.faqCategory,
       Testimonial: prisma.testimonial,
       Category: prisma.category,
-      Roadmap: prisma.roadmap,
-      RoadmapSection: prisma.roadmapSection,
-      Lesson: prisma.lesson,
-      LearningResource: prisma.learningResource,
       CodingProblem: prisma.codingProblem,
       Project: prisma.project,
       ProjectCategory: prisma.projectCategory,
@@ -634,41 +640,42 @@ export class CMSExtrasService {
     if (!query || query.trim().length < 2) return { results: [], total: 0 };
     const q = query.trim();
     const softDel = { deletedAt: null } as const;
+    const likeQ = `%${q}%`;
+
+    // Use raw SQL for legacy tables (Prisma has no typed models for them)
+    const [roadmapsRaw, lessonsRaw, resourcesRaw] = await Promise.all([
+      prisma.$queryRaw<{ id: string; title: string; description: string | null; isPublished: boolean }[]>`
+        SELECT id, title, description, "isPublished"
+        FROM "roadmaps"
+        WHERE "deletedAt" IS NULL
+          AND (title ILIKE ${likeQ} OR description ILIKE ${likeQ})
+        LIMIT ${limit}
+      `,
+      prisma.$queryRaw<{ id: string; title: string; description: string | null; isPublished: boolean }[]>`
+        SELECT id, title, description, "isPublished"
+        FROM "lessons"
+        WHERE "deletedAt" IS NULL
+          AND (title ILIKE ${likeQ} OR description ILIKE ${likeQ})
+        LIMIT ${limit}
+      `,
+      prisma.$queryRaw<{ id: string; title: string; type: string; url: string }[]>`
+        SELECT id, title, type::text, url
+        FROM "learning_resources"
+        WHERE "deletedAt" IS NULL
+          AND title ILIKE ${likeQ}
+        LIMIT ${limit}
+      `,
+    ]);
 
     const [
-      roadmaps,
-      lessons,
       problems,
       projects,
       companies,
       events,
-      resources,
       faqs,
       testimonials,
       media,
     ] = await Promise.all([
-      prisma.roadmap.findMany({
-        where: {
-          ...softDel,
-          OR: [
-            { title: { contains: q, mode: 'insensitive' } },
-            { description: { contains: q, mode: 'insensitive' } },
-          ],
-        },
-        take: limit,
-        select: { id: true, title: true, description: true, isPublished: true },
-      }),
-      prisma.lesson.findMany({
-        where: {
-          ...softDel,
-          OR: [
-            { title: { contains: q, mode: 'insensitive' } },
-            { description: { contains: q, mode: 'insensitive' } },
-          ],
-        },
-        take: limit,
-        select: { id: true, title: true, description: true, isPublished: true },
-      }),
       prisma.codingProblem.findMany({
         where: {
           ...softDel,
@@ -712,11 +719,6 @@ export class CMSExtrasService {
         },
         take: limit,
         select: { id: true, title: true, type: true, isPublished: true },
-      }),
-      prisma.learningResource.findMany({
-        where: { ...softDel, OR: [{ title: { contains: q, mode: 'insensitive' } }] },
-        take: limit,
-        select: { id: true, title: true, type: true, url: true },
       }),
       prisma.faq.findMany({
         where: {
@@ -763,8 +765,8 @@ export class CMSExtrasService {
     ]);
 
     const results = [
-      ...roadmaps.map((r) => ({ kind: 'roadmap' as const, ...r })),
-      ...lessons.map((l) => ({ kind: 'lesson' as const, ...l })),
+      ...roadmapsRaw.map((r) => ({ kind: 'roadmap' as const, ...r })),
+      ...lessonsRaw.map((l) => ({ kind: 'lesson' as const, ...l })),
       ...problems.map((p) => ({ kind: 'problem' as const, ...p })),
       ...projects.map((p) => ({ kind: 'project' as const, ...p })),
       ...companies.map((c) => ({
@@ -774,7 +776,7 @@ export class CMSExtrasService {
         extra: c.industry,
       })),
       ...events.map((e) => ({ kind: 'event' as const, ...e })),
-      ...resources.map((r) => ({
+      ...resourcesRaw.map((r) => ({
         kind: 'resource' as const,
         id: r.id,
         title: r.title,

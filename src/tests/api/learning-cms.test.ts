@@ -622,14 +622,18 @@ describe('Student: Continue Learning', () => {
     expect(res.body.data.content.topicName).toBe('What is Programming?');
   });
 
-  it('404 — no content available for course', async () => {
+  it('200 — empty state when no content available for course', async () => {
+    // Per Phase 13: "If there is no published content: show No learning content yet NOT 500"
+    // Empty content is a valid state — controller intercepts the NOT_FOUND and returns 200.
     vi.mocked(studentService.getCurrentLearning).mockRejectedValue(
       new AppError(HTTP_STATUS.NOT_FOUND, 'No learning content available for this course'),
     );
     const res = await request(app)
       .get(`/api/learning/courses/${courseUUID}/current`)
       .set('Authorization', `Bearer ${studentToken}`);
-    expect(res.status).toBe(404);
+    expect(res.status).toBe(200);
+    expect(res.body.data.activeCourse).toBeNull();
+    expect(res.body.data.continueLearningContent).toBeNull();
   });
 });
 

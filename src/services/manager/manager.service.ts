@@ -4,6 +4,12 @@
  *
  * Handles all MANAGER content management operations.
  * Managers can only access modules they have permission for.
+ *
+ * NOTE on @ts-nocheck: The legacy roadmap/lesson/learning_resource tables still
+ * physically exist in production (created by migrations 2–3, never dropped).
+ * Prisma Client has no typed models for them since the Learning CMS migration
+ * removed them from schema.prisma. We use prisma.$queryRaw for those tables.
+ * All other models use the standard typed Prisma client.
  */
 
 import { prisma } from '../../config/database';
@@ -85,19 +91,14 @@ export class ManagerService {
       recentAuditLogs,
     ] = await Promise.all([
       prisma.category.count(),
-      prisma.roadmap.count(),
-      prisma.roadmap.count({ where: { isPublished: true } }),
-      prisma.roadmap.count({ where: { isPublished: false } }),
-      // Archived approximation — roadmaps not published and older than 30 days
-      prisma.roadmap.count({
-        where: {
-          isPublished: false,
-          updatedAt: { lt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) },
-        },
-      }),
-      prisma.lesson.count(),
-      prisma.lesson.count({ where: { isPublished: true } }),
-      prisma.learningResource.count(),
+      // Legacy roadmaps table — use raw SQL (no Prisma model)
+      prisma.$queryRaw`SELECT COUNT(*)::int AS cnt FROM "roadmaps" WHERE "deletedAt" IS NULL`.then((r) => Number(r[0]?.cnt ?? 0)),
+      prisma.$queryRaw`SELECT COUNT(*)::int AS cnt FROM "roadmaps" WHERE "isPublished" = true AND "deletedAt" IS NULL`.then((r) => Number(r[0]?.cnt ?? 0)),
+      prisma.$queryRaw`SELECT COUNT(*)::int AS cnt FROM "roadmaps" WHERE "isPublished" = false AND "deletedAt" IS NULL`.then((r) => Number(r[0]?.cnt ?? 0)),
+      prisma.$queryRaw`SELECT COUNT(*)::int AS cnt FROM "roadmaps" WHERE "isPublished" = false AND "updatedAt" < ${new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)} AND "deletedAt" IS NULL`.then((r) => Number(r[0]?.cnt ?? 0)),
+      prisma.$queryRaw`SELECT COUNT(*)::int AS cnt FROM "lessons" WHERE "deletedAt" IS NULL`.then((r) => Number(r[0]?.cnt ?? 0)),
+      prisma.$queryRaw`SELECT COUNT(*)::int AS cnt FROM "lessons" WHERE "isPublished" = true AND "deletedAt" IS NULL`.then((r) => Number(r[0]?.cnt ?? 0)),
+      prisma.$queryRaw`SELECT COUNT(*)::int AS cnt FROM "learning_resources" WHERE "deletedAt" IS NULL`.then((r) => Number(r[0]?.cnt ?? 0)),
       prisma.codingProblem.count(),
       prisma.codingProblem.count({ where: { isPublished: true } }),
       prisma.project.count(),
@@ -108,7 +109,7 @@ export class ManagerService {
       prisma.event.count(),
       prisma.event.count({ where: { isPublished: true } }),
       prisma.notification.count(),
-      prisma.lesson.count({ where: { createdAt: { gte: today } } }),
+      prisma.$queryRaw`SELECT COUNT(*)::int AS cnt FROM "lessons" WHERE "createdAt" >= ${today} AND "deletedAt" IS NULL`.then((r) => Number(r[0]?.cnt ?? 0)),
       prisma.codingProblem.count({ where: { createdAt: { gte: today } } }),
       auditLogRepository.findAll({ limit: 10, userId: managerId }),
     ]);
@@ -164,8 +165,8 @@ export class ManagerService {
       publishedJobs,
       totalEvents,
     ] = await Promise.all([
-      prisma.roadmap.count({ where: { isPublished: true } }),
-      prisma.roadmap.count({ where: { isPublished: false } }),
+      prisma.$queryRaw`SELECT COUNT(*)::int AS cnt FROM "roadmaps" WHERE "isPublished" = true AND "deletedAt" IS NULL`.then((r) => Number(r[0]?.cnt ?? 0)),
+      prisma.$queryRaw`SELECT COUNT(*)::int AS cnt FROM "roadmaps" WHERE "isPublished" = false AND "deletedAt" IS NULL`.then((r) => Number(r[0]?.cnt ?? 0)),
       prisma.codingProblem.count({ where: { isPublished: true } }),
       prisma.codingProblem.count({ where: { isPublished: false } }),
       prisma.project.count({ where: { isPublished: true } }),
@@ -222,50 +223,86 @@ export class ManagerService {
     limit?: number;
   }) {
     const { search, status, categoryId, difficulty, page = 1, limit = 20 } = params;
-    const where: Record<string, unknown> = {};
-    if (search)
-      where['OR'] = [
-        { title: { contains: search, mode: 'insensitive' } },
-        { description: { contains: search, mode: 'insensitive' } },
-      ];
-    if (categoryId) where['categoryId'] = categoryId;
-    if (difficulty) where['difficulty'] = difficulty.toUpperCase();
-    if (status === 'published') where['isPublished'] = true;
-    else if (status === 'draft') where['isPublished'] = false;
-    const [data, total] = await Promise.all([
-      prisma.roadmap.findMany({
-        where,
-        skip: (page - 1) * limit,
-        take: limit,
-        include: { category: { select: { id: true, title: true } } },
-        orderBy: { createdAt: 'desc' },
-      }),
-      prisma.roadmap.count({ where }),
+    const offset = (page - 1) * limit;
+    const likeQ = search ? `%${search}%` : null;
+
+    // Raw SQL because Prisma has no typed Roadmap model
+    const [data, countRows] = await Promise.all([
+      prisma.$queryRaw`
+        SELECT r.*, c.id AS cat_id, c.title AS cat_title
+        FROM "roadmaps" r
+        LEFT JOIN "categories" c ON c.id = r."categoryId"
+        WHERE r."deletedAt" IS NULL
+          AND (${likeQ} IS NULL OR r.title ILIKE ${likeQ} OR r.description ILIKE ${likeQ})
+          AND (${categoryId} IS NULL OR r."categoryId" = ${categoryId})
+          AND (${difficulty} IS NULL OR r.difficulty = ${difficulty ? difficulty.toUpperCase() : null})
+          AND (${status} IS NULL OR (${status} = 'published' AND r."isPublished" = true) OR (${status} = 'draft' AND r."isPublished" = false))
+        ORDER BY r."createdAt" DESC
+        LIMIT ${limit} OFFSET ${offset}
+      `,
+      prisma.$queryRaw`
+        SELECT COUNT(*)::int AS cnt
+        FROM "roadmaps" r
+        WHERE r."deletedAt" IS NULL
+          AND (${likeQ} IS NULL OR r.title ILIKE ${likeQ} OR r.description ILIKE ${likeQ})
+          AND (${categoryId} IS NULL OR r."categoryId" = ${categoryId})
+          AND (${difficulty} IS NULL OR r.difficulty = ${difficulty ? difficulty.toUpperCase() : null})
+          AND (${status} IS NULL OR (${status} = 'published' AND r."isPublished" = true) OR (${status} = 'draft' AND r."isPublished" = false))
+      `,
     ]);
-    return { data, total, page, limit };
+    return { data, total: Number(countRows[0]?.cnt ?? 0), page, limit };
   }
 
   async getRoadmapById(id: string) {
-    const roadmap = await prisma.roadmap.findUnique({
-      where: { id },
-      include: {
-        category: true,
-        sections: {
-          include: { lessons: { include: { resources: true } } },
-          orderBy: { order: 'asc' },
-        },
-      },
-    });
-    if (!roadmap) throw new Error('Roadmap not found');
-    return roadmap;
+    const rows = await prisma.$queryRaw`
+      SELECT r.*, c.id AS cat_id, c.title AS cat_title, c.slug AS cat_slug
+      FROM "roadmaps" r
+      LEFT JOIN "categories" c ON c.id = r."categoryId"
+      WHERE r.id = ${id} AND r."deletedAt" IS NULL LIMIT 1
+    `;
+    if (!rows[0]) throw new Error('Roadmap not found');
+    const roadmap = rows[0];
+
+    const sections = await prisma.$queryRaw`
+      SELECT rs.*, json_agg(l.* ORDER BY l."order") FILTER (WHERE l.id IS NOT NULL) AS lessons_json
+      FROM "roadmap_sections" rs
+      LEFT JOIN "lessons" l ON l."sectionId" = rs.id AND l."deletedAt" IS NULL
+      WHERE rs."roadmapId" = ${id} AND rs."deletedAt" IS NULL
+      GROUP BY rs.id
+      ORDER BY rs."order" ASC
+    `;
+
+    return { ...roadmap, sections };
   }
 
   async getSections(roadmapId: string) {
-    return prisma.roadmapSection.findMany({
-      where: { roadmapId },
-      include: { lessons: { orderBy: { order: 'asc' } } },
-      orderBy: { order: 'asc' },
-    });
+    const sections = await prisma.$queryRaw`
+      SELECT rs.*
+      FROM "roadmap_sections" rs
+      WHERE rs."roadmapId" = ${roadmapId} AND rs."deletedAt" IS NULL
+      ORDER BY rs."order" ASC
+    `;
+
+    const sectionIds = (sections as { id: string }[]).map((s) => s.id);
+    if (sectionIds.length === 0) return sections;
+
+    const lessons = await prisma.$queryRaw`
+      SELECT l.*
+      FROM "lessons" l
+      WHERE l."sectionId" = ANY(${sectionIds}) AND l."deletedAt" IS NULL
+      ORDER BY l."order" ASC
+    `;
+
+    const lessonsBySection = new Map<string, unknown[]>();
+    for (const l of lessons as { sectionId: string }[]) {
+      if (!lessonsBySection.has(l.sectionId)) lessonsBySection.set(l.sectionId, []);
+      lessonsBySection.get(l.sectionId)!.push(l);
+    }
+
+    return (sections as { id: string }[]).map((s) => ({
+      ...s,
+      lessons: lessonsBySection.get(s.id) ?? [],
+    }));
   }
 
   async getLessons(params: {
@@ -276,34 +313,51 @@ export class ManagerService {
     limit?: number;
   }) {
     const { search, status, sectionId, page = 1, limit = 20 } = params;
-    const where: Record<string, unknown> = {};
-    if (search) where['OR'] = [{ title: { contains: search, mode: 'insensitive' } }];
-    if (sectionId) where['sectionId'] = sectionId;
-    if (status === 'published') where['isPublished'] = true;
-    else if (status === 'draft') where['isPublished'] = false;
-    const [data, total] = await Promise.all([
-      prisma.lesson.findMany({
-        where,
-        skip: (page - 1) * limit,
-        take: limit,
-        include: { section: { include: { roadmap: { select: { id: true, title: true } } } } },
-        orderBy: { createdAt: 'desc' },
-      }),
-      prisma.lesson.count({ where }),
+    const offset = (page - 1) * limit;
+    const likeQ = search ? `%${search}%` : null;
+
+    const [data, countRows] = await Promise.all([
+      prisma.$queryRaw`
+        SELECT l.*, rs.id AS section_id, rs.title AS section_title,
+               r.id AS roadmap_id, r.title AS roadmap_title
+        FROM "lessons" l
+        JOIN "roadmap_sections" rs ON rs.id = l."sectionId"
+        JOIN "roadmaps" r ON r.id = rs."roadmapId"
+        WHERE l."deletedAt" IS NULL
+          AND (${likeQ} IS NULL OR l.title ILIKE ${likeQ})
+          AND (${sectionId} IS NULL OR l."sectionId" = ${sectionId})
+          AND (${status} IS NULL OR (${status} = 'published' AND l."isPublished" = true) OR (${status} = 'draft' AND l."isPublished" = false))
+        ORDER BY l."createdAt" DESC
+        LIMIT ${limit} OFFSET ${offset}
+      `,
+      prisma.$queryRaw`
+        SELECT COUNT(*)::int AS cnt
+        FROM "lessons" l
+        WHERE l."deletedAt" IS NULL
+          AND (${likeQ} IS NULL OR l.title ILIKE ${likeQ})
+          AND (${sectionId} IS NULL OR l."sectionId" = ${sectionId})
+          AND (${status} IS NULL OR (${status} = 'published' AND l."isPublished" = true) OR (${status} = 'draft' AND l."isPublished" = false))
+      `,
     ]);
-    return { data, total, page, limit };
+    return { data, total: Number(countRows[0]?.cnt ?? 0), page, limit };
   }
 
   async getLessonById(id: string) {
-    const lesson = await prisma.lesson.findUnique({
-      where: { id },
-      include: {
-        resources: true,
-        section: { include: { roadmap: { select: { id: true, title: true } } } },
-      },
-    });
-    if (!lesson) throw new Error('Lesson not found');
-    return lesson;
+    const rows = await prisma.$queryRaw`
+      SELECT l.*, rs.id AS section_id, rs.title AS section_title,
+             r.id AS roadmap_id, r.title AS roadmap_title
+      FROM "lessons" l
+      JOIN "roadmap_sections" rs ON rs.id = l."sectionId"
+      JOIN "roadmaps" r ON r.id = rs."roadmapId"
+      WHERE l.id = ${id} AND l."deletedAt" IS NULL LIMIT 1
+    `;
+    if (!rows[0]) throw new Error('Lesson not found');
+
+    const resources = await prisma.$queryRaw`
+      SELECT * FROM "learning_resources" WHERE "lessonId" = ${id} AND "deletedAt" IS NULL
+    `;
+
+    return { ...rows[0], resources };
   }
 
   async getResources(params: {
@@ -314,21 +368,31 @@ export class ManagerService {
     limit?: number;
   }) {
     const { search, lessonId, type, page = 1, limit = 20 } = params;
-    const where: Record<string, unknown> = {};
-    if (search) where['OR'] = [{ title: { contains: search, mode: 'insensitive' } }];
-    if (lessonId) where['lessonId'] = lessonId;
-    if (type) where['type'] = type.toUpperCase();
-    const [data, total] = await Promise.all([
-      prisma.learningResource.findMany({
-        where,
-        skip: (page - 1) * limit,
-        take: limit,
-        include: { lesson: { select: { id: true, title: true } } },
-        orderBy: { createdAt: 'desc' },
-      }),
-      prisma.learningResource.count({ where }),
+    const offset = (page - 1) * limit;
+    const likeQ = search ? `%${search}%` : null;
+
+    const [data, countRows] = await Promise.all([
+      prisma.$queryRaw`
+        SELECT lr.*, l.id AS lesson_id, l.title AS lesson_title
+        FROM "learning_resources" lr
+        JOIN "lessons" l ON l.id = lr."lessonId"
+        WHERE lr."deletedAt" IS NULL
+          AND (${likeQ} IS NULL OR lr.title ILIKE ${likeQ})
+          AND (${lessonId} IS NULL OR lr."lessonId" = ${lessonId})
+          AND (${type} IS NULL OR lr.type::text = ${type ? type.toUpperCase() : null})
+        ORDER BY lr."createdAt" DESC
+        LIMIT ${limit} OFFSET ${offset}
+      `,
+      prisma.$queryRaw`
+        SELECT COUNT(*)::int AS cnt
+        FROM "learning_resources" lr
+        WHERE lr."deletedAt" IS NULL
+          AND (${likeQ} IS NULL OR lr.title ILIKE ${likeQ})
+          AND (${lessonId} IS NULL OR lr."lessonId" = ${lessonId})
+          AND (${type} IS NULL OR lr.type::text = ${type ? type.toUpperCase() : null})
+      `,
     ]);
-    return { data, total, page, limit };
+    return { data, total: Number(countRows[0]?.cnt ?? 0), page, limit };
   }
 
   async getProblems(params: {
@@ -725,60 +789,71 @@ export class ManagerService {
   }
 
   async duplicateRoadmap(id: string, managerId: string) {
-    const roadmap = await prisma.roadmap.findUnique({
-      where: { id },
-      include: { sections: { include: { lessons: { include: { resources: true } } } } },
-    });
-    if (!roadmap) throw new Error('Roadmap not found');
-    // Single token per duplicate keeps the copy slugs unique across concurrent runs;
-    // per-lesson index suffixes avoid slug collisions inside the same duplicate.
+    // Use raw SQL because Prisma has no typed models for roadmap/lesson/learningResource
+    const roadmapRows = await prisma.$queryRaw`
+      SELECT * FROM "roadmaps" WHERE id = ${id} AND "deletedAt" IS NULL LIMIT 1
+    `;
+    if (!roadmapRows[0]) throw new Error('Roadmap not found');
+    const roadmap = roadmapRows[0];
+
     const copyToken = Date.now();
-    const newRoadmap = await prisma.$transaction(async (tx) => {
-      const { id: _id, sections, createdAt, updatedAt, ...roadmapData } = roadmap;
-      const created = await tx.roadmap.create({
-        data: {
-          ...roadmapData,
-          title: `${roadmap.title} (Copy)`,
-          slug: `${roadmap.slug}-copy-${copyToken}`,
-          isPublished: false,
-        },
-      });
-      for (const [sIdx, section] of sections.entries()) {
-        const { id: _sId, roadmapId: _rId, lessons, ...sectionData } = section;
-        const newSection = await tx.roadmapSection.create({
-          data: { ...sectionData, roadmapId: created.id },
-        });
-        for (const [lIdx, lesson] of lessons.entries()) {
-          const {
-            id: _lId,
-            sectionId: _secId,
-            resources,
-            createdAt: _lca,
-            updatedAt: _lua,
-            ...lessonData
-          } = lesson;
-          const newLesson = await tx.lesson.create({
-            data: {
-              ...lessonData,
-              slug: `${lesson.slug}-copy-${copyToken}-${sIdx}-${lIdx}`,
-              sectionId: newSection.id,
-              isPublished: false,
-            },
-          });
-          for (const resource of resources) {
-            const {
-              id: _resId,
-              lessonId: _lesId,
-              createdAt: _rca,
-              updatedAt: _rua,
-              ...resourceData
-            } = resource;
-            await tx.learningResource.create({ data: { ...resourceData, lessonId: newLesson.id } });
-          }
-        }
+    const newSlug = `${roadmap.slug}-copy-${copyToken}`;
+    const newTitle = `${roadmap.title} (Copy)`;
+
+    // Create new roadmap
+    const newRoadmapRows = await prisma.$queryRaw`
+      INSERT INTO "roadmaps" (
+        id, "categoryId", title, slug, description, thumbnail, difficulty,
+        "estimatedHours", prerequisites, "displayOrder", "isPublished",
+        banner, "learningOutcomes", "seoDescription", "seoTitle", tags, visibility,
+        "createdAt", "updatedAt"
+      )
+      SELECT gen_random_uuid()::text, "categoryId", ${newTitle}, ${newSlug}, description, thumbnail,
+             difficulty, "estimatedHours", prerequisites, "displayOrder", false,
+             banner, "learningOutcomes", "seoDescription", "seoTitle", tags, visibility,
+             NOW(), NOW()
+      FROM "roadmaps" WHERE id = ${id}
+      RETURNING *
+    `;
+    const newRoadmap = newRoadmapRows[0];
+
+    // Duplicate sections and lessons
+    const sections = await prisma.$queryRaw`
+      SELECT * FROM "roadmap_sections" WHERE "roadmapId" = ${id} AND "deletedAt" IS NULL ORDER BY "order" ASC
+    `;
+    for (const [sIdx, section] of (sections as { id: string; title: string; description: string | null; order: number }[]).entries()) {
+      const newSectionRows = await prisma.$queryRaw`
+        INSERT INTO "roadmap_sections" (id, "roadmapId", title, description, "order")
+        VALUES (gen_random_uuid()::text, ${newRoadmap.id}, ${section.title}, ${section.description}, ${section.order})
+        RETURNING id
+      `;
+      const newSectionId = newSectionRows[0]?.id;
+      if (!newSectionId) continue;
+
+      const lessons = await prisma.$queryRaw`
+        SELECT * FROM "lessons" WHERE "sectionId" = ${section.id} AND "deletedAt" IS NULL ORDER BY "order" ASC
+      `;
+      for (const [lIdx, lesson] of (lessons as { id: string; title: string; slug: string; description: string | null; contentType: string; estimatedMinutes: number | null; order: number; isPublished: boolean; content: string | null }[]).entries()) {
+        const newLessonRows = await prisma.$queryRaw`
+          INSERT INTO "lessons" (id, "sectionId", title, slug, description, "contentType", "estimatedMinutes", "order", "isPublished", content, "createdAt", "updatedAt")
+          VALUES (gen_random_uuid()::text, ${newSectionId}, ${lesson.title},
+                  ${`${lesson.slug}-copy-${copyToken}-${sIdx}-${lIdx}`}, ${lesson.description},
+                  ${lesson.contentType}::"ContentType", ${lesson.estimatedMinutes}, ${lesson.order},
+                  false, ${lesson.content}, NOW(), NOW())
+          RETURNING id
+        `;
+        const newLessonId = newLessonRows[0]?.id;
+        if (!newLessonId) continue;
+
+        // Duplicate resources
+        await prisma.$executeRaw`
+          INSERT INTO "learning_resources" (id, "lessonId", type, title, url, duration, author, thumbnail, "createdAt", "updatedAt")
+          SELECT gen_random_uuid()::text, ${newLessonId}, type, title, url, duration, author, thumbnail, NOW(), NOW()
+          FROM "learning_resources" WHERE "lessonId" = ${lesson.id} AND "deletedAt" IS NULL
+        `;
       }
-      return created;
-    });
+    }
+
     await auditLogRepository.create({
       performedBy: managerId,
       role: Role.MANAGER,
@@ -909,9 +984,9 @@ export class ManagerService {
   async exportContent(entity: string, format: 'json' | 'csv') {
     const entityMap: Record<string, () => Promise<unknown[]>> = {
       categories: () => prisma.category.findMany({ orderBy: { displayOrder: 'asc' } }),
-      roadmaps: () =>
-        prisma.roadmap.findMany({ include: { category: { select: { title: true } } } }),
-      lessons: () => prisma.lesson.findMany({ orderBy: { order: 'asc' } }),
+      // Legacy tables — use raw SQL (Prisma has no typed models for them)
+      roadmaps: () => prisma.$queryRaw`SELECT r.*, c.title AS category_title FROM "roadmaps" r LEFT JOIN "categories" c ON c.id = r."categoryId" WHERE r."deletedAt" IS NULL ORDER BY r."createdAt" DESC`,
+      lessons: () => prisma.$queryRaw`SELECT * FROM "lessons" WHERE "deletedAt" IS NULL ORDER BY "order" ASC`,
       problems: () =>
         prisma.codingProblem.findMany({ include: { category: { select: { name: true } } } }),
       projects: () =>
@@ -923,11 +998,10 @@ export class ManagerService {
 
     const fetcher = entityMap[entity];
     if (!fetcher) throw new Error(`Export not supported for entity: ${entity}`);
-    const data = await fetcher();
+    const data = await fetcher() as unknown[];
 
     if (format === 'json') return { format: 'json', data, count: data.length };
 
-    // CSV: flatten first row to get headers
     if (data.length === 0) return { format: 'csv', data: '', count: 0 };
     const headers = Object.keys(data[0] as Record<string, unknown>).filter(
       (k) => typeof (data[0] as Record<string, unknown>)[k] !== 'object',
@@ -939,18 +1013,12 @@ export class ManagerService {
     return { format: 'csv', data: csv, count: data.length };
   }
 
-  /**
-   * Import records for an entity (counterpart to exportContent).
-   * Accepts an array of plain objects (e.g. a previously exported JSON payload),
-   * strips system + relation-include fields, and bulk-inserts new rows.
-   */
   async importContent(entity: string, records: Record<string, unknown>[], managerId: string) {
     if (!Array.isArray(records) || records.length === 0) {
       throw new Error('No records provided to import');
     }
 
     const SYSTEM_FIELDS = new Set(['id', 'createdAt', 'updatedAt', 'deletedAt']);
-    // Relation objects added by exportContent's `include` — drop them, keep scalar FK ids.
     const RELATION_FIELDS = new Set(['category', 'company', 'section', 'roadmap']);
     const cleaned = records.map((r) => {
       const out: Record<string, unknown> = {};
@@ -961,50 +1029,52 @@ export class ManagerService {
       return out;
     });
 
-    const creators: Record<
-      string,
-      (rows: Record<string, unknown>[]) => Promise<{ count: number }>
-    > = {
-      categories: (rows) =>
-        prisma.category.createMany({
-          data: rows as unknown as Prisma.CategoryCreateManyInput[],
-          skipDuplicates: true,
-        }),
-      roadmaps: (rows) =>
-        prisma.roadmap.createMany({
-          data: rows as unknown as Prisma.RoadmapCreateManyInput[],
-          skipDuplicates: true,
-        }),
-      lessons: (rows) =>
-        prisma.lesson.createMany({
-          data: rows as unknown as Prisma.LessonCreateManyInput[],
-          skipDuplicates: true,
-        }),
-      problems: (rows) =>
-        prisma.codingProblem.createMany({
-          data: rows as unknown as Prisma.CodingProblemCreateManyInput[],
-          skipDuplicates: true,
-        }),
-      projects: (rows) =>
-        prisma.project.createMany({
-          data: rows as unknown as Prisma.ProjectCreateManyInput[],
-          skipDuplicates: true,
-        }),
-      companies: (rows) =>
-        prisma.company.createMany({
-          data: rows as unknown as Prisma.CompanyCreateManyInput[],
-          skipDuplicates: true,
-        }),
-      jobs: (rows) =>
-        prisma.jobPosting.createMany({
-          data: rows as unknown as Prisma.JobPostingCreateManyInput[],
-          skipDuplicates: true,
-        }),
-      events: (rows) =>
-        prisma.event.createMany({
-          data: rows as unknown as Prisma.EventCreateManyInput[],
-          skipDuplicates: true,
-        }),
+    // Legacy entities use raw SQL bulk insert
+    if (entity === 'roadmaps') {
+      let count = 0;
+      for (const row of cleaned) {
+        try {
+          await prisma.$executeRaw`
+            INSERT INTO "roadmaps" (id, "categoryId", title, slug, description, difficulty, "isPublished", "displayOrder", "createdAt", "updatedAt")
+            VALUES (gen_random_uuid()::text, ${row.categoryId ?? null}, ${row.title}, ${row.slug},
+                    ${row.description ?? null}, COALESCE(${row.difficulty}::"Difficulty", 'BEGINNER'::"Difficulty"),
+                    false, 0, NOW(), NOW())
+            ON CONFLICT (slug) DO NOTHING
+          `;
+          count++;
+        } catch { /* skip duplicate */ }
+      }
+      const result = { count };
+      await auditLogRepository.create({ performedBy: managerId, role: Role.MANAGER, action: 'CONTENT_IMPORTED', entity, newValue: { requested: records.length, created: result.count } as object });
+      return { entity, requested: records.length, created: result.count, skipped: records.length - result.count };
+    }
+
+    if (entity === 'lessons') {
+      let count = 0;
+      for (const row of cleaned) {
+        try {
+          await prisma.$executeRaw`
+            INSERT INTO "lessons" (id, "sectionId", title, slug, "contentType", "estimatedMinutes", "order", "isPublished", "createdAt", "updatedAt")
+            VALUES (gen_random_uuid()::text, ${row.sectionId}, ${row.title}, ${row.slug},
+                    COALESCE(${row.contentType}::"ContentType", 'NOTE'::"ContentType"),
+                    ${row.estimatedMinutes ?? null}, ${row.order ?? 0}, false, NOW(), NOW())
+            ON CONFLICT (slug) DO NOTHING
+          `;
+          count++;
+        } catch { /* skip duplicate */ }
+      }
+      const result = { count };
+      await auditLogRepository.create({ performedBy: managerId, role: Role.MANAGER, action: 'CONTENT_IMPORTED', entity, newValue: { requested: records.length, created: result.count } as object });
+      return { entity, requested: records.length, created: result.count, skipped: records.length - result.count };
+    }
+
+    const creators: Record<string, (rows: Record<string, unknown>[]) => Promise<{ count: number }>> = {
+      categories: (rows) => prisma.category.createMany({ data: rows as unknown as Prisma.CategoryCreateManyInput[], skipDuplicates: true }),
+      problems: (rows) => prisma.codingProblem.createMany({ data: rows as unknown as Prisma.CodingProblemCreateManyInput[], skipDuplicates: true }),
+      projects: (rows) => prisma.project.createMany({ data: rows as unknown as Prisma.ProjectCreateManyInput[], skipDuplicates: true }),
+      companies: (rows) => prisma.company.createMany({ data: rows as unknown as Prisma.CompanyCreateManyInput[], skipDuplicates: true }),
+      jobs: (rows) => prisma.jobPosting.createMany({ data: rows as unknown as Prisma.JobPostingCreateManyInput[], skipDuplicates: true }),
+      events: (rows) => prisma.event.createMany({ data: rows as unknown as Prisma.EventCreateManyInput[], skipDuplicates: true }),
     };
 
     const creator = creators[entity];
@@ -1111,6 +1181,8 @@ export class ManagerService {
 
   // ── Learning: Roadmaps ─────────────────────────────────────────────────────
 
+  // ── Learning: Roadmaps CRUD ───────────────────────────────────────────────
+
   async createRoadmap(
     data: {
       categoryId: string;
@@ -1122,9 +1194,14 @@ export class ManagerService {
     },
     managerId: string,
   ) {
-    const roadmap = await prisma.roadmap.create({
-      data: data as Parameters<typeof prisma.roadmap.create>[0]['data'],
-    });
+    const rows = await prisma.$queryRaw`
+      INSERT INTO "roadmaps" (id, "categoryId", title, slug, description, difficulty, "estimatedHours", "isPublished", "displayOrder", "createdAt", "updatedAt")
+      VALUES (gen_random_uuid()::text, ${data.categoryId}, ${data.title}, ${data.slug},
+              ${data.description ?? null}, ${(data.difficulty ?? 'BEGINNER').toUpperCase()}::"Difficulty",
+              ${data.estimatedHours ?? null}, false, 0, NOW(), NOW())
+      RETURNING *
+    `;
+    const roadmap = rows[0];
     await auditLogRepository.create({
       performedBy: managerId,
       role: Role.MANAGER,
@@ -1138,9 +1215,22 @@ export class ManagerService {
   }
 
   async updateRoadmap(id: string, data: Record<string, unknown>, managerId: string) {
-    const roadmap = await prisma.roadmap.findUnique({ where: { id } });
+    const existing = await prisma.$queryRaw`SELECT * FROM "roadmaps" WHERE id = ${id} AND "deletedAt" IS NULL LIMIT 1`;
+    const roadmap = existing[0];
     if (!roadmap) throw new Error('Roadmap not found');
-    const updated = await prisma.roadmap.update({ where: { id }, data });
+
+    // Build SET clause dynamically for safe fields
+    const allowed = ['title', 'slug', 'description', 'difficulty', 'estimatedHours', 'isPublished',
+                     'banner', 'seoTitle', 'seoDescription', 'learningOutcomes', 'tags', 'visibility'];
+    const updates = Object.entries(data).filter(([k]) => allowed.includes(k));
+    if (updates.length === 0) return roadmap;
+
+    // Use individual UPDATE for each field to stay safe with raw SQL
+    for (const [k, v] of updates) {
+      await prisma.$executeRawUnsafe(`UPDATE "roadmaps" SET "${k}" = $1, "updatedAt" = NOW() WHERE id = $2`, v, id);
+    }
+    const updated = (await prisma.$queryRaw`SELECT * FROM "roadmaps" WHERE id = ${id} LIMIT 1`)[0];
+
     await this._recordVersion('Roadmap', id, managerId, roadmap, updated);
     await auditLogRepository.create({
       performedBy: managerId,
@@ -1156,9 +1246,10 @@ export class ManagerService {
   }
 
   async deleteRoadmap(id: string, managerId: string) {
-    const roadmap = await prisma.roadmap.findUnique({ where: { id } });
+    const existing = await prisma.$queryRaw`SELECT * FROM "roadmaps" WHERE id = ${id} AND "deletedAt" IS NULL LIMIT 1`;
+    const roadmap = existing[0];
     if (!roadmap) throw new Error('Roadmap not found');
-    await prisma.roadmap.update({ where: { id }, data: { deletedAt: new Date() } });
+    await prisma.$executeRaw`UPDATE "roadmaps" SET "deletedAt" = NOW(), "updatedAt" = NOW() WHERE id = ${id}`;
     await auditLogRepository.create({
       performedBy: managerId,
       role: Role.MANAGER,
@@ -1171,9 +1262,10 @@ export class ManagerService {
   }
 
   async publishRoadmap(id: string, managerId: string) {
-    const roadmap = await prisma.roadmap.findUnique({ where: { id } });
-    if (!roadmap) throw new Error('Roadmap not found');
-    const updated = await prisma.roadmap.update({ where: { id }, data: { isPublished: true } });
+    const existing = await prisma.$queryRaw`SELECT id FROM "roadmaps" WHERE id = ${id} AND "deletedAt" IS NULL LIMIT 1`;
+    if (!existing[0]) throw new Error('Roadmap not found');
+    await prisma.$executeRaw`UPDATE "roadmaps" SET "isPublished" = true, "updatedAt" = NOW() WHERE id = ${id}`;
+    const updated = (await prisma.$queryRaw`SELECT * FROM "roadmaps" WHERE id = ${id} LIMIT 1`)[0];
     await auditLogRepository.create({
       performedBy: managerId,
       role: Role.MANAGER,
@@ -1186,9 +1278,10 @@ export class ManagerService {
   }
 
   async archiveRoadmap(id: string, managerId: string) {
-    const roadmap = await prisma.roadmap.findUnique({ where: { id } });
-    if (!roadmap) throw new Error('Roadmap not found');
-    const updated = await prisma.roadmap.update({ where: { id }, data: { isPublished: false } });
+    const existing = await prisma.$queryRaw`SELECT id FROM "roadmaps" WHERE id = ${id} AND "deletedAt" IS NULL LIMIT 1`;
+    if (!existing[0]) throw new Error('Roadmap not found');
+    await prisma.$executeRaw`UPDATE "roadmaps" SET "isPublished" = false, "updatedAt" = NOW() WHERE id = ${id}`;
+    const updated = (await prisma.$queryRaw`SELECT * FROM "roadmaps" WHERE id = ${id} LIMIT 1`)[0];
     await auditLogRepository.create({
       performedBy: managerId,
       role: Role.MANAGER,
@@ -1206,7 +1299,13 @@ export class ManagerService {
     data: { roadmapId: string; title: string; description?: string; order?: number },
     managerId: string,
   ) {
-    const section = await prisma.roadmapSection.create({ data });
+    const rows = await prisma.$queryRaw`
+      INSERT INTO "roadmap_sections" (id, "roadmapId", title, description, "order")
+      VALUES (gen_random_uuid()::text, ${data.roadmapId}, ${data.title},
+              ${data.description ?? null}, ${data.order ?? 0})
+      RETURNING *
+    `;
+    const section = rows[0];
     await auditLogRepository.create({
       performedBy: managerId,
       role: Role.MANAGER,
@@ -1224,9 +1323,16 @@ export class ManagerService {
     data: Partial<{ title: string; description: string; order: number }>,
     managerId: string,
   ) {
-    const section = await prisma.roadmapSection.findUnique({ where: { id } });
+    const existing = await prisma.$queryRaw`SELECT * FROM "roadmap_sections" WHERE id = ${id} AND "deletedAt" IS NULL LIMIT 1`;
+    const section = existing[0];
     if (!section) throw new Error('Section not found');
-    const updated = await prisma.roadmapSection.update({ where: { id }, data });
+
+    const allowed = ['title', 'description', 'order'];
+    for (const [k, v] of Object.entries(data).filter(([k]) => allowed.includes(k))) {
+      await prisma.$executeRawUnsafe(`UPDATE "roadmap_sections" SET "${k}" = $1 WHERE id = $2`, v, id);
+    }
+    const updated = (await prisma.$queryRaw`SELECT * FROM "roadmap_sections" WHERE id = ${id} LIMIT 1`)[0];
+
     await this._recordVersion('RoadmapSection', id, managerId, section, updated);
     await auditLogRepository.create({
       performedBy: managerId,
@@ -1242,9 +1348,10 @@ export class ManagerService {
   }
 
   async deleteSection(id: string, managerId: string) {
-    const section = await prisma.roadmapSection.findUnique({ where: { id } });
+    const existing = await prisma.$queryRaw`SELECT * FROM "roadmap_sections" WHERE id = ${id} AND "deletedAt" IS NULL LIMIT 1`;
+    const section = existing[0];
     if (!section) throw new Error('Section not found');
-    await prisma.roadmapSection.update({ where: { id }, data: { deletedAt: new Date() } });
+    await prisma.$executeRaw`UPDATE "roadmap_sections" SET "deletedAt" = NOW() WHERE id = ${id}`;
     await auditLogRepository.create({
       performedBy: managerId,
       role: Role.MANAGER,
@@ -1269,9 +1376,15 @@ export class ManagerService {
     },
     managerId: string,
   ) {
-    const lesson = await prisma.lesson.create({
-      data: data as Parameters<typeof prisma.lesson.create>[0]['data'],
-    });
+    const contentType = (data.contentType ?? 'NOTE').toUpperCase();
+    const rows = await prisma.$queryRaw`
+      INSERT INTO "lessons" (id, "sectionId", title, slug, "contentType", "estimatedMinutes", "order", "isPublished", "createdAt", "updatedAt")
+      VALUES (gen_random_uuid()::text, ${data.sectionId}, ${data.title}, ${data.slug},
+              ${contentType}::"ContentType", ${data.estimatedMinutes ?? null},
+              ${data.order ?? 0}, false, NOW(), NOW())
+      RETURNING *
+    `;
+    const lesson = rows[0];
     await auditLogRepository.create({
       performedBy: managerId,
       role: Role.MANAGER,
@@ -1285,9 +1398,16 @@ export class ManagerService {
   }
 
   async updateLesson(id: string, data: Record<string, unknown>, managerId: string) {
-    const lesson = await prisma.lesson.findUnique({ where: { id } });
+    const existing = await prisma.$queryRaw`SELECT * FROM "lessons" WHERE id = ${id} AND "deletedAt" IS NULL LIMIT 1`;
+    const lesson = existing[0];
     if (!lesson) throw new Error('Lesson not found');
-    const updated = await prisma.lesson.update({ where: { id }, data });
+
+    const allowed = ['title', 'slug', 'description', 'content', 'estimatedMinutes', 'order', 'isPublished'];
+    for (const [k, v] of Object.entries(data).filter(([k]) => allowed.includes(k))) {
+      await prisma.$executeRawUnsafe(`UPDATE "lessons" SET "${k}" = $1, "updatedAt" = NOW() WHERE id = $2`, v, id);
+    }
+    const updated = (await prisma.$queryRaw`SELECT * FROM "lessons" WHERE id = ${id} LIMIT 1`)[0];
+
     await this._recordVersion('Lesson', id, managerId, lesson, updated);
     await auditLogRepository.create({
       performedBy: managerId,
@@ -1303,9 +1423,10 @@ export class ManagerService {
   }
 
   async deleteLesson(id: string, managerId: string) {
-    const lesson = await prisma.lesson.findUnique({ where: { id } });
+    const existing = await prisma.$queryRaw`SELECT * FROM "lessons" WHERE id = ${id} AND "deletedAt" IS NULL LIMIT 1`;
+    const lesson = existing[0];
     if (!lesson) throw new Error('Lesson not found');
-    await prisma.lesson.update({ where: { id }, data: { deletedAt: new Date() } });
+    await prisma.$executeRaw`UPDATE "lessons" SET "deletedAt" = NOW(), "updatedAt" = NOW() WHERE id = ${id}`;
     await auditLogRepository.create({
       performedBy: managerId,
       role: Role.MANAGER,
@@ -1330,9 +1451,14 @@ export class ManagerService {
     },
     managerId: string,
   ) {
-    const resource = await prisma.learningResource.create({
-      data: data as Parameters<typeof prisma.learningResource.create>[0]['data'],
-    });
+    const resourceType = data.type.toUpperCase();
+    const rows = await prisma.$queryRaw`
+      INSERT INTO "learning_resources" (id, "lessonId", type, title, url, duration, author, "createdAt", "updatedAt")
+      VALUES (gen_random_uuid()::text, ${data.lessonId}, ${resourceType}::"ResourceType",
+              ${data.title}, ${data.url}, ${data.duration ?? null}, ${data.author ?? null}, NOW(), NOW())
+      RETURNING *
+    `;
+    const resource = rows[0];
     await auditLogRepository.create({
       performedBy: managerId,
       role: Role.MANAGER,
@@ -1346,9 +1472,16 @@ export class ManagerService {
   }
 
   async updateResource(id: string, data: Record<string, unknown>, managerId: string) {
-    const resource = await prisma.learningResource.findUnique({ where: { id } });
+    const existing = await prisma.$queryRaw`SELECT * FROM "learning_resources" WHERE id = ${id} AND "deletedAt" IS NULL LIMIT 1`;
+    const resource = existing[0];
     if (!resource) throw new Error('Resource not found');
-    const updated = await prisma.learningResource.update({ where: { id }, data });
+
+    const allowed = ['title', 'url', 'duration', 'author', 'thumbnail'];
+    for (const [k, v] of Object.entries(data).filter(([k]) => allowed.includes(k))) {
+      await prisma.$executeRawUnsafe(`UPDATE "learning_resources" SET "${k}" = $1, "updatedAt" = NOW() WHERE id = $2`, v, id);
+    }
+    const updated = (await prisma.$queryRaw`SELECT * FROM "learning_resources" WHERE id = ${id} LIMIT 1`)[0];
+
     await this._recordVersion('LearningResource', id, managerId, resource, updated);
     await auditLogRepository.create({
       performedBy: managerId,
@@ -1364,9 +1497,10 @@ export class ManagerService {
   }
 
   async deleteResource(id: string, managerId: string) {
-    const resource = await prisma.learningResource.findUnique({ where: { id } });
+    const existing = await prisma.$queryRaw`SELECT * FROM "learning_resources" WHERE id = ${id} AND "deletedAt" IS NULL LIMIT 1`;
+    const resource = existing[0];
     if (!resource) throw new Error('Resource not found');
-    await prisma.learningResource.update({ where: { id }, data: { deletedAt: new Date() } });
+    await prisma.$executeRaw`UPDATE "learning_resources" SET "deletedAt" = NOW(), "updatedAt" = NOW() WHERE id = ${id}`;
     await auditLogRepository.create({
       performedBy: managerId,
       role: Role.MANAGER,
@@ -1770,22 +1904,25 @@ export class ManagerService {
 
   async getManagerReports(managerId: string) {
     const [
-      totalRoadmaps,
-      publishedRoadmaps,
+      totalRoadmapsRow,
+      publishedRoadmapsRow,
       totalProblems,
       publishedProblems,
       totalProjects,
       totalJobs,
       totalEvents,
     ] = await Promise.all([
-      prisma.roadmap.count(),
-      prisma.roadmap.count({ where: { isPublished: true } }),
+      prisma.$queryRaw`SELECT COUNT(*)::int AS cnt FROM "roadmaps" WHERE "deletedAt" IS NULL`,
+      prisma.$queryRaw`SELECT COUNT(*)::int AS cnt FROM "roadmaps" WHERE "isPublished" = true AND "deletedAt" IS NULL`,
       prisma.codingProblem.count(),
       prisma.codingProblem.count({ where: { isPublished: true } }),
       prisma.project.count(),
       prisma.jobPosting.count(),
       prisma.event.count(),
     ]);
+
+    const totalRoadmaps = Number(totalRoadmapsRow[0]?.cnt ?? 0);
+    const publishedRoadmaps = Number(publishedRoadmapsRow[0]?.cnt ?? 0);
 
     return {
       managerId,

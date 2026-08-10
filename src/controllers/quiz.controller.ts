@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Quiz & Practice Questions Controller
  * Handles:
@@ -7,6 +6,10 @@
  *   POST /learning/lessons/:id/quiz/submit     → submitQuiz
  *   GET  /learning/stats                       → getLearningStats
  *   POST /learning/lessons/:id/start           → markLessonStarted
+ *
+ * NOTE: The legacy lesson_progress and lessons tables still physically exist in
+ * production (created by migration 20260715123406_learning_ecosystem, never dropped).
+ * Prisma Client no longer has models for them — we use prisma.$queryRaw for those.
  */
 
 import { Request, Response, NextFunction } from 'express';
@@ -102,28 +105,28 @@ export const markLessonStarted = async (
     const lessonId = req.params.id;
     const userId = req.user.userId;
 
-    // Verify lesson exists first
-    const lesson = await prisma.lesson.findUnique({
-      where: { id: lessonId },
-      select: { id: true },
-    });
-    if (!lesson) {
+    // Verify lesson exists via raw SQL (Prisma Client no longer has a Lesson model)
+    const lessonRows = await prisma.$queryRaw<{ id: string }[]>`
+      SELECT id FROM "lessons" WHERE id = ${lessonId} AND "deletedAt" IS NULL LIMIT 1
+    `;
+    if (lessonRows.length === 0) {
       throw new AppError(HTTP_STATUS.NOT_FOUND, 'Lesson not found');
     }
 
-    // Single upsert for progress + single upsert for recently viewed (parallel)
-    await Promise.all([
-      prisma.userProgress.upsert({
-        where: { userId_lessonId: { userId, lessonId } },
-        update: { lastOpened: new Date() },
-        create: { userId, lessonId, completed: false, lastOpened: new Date() },
-      }),
-      prisma.recentlyViewed.upsert({
-        where: { userId_lessonId: { userId, lessonId } },
-        update: { viewedAt: new Date() },
-        create: { userId, lessonId },
-      }),
-    ]);
+    const now = new Date();
+
+    // Upsert lesson_progress and recently_viewed via raw SQL (models removed from schema)
+    await prisma.$executeRaw`
+      INSERT INTO "lesson_progress" ("id", "userId", "lessonId", "completed", "watchPercentage", "timeSpent", "createdAt", "updatedAt")
+      VALUES (gen_random_uuid()::text, ${userId}, ${lessonId}, false, 0, 0, ${now}, ${now})
+      ON CONFLICT ("userId", "lessonId") DO UPDATE SET "updatedAt" = ${now}
+    `;
+
+    await prisma.$executeRaw`
+      INSERT INTO "recently_viewed" ("id", "userId", "lessonId", "viewedAt")
+      VALUES (gen_random_uuid()::text, ${userId}, ${lessonId}, ${now})
+      ON CONFLICT ("userId", "lessonId") DO UPDATE SET "viewedAt" = ${now}
+    `;
 
     sendSuccess(res, 'Lesson started', null);
   } catch (error) {

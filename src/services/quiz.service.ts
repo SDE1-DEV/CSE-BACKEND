@@ -1,8 +1,15 @@
-// @ts-nocheck
+// @ts-nocheck — intentionally suppressed: lessonPracticeQuestion and quizQuestion
+// are not in schema.prisma (they were added via raw SQL migrations 20260801000000 /
+// 20260801000001) but Prisma's generated client does not expose them as typed models.
+// We use prisma.$queryRaw for those tables.
 /**
  * Quiz & Practice Question Service
  * Serves lesson practice questions, quiz questions, quiz submission scoring,
- * and per-user learning statistics for the Python learning platform.
+ * and per-user learning statistics.
+ *
+ * Legacy tables (lessons, lesson_progress, roadmaps, roadmap_sections) still
+ * physically exist in the production database. Prisma Client has no typed models
+ * for them — all access goes through prisma.$queryRaw / prisma.$executeRaw.
  */
 
 import { prisma } from '../config/database';
@@ -158,15 +165,14 @@ export class QuizService {
     const passed = percentage >= 60;
 
     // Update progress — mark lesson as started (at minimum) when quiz is taken
+    // Uses raw SQL because lesson_progress has no Prisma model any more.
     if (userId) {
-      const existing = await prisma.userProgress.findUnique({
-        where: { userId_lessonId: { userId, lessonId } },
-      });
-      if (!existing) {
-        await prisma.userProgress.create({
-          data: { userId, lessonId, completed: false, lastOpened: new Date() },
-        });
-      }
+      const now = new Date();
+      await prisma.$executeRaw`
+        INSERT INTO "lesson_progress" ("id", "userId", "lessonId", "completed", "watchPercentage", "timeSpent", "createdAt", "updatedAt")
+        VALUES (gen_random_uuid()::text, ${userId}, ${lessonId}, false, 0, 0, ${now}, ${now})
+        ON CONFLICT ("userId", "lessonId") DO NOTHING
+      `;
     }
 
     return {
@@ -183,57 +189,65 @@ export class QuizService {
   // ── Learning Stats ──────────────────────────────────────────────────────────
 
   async getLearningStats(userId: string): Promise<LearningStats> {
-    // Single query: get all progress entries with roadmap info — avoids N+1
-    const progressEntries = await prisma.userProgress.findMany({
-      where: { userId },
-      select: {
-        completed: true,
-        completedAt: true,
-        timeSpent: true,
-        lessonId: true,
-        lesson: {
-          select: { section: { select: { roadmapId: true } } },
-        },
-      },
-    });
+    // All queries use raw SQL because the legacy lesson/roadmap Prisma models
+    // were removed from schema.prisma. The tables still exist in production.
+    //
+    // Parallel: progress entries + bookmarks count
+    const [progressRows, bookmarksCount] = await Promise.all([
+      prisma.$queryRaw<{
+        completed: boolean;
+        completed_at: Date | null;
+        time_spent: number;
+        lesson_id: string;
+        roadmap_id: string | null;
+      }[]>`
+        SELECT lp.completed,
+               lp."completedAt"   AS completed_at,
+               lp."timeSpent"     AS time_spent,
+               lp."lessonId"      AS lesson_id,
+               rs."roadmapId"     AS roadmap_id
+        FROM   "lesson_progress"  lp
+        JOIN   "lessons"          l  ON l.id = lp."lessonId"  AND l."deletedAt" IS NULL
+        JOIN   "roadmap_sections" rs ON rs.id = l."sectionId" AND rs."deletedAt" IS NULL
+        WHERE  lp."userId" = ${userId}
+      `,
+      prisma.$queryRaw<{ count: bigint }[]>`
+        SELECT COUNT(*) AS count FROM "bookmarks" WHERE "userId" = ${userId}
+      `,
+    ]);
 
+    // Build roadmap → lesson stats maps from already-loaded rows
     const roadmapIds = new Set<string>();
-    for (const p of progressEntries) {
-      const rid = p.lesson?.section?.roadmapId;
-      if (rid) roadmapIds.add(rid);
+    for (const p of progressRows) {
+      if (p.roadmap_id) roadmapIds.add(p.roadmap_id);
     }
 
-    const roadmapIdList = Array.from(roadmapIds);
-
-    // Batch fetch: all published lessons for all roadmaps in one query
-    const totalLessonRows = roadmapIdList.length > 0
-      ? await prisma.lesson.findMany({
-          where: {
-            section: { roadmapId: { in: roadmapIdList }, deletedAt: null },
-            deletedAt: null,
-            isPublished: true,
-          },
-          select: { id: true, section: { select: { roadmapId: true } } },
-        })
-      : [];
-
-    // Build map: roadmapId → total lesson count
-    const totalLessonsMap: Record<string, number> = {};
-    for (const l of totalLessonRows) {
-      const rid = l.section?.roadmapId;
-      if (rid) totalLessonsMap[rid] = (totalLessonsMap[rid] ?? 0) + 1;
-    }
-
-    // Build map: roadmapId → completed lesson count (from already-loaded progress)
     const completedLessonsMap: Record<string, number> = {};
-    for (const p of progressEntries) {
-      const rid = p.lesson?.section?.roadmapId;
-      if (rid && p.completed) {
-        completedLessonsMap[rid] = (completedLessonsMap[rid] ?? 0) + 1;
+    for (const p of progressRows) {
+      if (p.roadmap_id && p.completed) {
+        completedLessonsMap[p.roadmap_id] = (completedLessonsMap[p.roadmap_id] ?? 0) + 1;
       }
     }
 
-    // Count completed / in-progress roadmaps without extra DB calls
+    // Batch fetch published lesson counts per roadmap in one query
+    let totalLessonsMap: Record<string, number> = {};
+    if (roadmapIds.size > 0) {
+      const roadmapIdList = Array.from(roadmapIds);
+      const counts = await prisma.$queryRaw<{ roadmap_id: string; cnt: bigint }[]>`
+        SELECT rs."roadmapId" AS roadmap_id, COUNT(l.id) AS cnt
+        FROM   "lessons"          l
+        JOIN   "roadmap_sections" rs ON rs.id = l."sectionId"
+        WHERE  rs."roadmapId" = ANY(${roadmapIdList})
+          AND  l."deletedAt"  IS NULL
+          AND  rs."deletedAt" IS NULL
+          AND  l."isPublished" = true
+        GROUP BY rs."roadmapId"
+      `;
+      for (const row of counts) {
+        totalLessonsMap[row.roadmap_id] = Number(row.cnt);
+      }
+    }
+
     let completedRoadmaps = 0;
     let inProgressRoadmaps = 0;
     for (const rid of roadmapIds) {
@@ -246,16 +260,16 @@ export class QuizService {
       }
     }
 
-    const totalLessonsCompleted = progressEntries.filter((p) => p.completed).length;
-    const totalMinutes = progressEntries.reduce((sum, p) => sum + (p.timeSpent ?? 0), 0);
+    const totalLessonsCompleted = progressRows.filter((p) => p.completed).length;
+    const totalMinutes = progressRows.reduce((sum, p) => sum + (Number(p.time_spent) || 0), 0);
     const totalHoursLearned = Math.round((totalMinutes / 60) * 10) / 10;
 
-    const bookmarksCount = await prisma.bookmark.count({ where: { userId } });
+    const bookmarksCountNum = Number((bookmarksCount[0] as { count: bigint })?.count ?? 0);
 
-    // Streak: compute from already-loaded progress — no extra DB call
-    const completedDates = progressEntries
-      .filter((p) => p.completed && p.completedAt)
-      .map((p) => p.completedAt!);
+    // Streak: compute from already-loaded progress
+    const completedDates = progressRows
+      .filter((p) => p.completed && p.completed_at)
+      .map((p) => p.completed_at!);
 
     let currentStreak = 0;
     let longestStreak = 0;
@@ -285,10 +299,15 @@ export class QuizService {
       const allSortedDays = Array.from(uniqueDays).sort();
       for (let i = 1; i < allSortedDays.length; i++) {
         const diff = Math.round(
-          (new Date(allSortedDays[i]).getTime() - new Date(allSortedDays[i - 1]).getTime()) / (1000 * 60 * 60 * 24),
+          (new Date(allSortedDays[i]).getTime() - new Date(allSortedDays[i - 1]).getTime()) /
+            (1000 * 60 * 60 * 24),
         );
-        if (diff === 1) { runStreak++; longestStreak = Math.max(longestStreak, runStreak); }
-        else { runStreak = 1; }
+        if (diff === 1) {
+          runStreak++;
+          longestStreak = Math.max(longestStreak, runStreak);
+        } else {
+          runStreak = 1;
+        }
       }
       longestStreak = Math.max(longestStreak, currentStreak, allSortedDays.length > 0 ? 1 : 0);
     }
@@ -301,7 +320,7 @@ export class QuizService {
       totalHoursLearned,
       currentStreak,
       longestStreak,
-      bookmarksCount,
+      bookmarksCount: bookmarksCountNum,
     };
   }
 }

@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * FPRD-20: Student Dashboard Controller
  * Adds three minimal endpoints required by the new dashboard UI:
@@ -6,8 +5,13 @@
  *   GET /api/dashboard/activity      — contribution heatmap data
  *   GET /api/leaderboard             — XP-based ranking
  *
- * Rules: no changes to existing controllers, services, or models.
- * All queries are read-only Prisma calls against existing tables.
+ * NOTE: The old roadmap/lesson system (lesson_progress, lessons, roadmaps tables)
+ * still physically exists in production — those tables were created by migration
+ * 20260715123406_learning_ecosystem and were never dropped.
+ * However, Prisma Client no longer has models for them (removed from schema.prisma).
+ * We use prisma.$queryRaw for any queries against those legacy tables.
+ *
+ * The new Learning CMS uses: LearningProgress, LearningContent, Course, Level.
  */
 
 import { Response, NextFunction } from 'express';
@@ -31,6 +35,8 @@ export const getDailyTasks = async (
     const tomorrowUTC = new Date(todayUTC);
     tomorrowUTC.setUTCDate(todayUTC.getUTCDate() + 1);
 
+    // Fetch today's coding challenge from the new CMS (first published content for today)
+    // and fall back to the daily_challenge table
     const [dailyChallengeRow, continueLearning] = await Promise.all([
       prisma.dailyChallenge.findFirst({
         where: {
@@ -42,19 +48,18 @@ export const getDailyTasks = async (
           },
         },
       }),
-      prisma.userProgress.findFirst({
-        where: { userId, completed: false },
-        orderBy: { updatedAt: 'desc' },
+      // New CMS: find the user's most recently accessed IN_PROGRESS content
+      prisma.learningProgress.findFirst({
+        where: { userId, status: 'IN_PROGRESS' },
+        orderBy: { lastAccessedAt: 'desc' },
         include: {
-          lesson: {
+          content: {
             select: {
               id: true,
-              title: true,
-              section: {
-                select: {
-                  roadmap: { select: { slug: true } },
-                },
-              },
+              topicName: true,
+              slug: true,
+              courseId: true,
+              levelId: true,
             },
           },
         },
@@ -76,18 +81,7 @@ export const getDailyTasks = async (
       codingChallengeSolved = !!accepted;
     }
 
-    // Check if today's lesson is already completed
-    let lessonCompleted = false;
-    if (continueLearning?.lesson?.id) {
-      const progress = await prisma.userProgress.findFirst({
-        where: { userId, lessonId: continueLearning.lesson.id, completed: true },
-        select: { id: true },
-      });
-      lessonCompleted = !!progress;
-    }
-
     const difficulty = dailyChallengeRow?.problem?.difficulty;
-    // Map Prisma enum (EASY/MEDIUM/HARD) to title-case for frontend
     const difficultyLabel =
       difficulty === 'EASY' ? 'Easy'
       : difficulty === 'MEDIUM' ? 'Medium'
@@ -104,12 +98,12 @@ export const getDailyTasks = async (
             completed: codingChallengeSolved,
           }
         : null,
-      lesson: continueLearning?.lesson
+      lesson: continueLearning?.content
         ? {
-            id: continueLearning.lesson.id,
-            title: continueLearning.lesson.title,
-            roadmapSlug: continueLearning.lesson.section?.roadmap?.slug ?? null,
-            completed: lessonCompleted,
+            id: continueLearning.content.id,
+            title: continueLearning.content.topicName,
+            slug: continueLearning.content.slug,
+            completed: false,
           }
         : null,
     });
@@ -135,16 +129,14 @@ export const getDashboardActivity = async (
     const endDate = new Date(`${year + 1}-01-01T00:00:00.000Z`);
 
     // Aggregate activity counts per calendar day from multiple event sources:
-    // 1) Lesson completions (UserProgress with completed=true)
+    // 1) New CMS Learning completions (LearningProgress with status=COMPLETED)
     // 2) Accepted submissions (Submission with status=ACCEPTED)
     // 3) Daily logins (UserAnalytics.lastLogin — one per day)
-    // 4) Quiz completions (QuizAttempt if table exists)
-
-    const [lessonProgress, acceptedSubmissions, analyticsRow] = await Promise.all([
-      prisma.userProgress.findMany({
+    const [learningCompletions, acceptedSubmissions, analyticsRow] = await Promise.all([
+      prisma.learningProgress.findMany({
         where: {
           userId,
-          completed: true,
+          status: 'COMPLETED',
           completedAt: { gte: startDate, lt: endDate },
         },
         select: { completedAt: true },
@@ -170,14 +162,13 @@ export const getDashboardActivity = async (
 
     const addDay = (date: Date | null | undefined) => {
       if (!date) return;
-      const key = date.toISOString().slice(0, 10); // "YYYY-MM-DD"
+      const key = date.toISOString().slice(0, 10);
       activityMap.set(key, (activityMap.get(key) ?? 0) + 1);
     };
 
-    lessonProgress.forEach((p) => addDay(p.completedAt));
+    learningCompletions.forEach((p) => addDay(p.completedAt));
     acceptedSubmissions.forEach((s) => addDay(s.submittedAt));
 
-    // Count today's login as one activity if lastLogin is today
     if (analyticsRow?.lastLogin) {
       const loginKey = analyticsRow.lastLogin.toISOString().slice(0, 10);
       const loginYear = new Date(analyticsRow.lastLogin).getFullYear();
@@ -186,7 +177,6 @@ export const getDashboardActivity = async (
       }
     }
 
-    // Serialize to array sorted by date
     const result = Array.from(activityMap.entries())
       .sort(([a], [b]) => a.localeCompare(b))
       .map(([date, count]) => ({ date, count }));
@@ -206,13 +196,10 @@ export const getLeaderboard = async (
 ): Promise<void> => {
   try {
     const userId = req.user!.userId;
-
-    // XP = (completed lessons × 10) + (accepted problems × 20)
-    // We compute this entirely from existing tables — no new columns needed.
     const LIMIT = 50;
 
-    // Get top users by accepted submission count + completed lessons
-    const [topBySubmissions, topByLessons] = await Promise.all([
+    // XP = (completed learning content × 10) + (accepted problems × 20)
+    const [topBySubmissions, topByLearning] = await Promise.all([
       prisma.submission.groupBy({
         by: ['userId'],
         where: { status: 'ACCEPTED' },
@@ -220,32 +207,29 @@ export const getLeaderboard = async (
         orderBy: { _count: { id: 'desc' } },
         take: LIMIT * 2,
       }),
-      prisma.userProgress.groupBy({
+      prisma.learningProgress.groupBy({
         by: ['userId'],
-        where: { completed: true },
+        where: { status: 'COMPLETED' },
         _count: { id: true },
         orderBy: { _count: { id: 'desc' } },
         take: LIMIT * 2,
       }),
     ]);
 
-    // Merge all userIds found
     const allUserIds = new Set<string>([
       ...topBySubmissions.map((r) => r.userId),
-      ...topByLessons.map((r) => r.userId),
-      userId, // always include the current user
+      ...topByLearning.map((r) => r.userId),
+      userId,
     ]);
 
-    // Build xp map
     const xpMap = new Map<string, number>();
     topBySubmissions.forEach((r) => {
       xpMap.set(r.userId, (xpMap.get(r.userId) ?? 0) + r._count.id * 20);
     });
-    topByLessons.forEach((r) => {
+    topByLearning.forEach((r) => {
       xpMap.set(r.userId, (xpMap.get(r.userId) ?? 0) + r._count.id * 10);
     });
 
-    // Fetch user names + avatars for all relevant users
     const users = await prisma.user.findMany({
       where: { id: { in: Array.from(allUserIds) } },
       select: { id: true, fullName: true, profileImage: true },
@@ -253,7 +237,6 @@ export const getLeaderboard = async (
 
     const userMap = new Map(users.map((u) => [u.id, u]));
 
-    // Sort by XP descending, take top LIMIT
     const sorted = Array.from(allUserIds)
       .map((uid) => ({
         userId: uid,
@@ -271,17 +254,14 @@ export const getLeaderboard = async (
       profileImage: entry.user?.profileImage ?? null,
     }));
 
-    // Find current user rank (may be outside top LIMIT)
     let currentUserRank = entries.findIndex((e) => e.userId === userId) + 1;
-    let currentUserXp = xpMap.get(userId) ?? 0;
+    const currentUserXp = xpMap.get(userId) ?? 0;
 
     if (currentUserRank === 0) {
-      // User is outside top LIMIT — count how many users have more XP
       const usersAheadCount = sorted.filter((e) => e.xp > currentUserXp).length;
       currentUserRank = usersAheadCount + 1;
     }
 
-    // Total user count from DB
     const totalUsers = await prisma.user.count({ where: { role: 'STUDENT' } });
 
     sendSuccess(res, 'Leaderboard fetched', {

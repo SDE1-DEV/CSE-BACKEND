@@ -1,7 +1,9 @@
-// @ts-nocheck
 /**
  * Weekly Learning Report Job
  * Sends weekly learning summary emails to all verified users.
+ *
+ * Uses the new LearningProgress model for activity data.
+ * Legacy lesson_progress is queried via raw SQL for backwards-compat.
  */
 
 import { prisma } from '../config/database';
@@ -23,26 +25,37 @@ export const sendWeeklyReports = async (): Promise<void> => {
 
   for (const user of users) {
     try {
-      // Get their progress for the past week
-      const progress = await prisma.userProgress.findMany({
+      // Check new CMS learning progress (LearningProgress model)
+      const cmsCompleted = await prisma.learningProgress.count({
         where: {
           userId: user.id,
-          updatedAt: { gte: oneWeekAgo },
-          completed: true,
+          status: 'COMPLETED',
+          completedAt: { gte: oneWeekAgo },
         },
       });
 
-      // Only send if they were active
-      if (progress.length === 0) continue;
+      // Also check legacy lesson_progress via raw SQL
+      const legacyRows = await prisma.$queryRaw<{ time_spent: number }[]>`
+        SELECT COALESCE("timeSpent", 0) AS time_spent
+        FROM "lesson_progress"
+        WHERE "userId" = ${user.id}
+          AND "updatedAt" >= ${oneWeekAgo}
+          AND completed = true
+      `;
 
-      const totalMinutes = progress.reduce((sum: number, p: { timeSpent?: number }) => sum + (p.timeSpent ?? 0), 0);
+      const totalCompleted = cmsCompleted + legacyRows.length;
+
+      // Only send if they were active this week
+      if (totalCompleted === 0) continue;
+
+      const totalMinutes = legacyRows.reduce((sum, p) => sum + (Number(p.time_spent) || 0), 0);
 
       await enqueueEmail({
         type: 'email:weekly-summary',
         to: user.email,
         payload: {
           userName: user.fullName,
-          lessonsCompleted: progress.length,
+          lessonsCompleted: totalCompleted,
           minutesStudied: totalMinutes,
         },
       });
