@@ -1,15 +1,24 @@
 /**
  * FPRD-20: Dashboard Routes
+ * GET /api/dashboard            — aggregated dashboard (PRD-FINAL-01 §36-37)
  * GET /api/dashboard/daily-tasks
  * GET /api/dashboard/activity
  */
 
 import { Router } from 'express';
-import { getDailyTasks, getDashboardActivity } from '../controllers/dashboard.controller';
+import { getDailyTasks, getDashboardActivity, getAggregatedDashboard } from '../controllers/dashboard.controller';
 import { authenticate } from '../middlewares/authenticate.middleware';
 import { requireStudent } from '../middlewares/role.middleware';
 
 const router = Router();
+
+/**
+ * PRD-FINAL-01 §36-37: Single aggregated endpoint.
+ * Returns user summary, learning summary, continue-learning, daily tasks,
+ * coding analytics and leaderboard summary in one request.
+ * Existing individual endpoints remain available for direct navigation.
+ */
+router.get('/', authenticate, requireStudent, getAggregatedDashboard);
 
 /**
  * @swagger

@@ -11,6 +11,7 @@
 import { Router } from 'express';
 import {
   healthCheck,
+  readinessCheck,
   databaseHealthCheck,
   cacheHealthCheck,
   queueHealthCheck,
@@ -20,6 +21,7 @@ import {
 const router = Router();
 
 router.get('/', healthCheck);
+router.get('/ready', readinessCheck);
 router.get('/database', databaseHealthCheck);
 router.get('/cache', cacheHealthCheck);
 router.get('/queue', queueHealthCheck);

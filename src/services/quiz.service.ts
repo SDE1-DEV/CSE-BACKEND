@@ -16,6 +16,7 @@
 import { prisma } from '../config/database';
 import { AppError } from '../middlewares/error.middleware';
 import { HTTP_STATUS, LEARNING_MESSAGES } from '../constants';
+import { logger } from '../utils/logger';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -246,19 +247,48 @@ export class QuizService {
 
   // ── Learning Stats ──────────────────────────────────────────────────────────
   //
-  // Uses the LEGACY lesson_progress table (physically exists, no Prisma model).
-  // Returns valid zero-statistics when the user has no progress at all.
+  // PRD-FINAL-01 §13: /api/learning/stats must never throw 42P01.
+  //
+  // Strategy:
+  //   1. Always query the NEW learning_progress CMS table (via Prisma model —
+  //      guaranteed to exist after prisma migrate deploy).
+  //   2. Also query the LEGACY lesson_progress table via raw SQL.
+  //      If the legacy table is absent we log a warning and fall back to zeros
+  //      for legacy-only fields — but the response is ALWAYS HTTP 200 with
+  //      real new-CMS data.
+  //   3. Database failures on the new model are NOT silenced — they propagate
+  //      to the central error handler which returns HTTP 500.
+  //
+  // Rule 2 compliance: we do NOT silently swallow errors from the new CMS
+  // table.  Legacy table errors are logged as WARN (table may genuinely be
+  // absent on fresh deployments) but do not mask valid data.
 
   async getLearningStats(userId: string): Promise<LearningStats> {
-    // Single JOIN query — all legacy tables still exist in production
-    const [progressRows, bookmarksCountRows] = await Promise.all([
-      prisma.$queryRaw<{
-        completed: boolean;
-        completed_at: Date | null;
-        time_spent: number;
-        lesson_id: string;
-        roadmap_id: string | null;
-      }[]>`
+    // ── NEW CMS stats — must succeed (fail loudly if not) ─────────────────────
+    const [newCompletedCount, bookmarksCountRows] = await Promise.all([
+      prisma.learningProgress.count({
+        where: { userId, status: 'COMPLETED' },
+      }),
+      prisma.$queryRaw<{ count: bigint }[]>`
+        SELECT COUNT(*) AS count FROM "bookmarks" WHERE "userId" = ${userId}
+      `.catch((err: unknown) => {
+        // bookmarks table is legacy; log and fall back to 0
+        logger.warn('getLearningStats: bookmarks query failed (table may be absent)', { error: (err as Error).message });
+        return [{ count: BigInt(0) }] as { count: bigint }[];
+      }),
+    ]);
+
+    // ── LEGACY lesson_progress stats — tolerated failure ─────────────────────
+    let progressRows: {
+      completed: boolean;
+      completed_at: Date | null;
+      time_spent: number;
+      lesson_id: string;
+      roadmap_id: string | null;
+    }[] = [];
+
+    try {
+      progressRows = await prisma.$queryRaw<typeof progressRows>`
         SELECT lp.completed,
                lp."completedAt"   AS completed_at,
                lp."timeSpent"     AS time_spent,
@@ -268,16 +298,17 @@ export class QuizService {
         JOIN   "lessons"          l  ON l.id  = lp."lessonId"  AND l."deletedAt"  IS NULL
         JOIN   "roadmap_sections" rs ON rs.id = l."sectionId"  AND rs."deletedAt" IS NULL
         WHERE  lp."userId" = ${userId}
-      `.catch(() => [] as { completed: boolean; completed_at: Date | null; time_spent: number; lesson_id: string; roadmap_id: string | null }[]),
+      `;
+    } catch (err: unknown) {
+      logger.warn('getLearningStats: legacy lesson_progress query failed — using zeros for legacy fields', {
+        error: (err as Error).message,
+        userId,
+        hint: 'This is expected if the production database does not have the legacy lesson_progress/lessons/roadmap_sections tables.',
+      });
+      // progressRows stays []
+    }
 
-      prisma.$queryRaw<{ count: bigint }[]>`
-        SELECT COUNT(*) AS count FROM "bookmarks" WHERE "userId" = ${userId}
-      `.catch(() => [{ count: BigInt(0) }] as { count: bigint }[]),
-    ]);
-
-    // If the lesson_progress table query failed (e.g. table doesn't exist for some reason),
-    // we already caught it and returned []. Return zero-state stats.
-
+    // Compute roadmap-level completion counters from legacy rows
     const roadmapIds = new Set<string>();
     for (const p of progressRows) {
       if (p.roadmap_id) roadmapIds.add(p.roadmap_id);
@@ -290,8 +321,9 @@ export class QuizService {
       }
     }
 
-    // Batch fetch published lesson counts per roadmap
-    let totalLessonsMap: Record<string, number> = {};
+    // Batch fetch published lesson counts per roadmap (legacy tables).
+    // Failure here is tolerated — legacy tables may be absent on fresh deployments.
+    const totalLessonsMap: Record<string, number> = {};
     if (roadmapIds.size > 0) {
       const roadmapIdList = Array.from(roadmapIds);
       const counts = await prisma.$queryRaw<{ roadmap_id: string; cnt: bigint }[]>`
@@ -372,11 +404,17 @@ export class QuizService {
       longestStreak = Math.max(longestStreak, currentStreak, allSortedDays.length > 0 ? 1 : 0);
     }
 
+    // Merge new-CMS completions with legacy completions so whichever system
+    // has data wins.  The frontend currently reads totalLessonsCompleted and
+    // currentStreak; adding new CMS completedCount gives it real values even
+    // for users who only have new-CMS progress.
+    const mergedTotalLessonsCompleted = Math.max(totalLessonsCompleted, newCompletedCount);
+
     return {
       totalRoadmaps: roadmapIds.size,
       completedRoadmaps,
       inProgressRoadmaps,
-      totalLessonsCompleted,
+      totalLessonsCompleted: mergedTotalLessonsCompleted,
       totalHoursLearned,
       currentStreak,
       longestStreak,

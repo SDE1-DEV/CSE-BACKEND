@@ -39,18 +39,20 @@ export const requestLogger = (
     const isError = statusCode >= 500;
     const isClientError = statusCode >= 400 && statusCode < 500;
 
-    // Only log: 4xx errors, 5xx errors, and slow requests (>1000ms)
-    // Skip noisy 2xx/3xx successes to keep logs clean in production
+    // PRD-FINAL-01 §43: Log requestId, method, route, status, duration, userId
+    // Log slow requests (>1000ms) at WARN even if 2xx/3xx
+    // Log 4xx at WARN, 5xx at ERROR; skip noisy fast 2xx/3xx
     if (isError || isClientError || isSlow) {
       const logLevel = isError ? 'error' : 'warn';
+      const userId = (req as RequestWithCorrelation & { user?: { userId?: string } }).user?.userId;
       logger.log(logLevel, `${method} ${originalUrl} ${statusCode} ${duration}ms`, {
-        correlationId,
+        requestId: correlationId,
         method,
-        url: originalUrl,
+        route: originalUrl,
         statusCode,
         duration_ms: duration,
         ip,
-        userAgent: req.headers['user-agent'],
+        userId,
         ...(isSlow && !isError && !isClientError ? { slow_request: true } : {}),
       });
     }

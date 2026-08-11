@@ -88,9 +88,10 @@ export const logger = winston.createLogger({
 });
 
 // ── Slow Query Logger ─────────────────────────────────────────────────────────
-export const logSlowQuery = (query: string, duration: number, threshold = 1000): void => {
+// PRD-FINAL-01 §44: Flag queries exceeding 500ms as slow.
+export const logSlowQuery = (query: string, duration: number, threshold = 500): void => {
   if (duration > threshold) {
-    logger.warn('Slow database query detected', {
+    logger.warn('DB_QUERY_SLOW', {
       query: query.slice(0, 200),
       duration_ms: duration,
       threshold_ms: threshold,

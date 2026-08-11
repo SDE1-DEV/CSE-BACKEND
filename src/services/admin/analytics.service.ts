@@ -2,6 +2,16 @@
  * FPRD-09: Enterprise Analytics Service
  * All data is sourced from live database — zero mocked values.
  *
+ * PRD-FINAL-01 §25: Analytics caching strategy
+ *   - Dashboard overview  → 60s TTL  (historical metrics, can be slightly stale)
+ *   - Charts              → 120s TTL (historical buckets rarely change within 2 min)
+ *   - System health       → 15s TTL  (needs to be near-real-time)
+ *   - Live activity       → no cache (real-time feed)
+ *   - User analytics      → 60s TTL
+ *
+ * Cache keys are invalidated automatically by TTL — no explicit invalidation needed.
+ * Redis outage falls through to direct DB queries (graceful degradation).
+ *
  * Learning metrics use the NEW CMS models:
  *   Course, Level, LearningContent, LearningNoteImage, LearningProgress
  * The old Roadmap / Lesson / LearningResource / UserProgress models no longer exist.
@@ -11,6 +21,57 @@ import os from 'os';
 import { prisma } from '../../config/database';
 import { getRedisClient, isRedisAvailable } from '../../config/redis';
 import { Role, CourseStatus } from '@prisma/client';
+import { logger } from '../../utils/logger';
+
+// ── Cache helpers ──────────────────────────────────────────────────────────────
+
+const CACHE_KEYS = {
+  analyticsDashboard: 'analytics:dashboard:overview',
+  analyticsCharts: (period: string) => `analytics:charts:${period}`,
+  analyticsUsers: 'analytics:users',
+  analyticsSystem: 'analytics:system',
+  analyticsUsage: 'analytics:usage',
+  analyticsApi: 'analytics:api',
+  analyticsDatabase: 'analytics:database',
+  analyticsManagers: 'analytics:managers',
+} as const;
+
+async function cacheGet<T>(key: string): Promise<T | null> {
+  if (!isRedisAvailable()) return null;
+  try {
+    const redis = getRedisClient();
+    const raw = await redis?.get(key);
+    if (!raw) return null;
+    return JSON.parse(raw) as T;
+  } catch {
+    return null;
+  }
+}
+
+async function cacheSet(key: string, value: unknown, ttlSeconds: number): Promise<void> {
+  if (!isRedisAvailable()) return;
+  try {
+    const redis = getRedisClient();
+    await redis?.setex(key, ttlSeconds, JSON.stringify(value));
+  } catch (err) {
+    // Non-fatal — analytics still returns DB data
+    logger.warn('Analytics cache SET failed', { key, error: (err as Error).message });
+  }
+}
+
+async function withCache<T>(
+  key: string,
+  ttlSeconds: number,
+  fn: () => Promise<T>,
+): Promise<T> {
+  const cached = await cacheGet<T>(key);
+  if (cached !== null) return cached;
+
+  const result = await fn();
+  // Fire-and-forget cache write
+  void cacheSet(key, result, ttlSeconds);
+  return result;
+}
 
 // ── Helpers ────────────────────────────────────────────────────────────────────
 
@@ -25,8 +86,13 @@ function daysAgo(n: number) {
 
 export class AnalyticsService {
   // ── Phase 1: Dashboard Overview ──────────────────────────────────────────────
+  // PRD-FINAL-01 §25: Cache 60 seconds — dashboard overview rarely changes faster.
 
   async getDashboardOverview() {
+    return withCache(CACHE_KEYS.analyticsDashboard, 60, () => this._getDashboardOverview());
+  }
+
+  private async _getDashboardOverview() {
     const now = new Date();
     const today = startOfDay(now);
     const yesterday = daysAgo(1);
@@ -239,8 +305,13 @@ export class AnalyticsService {
   }
 
   // ── Phase 2: User Analytics ──────────────────────────────────────────────────
+  // PRD-FINAL-01 §25: Cache 60 seconds.
 
   async getUserAnalytics() {
+    return withCache(CACHE_KEYS.analyticsUsers, 60, () => this._getUserAnalytics());
+  }
+
+  private async _getUserAnalytics() {
     const today = startOfDay(new Date());
     const last7 = daysAgo(7);
 
@@ -281,8 +352,15 @@ export class AnalyticsService {
   }
 
   // ── Phase 3: Growth Charts ──────────────────────────────────────────────────
+  // PRD-FINAL-01 §25: Cache 120 seconds — chart buckets are historical aggregates.
 
   async getChartsData(period: 'daily' | 'weekly' | 'monthly' | 'yearly' = 'monthly') {
+    return withCache(CACHE_KEYS.analyticsCharts(period), 120, () =>
+      this._getChartsData(period),
+    );
+  }
+
+  private async _getChartsData(period: 'daily' | 'weekly' | 'monthly' | 'yearly' = 'monthly') {
     const now = new Date();
     let points: { label: string; start: Date; end: Date }[] = [];
 
@@ -322,8 +400,6 @@ export class AnalyticsService {
 
     // Use raw SQL with conditional aggregation to fetch ALL buckets in one query per table.
     // This replaces 156+ sequential Prisma calls (12 buckets × ~13 queries) with 6 parallel queries.
-
-    type BucketRow = { bucket_idx: number; count: bigint };
 
     // Build per-bucket CASE expressions for each point
     const bucketCases = (col: string) =>
@@ -445,8 +521,13 @@ export class AnalyticsService {
   }
 
   // ── Phase 5: Usage Analytics ─────────────────────────────────────────────────
+  // PRD-FINAL-01 §25: Cache 60 seconds.
 
   async getUsageAnalytics() {
+    return withCache(CACHE_KEYS.analyticsUsage, 60, () => this._getUsageAnalytics());
+  }
+
+  private async _getUsageAnalytics() {
     const recentMetrics = await prisma.platformMetric.findMany({
       orderBy: { date: 'desc' },
       take: 30,

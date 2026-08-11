@@ -31,11 +31,36 @@ import { startScheduler, stopScheduler } from './jobs/scheduler';
 
 /**
  * Verifies the Learning CMS database tables are accessible after migration.
+ * Also checks that the legacy lesson_progress table exists (required by
+ * /api/learning/stats and related endpoints).
+ * Logs database host/name for environment verification without exposing credentials.
  * This prevents the server from starting against an incomplete schema.
  * Called once after connectDatabase(), before bootstrap.
+ *
+ * PRD-FINAL-01 §50: startup database verification.
+ * PRD-FINAL-01 §49: safe environment diagnostic logging.
  */
 async function verifyLearningCmsSchema(): Promise<void> {
   const { prisma } = await import('./config/database');
+
+  // ── Log database environment (safe — no passwords/secrets) ─────────────────
+  try {
+    const dbInfo = await prisma.$queryRaw<{ db: string; schema: string; user: string }[]>`
+      SELECT current_database() AS db, current_schema() AS schema, current_user AS "user"
+    `;
+    if (dbInfo[0]) {
+      logger.info('Database environment', {
+        database: dbInfo[0].db,
+        schema: dbInfo[0].schema,
+        user: dbInfo[0].user,
+        // Do NOT log full DATABASE_URL, password, JWT_SECRET, or service role key
+      });
+    }
+  } catch (err) {
+    logger.warn('Could not query database environment info', { error: (err as Error).message });
+  }
+
+  // ── New CMS table checks — failure aborts startup ───────────────────────────
   const tables = [
     { name: 'courses',               check: () => prisma.course.count() },
     { name: 'levels',                check: () => prisma.level.count() },
@@ -63,6 +88,28 @@ async function verifyLearningCmsSchema(): Promise<void> {
       '. Run: npx prisma migrate deploy',
     );
     process.exit(1);
+  }
+
+  // ── Legacy table check — warning only, not a blocker ────────────────────────
+  // lesson_progress is expected to exist after migration 20260715123406 or
+  // 20260811000000_lesson_progress_schema_alignment.
+  try {
+    const legacyCheck = await prisma.$queryRaw<{ exists: boolean }[]>`
+      SELECT EXISTS (
+        SELECT 1 FROM information_schema.tables
+        WHERE table_schema = 'public' AND table_name = 'lesson_progress'
+      ) AS exists
+    `;
+    if (legacyCheck[0]?.exists) {
+      logger.info('✓ Schema check passed: lesson_progress (legacy)');
+    } else {
+      logger.warn(
+        '⚠ lesson_progress table is ABSENT — /api/learning/stats will return legacy zeros. ' +
+        'Run: npx prisma migrate deploy to apply migration 20260811000000_lesson_progress_schema_alignment',
+      );
+    }
+  } catch (err) {
+    logger.warn('Could not check for lesson_progress table', { error: (err as Error).message });
   }
 
   logger.info('✓ All Learning CMS schema tables verified successfully');

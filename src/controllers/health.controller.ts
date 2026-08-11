@@ -1,10 +1,11 @@
 /**
  * Health & Metrics Controllers
  * PRD-06: Section 16 — Health Endpoints
- * PRD-06: Section 8  — Monitoring & Observability
+ * PRD-FINAL-01: §76-77 — /api/health and /api/ready
  *
  * Endpoints:
- *   GET /api/v1/health            — overall health
+ *   GET /api/v1/health            — liveness: confirms process is alive
+ *   GET /api/v1/health/ready      — readiness: confirms required deps are available
  *   GET /api/v1/health/database   — database health
  *   GET /api/v1/health/cache      — Redis health
  *   GET /api/v1/health/queue      — BullMQ queue health
@@ -24,7 +25,7 @@ import { cleanupQueue } from '../queues/cleanup.queue';
 import { wsGateway } from '../websocket/gateway';
 import { logger } from '../utils/logger';
 
-// ── Overall Health ─────────────────────────────────────────────────────────────
+// ── Liveness: just confirms the process is running ────────────────────────────
 export const healthCheck = async (_req: Request, res: Response): Promise<void> => {
   const [dbStatus, cacheStatus] = await Promise.all([checkDatabase(), checkCache()]);
 
@@ -39,6 +40,35 @@ export const healthCheck = async (_req: Request, res: Response): Promise<void> =
     database: dbStatus,
     cache: cacheStatus,
     connectedSockets: wsGateway.getConnectedCount(),
+  });
+};
+
+// ── Readiness: confirms required dependencies are available ────────────────────
+// PRD-FINAL-01 §77: helps Render determine whether the service is actually ready.
+export const readinessCheck = async (_req: Request, res: Response): Promise<void> => {
+  const [dbStatus, cacheStatus] = await Promise.all([checkDatabase(), checkCache()]);
+
+  const ready = dbStatus.status === 'healthy';
+
+  if (!ready) {
+    res.status(503).json({
+      success: false,
+      message: 'Service not ready',
+      data: {
+        ready: false,
+        database: dbStatus.status,
+        cache: cacheStatus.status,
+        timestamp: new Date().toISOString(),
+      },
+    });
+    return;
+  }
+
+  sendSuccess(res, 'Service ready', {
+    ready: true,
+    database: dbStatus.status,
+    cache: cacheStatus.status,
+    timestamp: new Date().toISOString(),
   });
 };
 

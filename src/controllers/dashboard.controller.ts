@@ -274,3 +274,185 @@ export const getLeaderboard = async (
     next(error);
   }
 };
+
+// ─── GET /api/dashboard ───────────────────────────────────────────────────────
+// PRD-FINAL-01 §36-37: Aggregated dashboard endpoint.
+// Replaces the 10 independent HTTP requests the student dashboard currently fires.
+// All independent DB queries run in parallel via Promise.all.
+// Existing individual endpoints remain available for direct navigation.
+
+export const getAggregatedDashboard = async (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  try {
+    const userId = req.user!.userId;
+
+    const todayUTC = new Date();
+    todayUTC.setUTCHours(0, 0, 0, 0);
+    const tomorrowUTC = new Date(todayUTC);
+    tomorrowUTC.setUTCDate(todayUTC.getUTCDate() + 1);
+
+    // ── Run all independent queries in parallel ───────────────────────────────
+    const [
+      // 1. Daily challenge
+      dailyChallengeRow,
+      // 2. Continue learning (most recent IN_PROGRESS CMS content)
+      continueLearningRow,
+      // 3. Learning stats — new CMS completed count
+      newCmsCompletedCount,
+      // 4. Total published content
+      totalPublishedContent,
+      // 5. Coding analytics — grouped by status
+      codingStats,
+      // 6. Leaderboard top-5 + current user XP
+      topSubmissions,
+      topLearning,
+      // 7. Today's activity count (submissions)
+      submissionsToday,
+      // 8. User summary
+      userRow,
+    ] = await Promise.all([
+      // 1
+      prisma.dailyChallenge.findFirst({
+        where: { challengeDate: { gte: todayUTC, lt: tomorrowUTC } },
+        include: { problem: { select: { id: true, title: true, slug: true, difficulty: true } } },
+      }),
+      // 2
+      prisma.learningProgress.findFirst({
+        where: { userId, status: 'IN_PROGRESS' },
+        orderBy: { lastAccessedAt: 'desc' },
+        include: {
+          content: { select: { id: true, topicName: true, slug: true, courseId: true, levelId: true } },
+        },
+      }),
+      // 3
+      prisma.learningProgress.count({ where: { userId, status: 'COMPLETED' } }),
+      // 4
+      prisma.learningContent.count({ where: { published: true } }),
+      // 5
+      prisma.submission.groupBy({
+        by: ['status'],
+        where: { userId },
+        _count: { id: true },
+      }),
+      // 6a — XP from submissions
+      prisma.submission.groupBy({
+        by: ['userId'],
+        where: { status: 'ACCEPTED' },
+        _count: { id: true },
+        orderBy: { _count: { id: 'desc' } },
+        take: 100,
+      }),
+      // 6b — XP from learning
+      prisma.learningProgress.groupBy({
+        by: ['userId'],
+        where: { status: 'COMPLETED' },
+        _count: { id: true },
+        orderBy: { _count: { id: 'desc' } },
+        take: 100,
+      }),
+      // 7
+      prisma.submission.count({ where: { userId, submittedAt: { gte: todayUTC } } }),
+      // 8
+      prisma.user.findUnique({
+        where: { id: userId },
+        select: { id: true, fullName: true, profileImage: true, profileCompletion: true, role: true },
+      }),
+    ]);
+
+    // ── Check if today's challenge is solved ──────────────────────────────────
+    let codingChallengeSolved = false;
+    if (dailyChallengeRow?.problem?.id) {
+      const accepted = await prisma.submission.findFirst({
+        where: { userId, problemId: dailyChallengeRow.problem.id, status: 'ACCEPTED', submittedAt: { gte: todayUTC } },
+        select: { id: true },
+      });
+      codingChallengeSolved = !!accepted;
+    }
+
+    // ── Coding stats ──────────────────────────────────────────────────────────
+    const totalSubmissions = codingStats.reduce((acc, g) => acc + g._count.id, 0);
+    const acceptedSubmissions = codingStats.find((g) => g.status === 'ACCEPTED')?._count.id ?? 0;
+
+    // ── Leaderboard (top 10) ──────────────────────────────────────────────────
+    const xpMap = new Map<string, number>();
+    topSubmissions.forEach((r) => xpMap.set(r.userId, (xpMap.get(r.userId) ?? 0) + r._count.id * 20));
+    topLearning.forEach((r) => xpMap.set(r.userId, (xpMap.get(r.userId) ?? 0) + r._count.id * 10));
+
+    const allLeaderboardIds = new Set([...xpMap.keys(), userId]);
+    const leaderboardUsers = await prisma.user.findMany({
+      where: { id: { in: Array.from(allLeaderboardIds) } },
+      select: { id: true, fullName: true, profileImage: true },
+    });
+    const leaderboardUserMap = new Map(leaderboardUsers.map((u) => [u.id, u]));
+
+    const leaderboardEntries = Array.from(allLeaderboardIds)
+      .map((uid) => ({ userId: uid, xp: xpMap.get(uid) ?? 0, user: leaderboardUserMap.get(uid) }))
+      .sort((a, b) => b.xp - a.xp)
+      .slice(0, 10)
+      .map((entry, idx) => ({
+        rank: idx + 1,
+        userId: entry.userId,
+        fullName: entry.user?.fullName ?? 'Unknown',
+        xp: entry.xp,
+        profileImage: entry.user?.profileImage ?? null,
+      }));
+
+    const currentUserXp = xpMap.get(userId) ?? 0;
+    const currentUserRank = leaderboardEntries.findIndex((e) => e.userId === userId) + 1 || (
+      Array.from(xpMap.entries()).filter(([, xp]) => xp > currentUserXp).length + 1
+    );
+
+    // ── Learning progress percentage ──────────────────────────────────────────
+    const progressPercentage = totalPublishedContent > 0
+      ? Math.round((newCmsCompletedCount / totalPublishedContent) * 100)
+      : 0;
+
+    // ── Daily challenge difficulty label ──────────────────────────────────────
+    const difficulty = dailyChallengeRow?.problem?.difficulty;
+    const difficultyLabel = difficulty === 'EASY' ? 'Easy' : difficulty === 'MEDIUM' ? 'Medium' : difficulty === 'HARD' ? 'Hard' : 'Easy';
+
+    sendSuccess(res, 'Dashboard fetched', {
+      user: userRow
+        ? { id: userRow.id, fullName: userRow.fullName, profileImage: userRow.profileImage, profileCompletion: userRow.profileCompletion, role: userRow.role }
+        : null,
+      learningSummary: {
+        completedLessons: newCmsCompletedCount,
+        totalLessons: totalPublishedContent,
+        progressPercentage,
+      },
+      continueLearning: continueLearningRow?.content
+        ? {
+            contentId: continueLearningRow.content.id,
+            topicName: continueLearningRow.content.topicName,
+            slug: continueLearningRow.content.slug,
+            courseId: continueLearningRow.content.courseId,
+            progressStatus: continueLearningRow.status,
+          }
+        : null,
+      dailyTasks: {
+        codingChallenge: dailyChallengeRow?.problem
+          ? { id: dailyChallengeRow.problem.id, title: dailyChallengeRow.problem.title, slug: dailyChallengeRow.problem.slug, difficulty: difficultyLabel, completed: codingChallengeSolved }
+          : null,
+        lesson: continueLearningRow?.content
+          ? { id: continueLearningRow.content.id, title: continueLearningRow.content.topicName, slug: continueLearningRow.content.slug, completed: false }
+          : null,
+      },
+      codingAnalytics: {
+        totalSubmissions,
+        acceptedSubmissions,
+        submissionsToday,
+        acceptanceRate: totalSubmissions > 0 ? Math.round((acceptedSubmissions / totalSubmissions) * 10000) / 100 : 0,
+      },
+      leaderboard: {
+        entries: leaderboardEntries,
+        currentUserRank,
+        currentUserXp,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};

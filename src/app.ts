@@ -46,14 +46,34 @@ app.use(
   }),
 );
 
+// Build the CORS allowlist from env.
+// ALLOWED_ORIGINS can be a comma-separated list set in Render environment variables.
+// PRD-FINAL-01 §48: Must allow the exact Vercel frontend origin.
+const buildAllowedOrigins = (): string[] => {
+  const origins = new Set<string>([
+    env.CLIENT_URL,
+    'http://localhost:5173',
+    'http://localhost:3000',
+  ]);
+  const extra = process.env['ALLOWED_ORIGINS'] ?? '';
+  extra.split(',').map((o) => o.trim()).filter(Boolean).forEach((o) => origins.add(o));
+  return Array.from(origins);
+};
+
+const ALLOWED_ORIGINS = buildAllowedOrigins();
+
 app.use(
   cors({
     origin: (origin, callback) => {
-      const allowedOrigins = [env.CLIENT_URL, 'http://localhost:5173', 'http://localhost:3000'];
-      if (!origin || allowedOrigins.includes(origin)) {
+      // Allow server-to-server requests with no Origin header
+      if (!origin) {
+        callback(null, true);
+        return;
+      }
+      if (ALLOWED_ORIGINS.includes(origin)) {
         callback(null, true);
       } else {
-        callback(new Error('Not allowed by CORS'));
+        callback(new Error(`CORS: origin '${origin}' not in allowlist`));
       }
     },
     credentials: true,
