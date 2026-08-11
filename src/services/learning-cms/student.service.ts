@@ -372,10 +372,19 @@ export class StudentService {
     contentId: string,
     userId: string,
   ): Promise<
-    LearningContent & {
-      noteImages: LearningNoteImage[];
+    Omit<LearningContent, 'noteImages'> & {
+      notes: {
+        id: string;
+        contentId: string;
+        imageUrl: string;
+        storagePath: string;
+        displayOrder: number;
+        createdAt: Date;
+      }[];
+      levelNumber: number;
       level: Level;
       course: Course;
+      progressStatus: string | null;
     }
   > {
     const content = await prisma.learningContent.findUnique({
@@ -395,7 +404,7 @@ export class StudentService {
       throw new AppError(HTTP_STATUS.NOT_FOUND, 'Learning content not found');
     }
 
-    await prisma.learningProgress.upsert({
+    const progress = await prisma.learningProgress.upsert({
       where: { userId_contentId: { userId, contentId } },
       create: {
         userId,
@@ -406,13 +415,32 @@ export class StudentService {
         lastAccessedAt: new Date(),
       },
       update: {
-        status: LearningProgressStatus.IN_PROGRESS,
-        startedAt: new Date(),
         lastAccessedAt: new Date(),
       },
+      select: { status: true },
     });
 
-    return content;
+    // Remap noteImages → notes with frontend-expected field names
+    const notes = content.noteImages.map((ni) => ({
+      id: ni.id,
+      contentId: ni.learningContentId,
+      imageUrl: ni.imageUrl,
+      storagePath: ni.storagePath,
+      displayOrder: ni.imageOrder,
+      createdAt: ni.createdAt,
+    }));
+
+    const { noteImages: _ni, ...contentWithoutNoteImages } = content;
+    void _ni;
+
+    return {
+      ...contentWithoutNoteImages,
+      levelNumber: content.level.levelNumber,
+      notes,
+      level: content.level,
+      course: content.course,
+      progressStatus: progress.status,
+    };
   }
 
   async updateProgress(

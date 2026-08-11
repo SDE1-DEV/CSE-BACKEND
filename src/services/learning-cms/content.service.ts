@@ -337,6 +337,18 @@ export class ContentService {
     }
 
     return prisma.$transaction(async (tx) => {
+      // Auto-publish the parent level if it is still DRAFT, so students can see it
+      const level = await tx.level.findUnique({
+        where: { id: existing.levelId },
+        select: { id: true, status: true },
+      });
+      if (level && level.status === CourseStatus.DRAFT) {
+        await tx.level.update({
+          where: { id: level.id },
+          data: { status: CourseStatus.PUBLISHED },
+        });
+      }
+
       const updated = await tx.learningContent.update({
         where: { id },
         data: {
