@@ -275,6 +275,28 @@ export const getNotesSchema = z.object({
   params: idParams,
 });
 
+// ── Learning CMS: Bulk Operations ────────────────────────────────────────────
+
+export const bulkStatusSchema = z.object({
+  body: z.object({
+    ids: z
+      .array(z.string().uuid('Invalid content ID'))
+      .min(1, 'At least one ID is required'),
+    status: z.enum(['PUBLISHED', 'DRAFT', 'ARCHIVED'], {
+      required_error: 'status is required',
+      invalid_type_error: 'status must be PUBLISHED, DRAFT, or ARCHIVED',
+    }),
+  }),
+});
+
+export const bulkDeleteSchema = z.object({
+  body: z.object({
+    ids: z
+      .array(z.string().uuid('Invalid content ID'))
+      .min(1, 'At least one ID is required'),
+  }),
+});
+
 // ── Learning CMS: Progress ───────────────────────────────────────────────────
 
 export const updateProgressSchema = z.object({

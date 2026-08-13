@@ -493,6 +493,115 @@ export const getNotes = async (
   }
 };
 
+/**
+ * POST /admin/learning/content/bulk-status
+ * Body: { ids: string[], status: 'PUBLISHED' | 'DRAFT' | 'ARCHIVED' }
+ */
+export const bulkUpdateContentStatus = async (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  try {
+    const actorId = req.user!.userId;
+    const { ids, status } = req.body as { ids: string[]; status: string };
+
+    // Map status string to the published boolean (and future archived flag)
+    let published: boolean;
+    if (status === 'PUBLISHED') {
+      published = true;
+    } else {
+      // DRAFT or ARCHIVED both set published = false (archived is treated as unpublished)
+      published = false;
+    }
+
+    const result = await prisma.learningContent.updateMany({
+      where: { id: { in: ids } },
+      data: {
+        published,
+        ...(published ? { publishedAt: new Date() } : {}),
+      },
+    });
+
+    sendSuccess(res, `Bulk status updated to ${status}`, { updated: result.count });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * POST /admin/learning/content/bulk-delete
+ * Body: { ids: string[] }
+ */
+export const bulkDeleteContent = async (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  try {
+    const actorId = req.user!.userId;
+    const { ids } = req.body as { ids: string[] };
+
+    // Delete associated note images first to avoid orphaned storage objects
+    const contents = await prisma.learningContent.findMany({
+      where: { id: { in: ids } },
+      include: { noteImages: true },
+    });
+
+    await prisma.$transaction(async (tx) => {
+      // Delete note images from storage + DB
+      for (const content of contents) {
+        for (const note of content.noteImages) {
+          try {
+            const { storageService } = await import('../../services/storage.service');
+            await storageService.deleteNoteImage(note.storagePath);
+          } catch {
+            // Non-fatal: continue even if storage delete fails
+          }
+        }
+      }
+
+      await tx.learningContent.deleteMany({
+        where: { id: { in: ids } },
+      });
+    });
+
+    sendSuccess(res, 'Bulk delete successful', { deleted: ids.length });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * POST /admin/learning/content/:id/archive
+ */
+export const archiveContent = async (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const existing = await prisma.learningContent.findUnique({ where: { id } });
+    if (!existing) {
+      sendError(res, 'Learning content not found', HTTP_STATUS.NOT_FOUND);
+      return;
+    }
+
+    const data = await prisma.learningContent.update({
+      where: { id },
+      data: { published: false },
+    });
+
+    sendSuccess(res, 'Content archived successfully', {
+      ...data,
+      status: 'ARCHIVED',
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const getAdminDashboard = async (
   _req: AuthenticatedRequest,
   res: Response,

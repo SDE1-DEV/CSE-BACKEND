@@ -20,6 +20,8 @@ import {
   uploadNoteSchema,
   deleteNoteSchema,
   getNotesSchema,
+  bulkStatusSchema,
+  bulkDeleteSchema,
 } from '../validators/learning-cms.validator';
 import {
   listCourses,
@@ -42,7 +44,10 @@ import {
   deleteContent,
   publishContent,
   unpublishContent,
+  archiveContent,
   reorderContent,
+  bulkUpdateContentStatus,
+  bulkDeleteContent,
   uploadNote,
   deleteNote,
   getNotes,
@@ -147,6 +152,20 @@ router.patch(
   reorderContent,
 );
 
+// ── Bulk operations (must be before /content/:id) ─────────────────────────
+router.post(
+  '/content/bulk-status',
+  validate(bulkStatusSchema),
+  auditAction({ action: 'CONTENT_BULK_STATUS_UPDATED', module: 'LEARNING', entity: 'LearningContent' }),
+  bulkUpdateContentStatus,
+);
+router.post(
+  '/content/bulk-delete',
+  validate(bulkDeleteSchema),
+  auditAction({ action: 'CONTENT_BULK_DELETED', module: 'LEARNING', entity: 'LearningContent' }),
+  bulkDeleteContent,
+);
+
 router.get(
   '/content/:id',
   validate(getContentByIdSchema),
@@ -180,6 +199,12 @@ router.post(
   validate(publishContentSchema),
   auditAction({ action: 'CONTENT_UNPUBLISHED', module: 'LEARNING', entity: 'LearningContent' }),
   unpublishContent,
+);
+router.post(
+  '/content/:id/archive',
+  validate(publishContentSchema),
+  auditAction({ action: 'CONTENT_ARCHIVED', module: 'LEARNING', entity: 'LearningContent' }),
+  archiveContent,
 );
 
 router.post(
