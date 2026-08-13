@@ -7,6 +7,7 @@ import { courseService } from '../../services/learning-cms/course.service';
 import { levelService } from '../../services/learning-cms/level.service';
 import { contentService } from '../../services/learning-cms/content.service';
 import { AppError } from '../../middlewares/error.middleware';
+import { storageService } from '../../services/learning-cms/storage.service';
 
 export const listCourses = async (
   req: AuthenticatedRequest,
@@ -553,7 +554,6 @@ export const bulkDeleteContent = async (
       for (const content of contents) {
         for (const note of content.noteImages) {
           try {
-            const { storageService } = await import('../../services/storage.service');
             await storageService.deleteNoteImage(note.storagePath);
           } catch {
             // Non-fatal: continue even if storage delete fails
