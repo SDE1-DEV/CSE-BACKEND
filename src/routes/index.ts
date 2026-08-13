@@ -64,6 +64,8 @@ import profileRoutes from './profile.routes';
 // ── Learning CMS (new) ────────────────────────────────────────────────────────
 import adminLearningRoutes from './admin-learning.routes';
 import studentLearningRoutes from './learning-student.routes';
+// ── Course PDFs ───────────────────────────────────────────────────────────────
+import { adminPdfRouter, studentPdfRouter } from './course-pdf.routes';
 
 import { authenticate } from '../middlewares/authenticate.middleware';
 import { requireStudent } from '../middlewares/role.middleware';
@@ -172,6 +174,9 @@ router.use('/admin', superAdminRoutes);
 
 // Learning CMS Admin routes
 router.use('/admin/learning', adminLearningRoutes);
+// Course PDF routes
+router.use('/admin/pdfs', adminPdfRouter);
+router.use('/learning/pdfs', studentPdfRouter);
 // Note: studentLearningRoutes is already mounted above at /learning (before learningApiRoutes)
 
 // Legacy admin routes (backward compat PRD-01 to PRD-06)

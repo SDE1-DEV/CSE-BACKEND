@@ -222,6 +222,26 @@ model LearningProgress {
   @@map("learning_progress")
 }
 
+model CoursePdf {
+  id           String   @id @default(uuid())
+  title        String
+  description  String?
+  fileUrl      String
+  fileName     String
+  fileSize     Int      @default(0)
+  isPublished  Boolean  @default(false)
+  displayOrder Int      @default(0)
+  uploadedBy   String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  deletedAt    DateTime?
+
+  @@index([isPublished])
+  @@index([displayOrder])
+  @@index([deletedAt])
+  @@map("course_pdfs")
+}
+
 model ProblemCategory {
   id           String          @id @default(uuid())
   name         String

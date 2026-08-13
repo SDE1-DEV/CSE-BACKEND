@@ -29,6 +29,10 @@ export const MEDIA_BUCKET = 'cms-media';
 export const LEARNING_NOTES_BUCKET: string =
   process.env['SUPABASE_STORAGE_LEARNING_NOTES_BUCKET'] ?? 'learning-notes';
 
+/** Bucket for admin-uploaded course PDFs. */
+export const COURSE_PDFS_BUCKET: string =
+  process.env['SUPABASE_STORAGE_COURSE_PDFS_BUCKET'] ?? 'course-pdfs';
+
 // ── Startup bucket validation & auto-creation ─────────────────────────────────
 
 interface BucketSpec {
@@ -37,9 +41,10 @@ interface BucketSpec {
 }
 
 const REQUIRED_BUCKETS: BucketSpec[] = [
-  { name: AVATAR_BUCKET, public: true }, // avatars are publicly readable
-  { name: RESUME_BUCKET, public: true }, // resumes need public URL for preview/download
-  { name: LEARNING_NOTES_BUCKET, public: true }, // learning notes need public URL
+  { name: AVATAR_BUCKET, public: true },
+  { name: RESUME_BUCKET, public: true },
+  { name: LEARNING_NOTES_BUCKET, public: true },
+  { name: COURSE_PDFS_BUCKET, public: true },
 ];
 
 /**
