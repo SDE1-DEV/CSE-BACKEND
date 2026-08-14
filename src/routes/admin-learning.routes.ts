@@ -209,8 +209,8 @@ router.post(
 
 router.post(
   '/content/:id/notes',
+  uploadLearningNoteImage,   // multer must parse multipart body BEFORE validation
   validate(uploadNoteSchema),
-  uploadLearningNoteImage,
   auditAction({ action: 'NOTE_IMAGE_UPLOADED', module: 'LEARNING', entity: 'LearningNoteImage' }),
   uploadNote,
 );

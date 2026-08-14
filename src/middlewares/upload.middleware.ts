@@ -1,5 +1,5 @@
 import multer, { FileFilterCallback } from 'multer';
-import { Request } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { MAX_FILE_SIZE, ALLOWED_IMAGE_TYPES, MAX_NOTES_IMAGE_SIZE } from '../constants';
 
 // Use memory storage for direct Supabase upload
@@ -60,7 +60,7 @@ export const uploadMedia = multer({
 }).single('file');
 
 // ── Learning Note Image upload ────────────────────────────────────────────────
-export const uploadLearningNoteImage = multer({
+const _learningNoteImageMulter = multer({
   storage,
   fileFilter,
   limits: {
@@ -68,3 +68,28 @@ export const uploadLearningNoteImage = multer({
     files: 1,
   },
 }).single('noteImage');
+
+/**
+ * Wraps the multer `.single('noteImage')` handler so that multer errors
+ * (e.g. file too large, wrong MIME type) are forwarded to Express's error
+ * handler as proper AppErrors instead of crashing with an unhandled rejection.
+ */
+export const uploadLearningNoteImage = (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): void => {
+  _learningNoteImageMulter(req, res, (err) => {
+    if (!err) return next();
+    if (err instanceof multer.MulterError) {
+      if (err.code === 'LIMIT_FILE_SIZE') {
+        return next(
+          Object.assign(new Error('File size exceeds the 5 MB limit'), { statusCode: 400 }),
+        );
+      }
+      return next(Object.assign(new Error(err.message), { statusCode: 400 }));
+    }
+    // fileFilter rejection or other error
+    return next(Object.assign(new Error(err.message), { statusCode: 400 }));
+  });
+};

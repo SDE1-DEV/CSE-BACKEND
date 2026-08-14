@@ -43,7 +43,11 @@ export class StorageService {
       });
 
     if (uploadErr) {
-      logger.error(`Note image upload failed: ${uploadErr.message}`, { storagePath });
+      logger.error(`Note image upload failed: ${uploadErr.message}`, {
+        storagePath,
+        supabaseError: uploadErr,
+        bucket: LEARNING_NOTES_BUCKET,
+      });
       throw new AppError(
         HTTP_STATUS.INTERNAL_SERVER_ERROR,
         PROJECT_MESSAGES.FILE_UPLOAD_FAILED,
