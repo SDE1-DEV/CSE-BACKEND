@@ -572,6 +572,9 @@ export const LEARNING_CMS_MESSAGES = {
   CONTINUE_LEARNING_FETCHED: 'Continue learning fetched successfully',
 } as const;
 
+// ── CODEFLOW re-export ────────────────────────────────────────────────────────
+export { CODEFLOW_MESSAGES, CODEFLOW_LIMITS, EXECUTION_EVENT_TYPES } from './codeflow.constants';
+
 export const MAX_NOTES_IMAGES = 5;
 export const MAX_NOTES_IMAGE_SIZE = 5 * 1024 * 1024;
 export const LEARNING_NOTES_BUCKET = 'learning-notes';

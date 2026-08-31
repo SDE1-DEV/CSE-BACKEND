@@ -67,10 +67,16 @@ import studentLearningRoutes from './learning-student.routes';
 // ── Course PDFs ───────────────────────────────────────────────────────────────
 import { adminPdfRouter, studentPdfRouter } from './course-pdf.routes';
 
+// ── CODEFLOW: JavaScript Execution Visualizer ─────────────────────────────────
+import codeflowRoutes from './codeflow.routes';
+
 import { authenticate } from '../middlewares/authenticate.middleware';
 import { requireStudent } from '../middlewares/role.middleware';
 
 const router = Router();
+
+// ── CODEFLOW: JavaScript Execution Visualizer (PRD-CODEFLOW-01) ──────────────
+router.use('/codeflow', codeflowRoutes);
 
 // ── PRD-01: Auth & User ───────────────────────────────────────────────────────
 router.use('/auth', authRoutes);

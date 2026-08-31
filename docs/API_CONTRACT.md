@@ -221,3 +221,69 @@ HTTP status codes: `200`, `201`, `400`, `401`, `403`, `404`, `409`, `500`.
 Query params: `?page=1&limit=20`  
 Response includes: `{ data: [], total, page, limit }`  
 Max limit: 100 (enforced server-side).
+
+
+---
+
+## CodeFlow — `/codeflow`
+
+JavaScript Execution Visualizer engine. Public endpoints — no auth required.
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| POST | `/codeflow/execute` | — | Parse & interpret JS code, return full execution steps |
+| GET  | `/codeflow/languages` | — | List supported languages (JavaScript for PRD-1) |
+
+### POST `/codeflow/execute`
+
+**Request body:**
+```json
+{ "code": "let x = 10; console.log(x);", "language": "javascript" }
+```
+
+**Response `data`:**
+```json
+{
+  "steps": [
+    {
+      "index": 0,
+      "event": {
+        "type": "PROGRAM_START",
+        "line": 1,
+        "description": "Program starts executing.",
+        "detail": {}
+      },
+      "state": {
+        "currentLine": 1,
+        "currentStep": 0,
+        "scopes": [...],
+        "callStack": [...],
+        "webApis": [],
+        "taskQueue": [],
+        "microtaskQueue": [],
+        "consoleOutput": [],
+        "executionStatus": "running",
+        "eventLoopPhase": "idle",
+        "error": null,
+        "explanation": "Program starts executing."
+      }
+    }
+  ],
+  "totalSteps": 12,
+  "finalState": { ... },
+  "hasError": false
+}
+```
+
+**Execution Event Types (PRD §21):**
+`PROGRAM_START`, `CREATION_PHASE`, `EXECUTION_PHASE`, `PROGRAM_END`,
+`HOISTING`, `DECLARE_VARIABLE`, `ASSIGN_VARIABLE`,
+`ENTER_FUNCTION`, `EXIT_FUNCTION`, `RETURN_VALUE`,
+`EVALUATE_CONDITION`, `LOOP_START`, `LOOP_ITERATION`, `LOOP_END`,
+`BREAK_STATEMENT`, `CONTINUE_STATEMENT`,
+`PUSH_CALL_STACK`, `POP_CALL_STACK`,
+`REGISTER_TIMER`, `MOVE_TO_TASK_QUEUE`, `MOVE_TO_MICROTASK_QUEUE`,
+`EVENT_LOOP_CHECK`, `PROCESS_MICROTASK`, `PROCESS_TASK`,
+`PROMISE_CREATED`, `PROMISE_RESOLVED`, `CONSOLE_OUTPUT`, `ERROR`
+
+**Limits:** Max code 50KB · Max steps 10,000 · Timeout 5s
