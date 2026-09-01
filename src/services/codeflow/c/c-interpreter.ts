@@ -16,7 +16,7 @@
 import {
   RuntimeState, RuntimeValue, ExecutionStep,
   ExecutionResult, Variable, Scope, CallFrame,
-  LanguageEngine, SupportedLanguage,
+  LanguageEngine, SupportedLanguage, ExecutionEventType,
 } from '../types';
 import { createInitialState, cloneState } from '../runtime-state.factory';
 import { CODEFLOW_LIMITS } from '../../../constants/codeflow.constants';

@@ -26,11 +26,6 @@ export class NoteRepository {
     return prisma.note.findMany({
       where: { userId },
       orderBy: { updatedAt: 'desc' },
-      include: {
-        lesson: {
-          select: { id: true, title: true, slug: true, section: { select: { id: true, title: true, roadmap: { select: { id: true, title: true, slug: true } } } } },
-        },
-      },
     });
   }
 }

@@ -16,7 +16,7 @@
 import {
   RuntimeState, RuntimeValue, ExecutionStep,
   ExecutionResult, Variable, Scope, CallFrame,
-  LanguageEngine, SupportedLanguage,
+  LanguageEngine, SupportedLanguage, ExecutionEventType, HeapObject,
 } from '../types';
 import { createInitialState, cloneState } from '../runtime-state.factory';
 import { CODEFLOW_LIMITS } from '../../../constants/codeflow.constants';
@@ -558,7 +558,7 @@ export class JavaInterpreter implements LanguageEngine {
       if (v) {
         const old = v.value;
         v.value = value; v.changedAtStep = this.steps.length;
-        this.emit('ASSIGN_VARIABLE', line, `${name} = ${jDisplay(value)} (was ${jDisplay(old)})`, { name, oldValue: old, newValue: value });
+        this.emit('ASSIGN_VARIABLE', _lineCtx, `${name} = ${jDisplay(value)} (was ${jDisplay(old)})`, { name, oldValue: old, newValue: value });
         return;
       }
       sid = scope.parentId;

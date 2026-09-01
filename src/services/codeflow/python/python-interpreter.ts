@@ -25,6 +25,8 @@ import {
   CallFrame,
   LanguageEngine,
   SupportedLanguage,
+  ExecutionEventType,
+  ExecutionEvent,
 } from '../types';
 import { createInitialState, cloneState } from '../runtime-state.factory';
 import { CODEFLOW_LIMITS } from '../../../constants/codeflow.constants';
