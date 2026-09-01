@@ -34,7 +34,7 @@ import { z } from 'zod';
 
 import { authenticate } from '../middlewares/authenticate.middleware';
 import { requireManager } from '../middlewares/role.middleware';
-import { validate, validateAndSanitize } from '../middlewares/validate.middleware';
+import { validate } from '../middlewares/validate.middleware';
 import { sendSuccess, sendCreated, buildPaginated } from '../utils/response';
 import { prisma } from '../config/database';
 import { cacheService } from '../services/cache.service';
@@ -76,9 +76,7 @@ const createProblemSchema = z.object({
   }),
 });
 
-const updateProblemSchema = createProblemSchema.shape.body.partial().extend({
-  body: z.object({}).passthrough(),
-}).shape.body;
+// updateProblemSchema intentionally omitted — PUT /problems/:id validates loosely via passthrough
 
 const testCaseSchema = z.object({
   body: z.object({
@@ -153,7 +151,6 @@ router.get('/problems/:id', async (req: Request, res: Response, next: NextFuncti
 // ─── POST /problems ───────────────────────────────────────────────────────────
 router.post('/problems', validate(createProblemSchema), async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const userId = (req as any).user?.userId;
     const { tags, companies, ...data } = req.body;
 
     // Auto-generate slug if not provided
@@ -304,7 +301,7 @@ router.post('/problems/:id/duplicate', async (req: Request, res: Response, next:
       slug = `${baseSlug}-${counter++}`;
     }
 
-    const { id, createdAt, updatedAt, deletedAt, slug: _slug, submissionCount, acceptedCount, acceptanceRate, ...rest } = original as any;
+    const { id: _id, createdAt: _ca, updatedAt: _ua, deletedAt: _da, slug: _slug, submissionCount: _sc, acceptedCount: _ac, acceptanceRate: _ar, ...rest } = original as any;
 
     const copy = await prisma.codingProblem.create({
       data: { ...rest, slug, title: `${original.title} (Copy)`, isPublished: false, submissionCount: 0, acceptedCount: 0, acceptanceRate: 0 },

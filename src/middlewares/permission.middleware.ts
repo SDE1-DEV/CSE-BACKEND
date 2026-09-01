@@ -14,7 +14,7 @@
  *   'publish' → canPublish
  */
 
-import { Request, Response, NextFunction } from 'express';
+import { Response, NextFunction } from 'express';
 import { Role } from '@prisma/client';
 import { prisma } from '../config/database';
 import { sendError } from '../utils/response';

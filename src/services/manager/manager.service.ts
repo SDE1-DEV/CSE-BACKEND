@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * PRD-07: Manager Service
  *
@@ -16,8 +15,6 @@ import { prisma } from '../../config/database';
 import { getRedisClient, isRedisAvailable } from '../../config/redis';
 import { auditLogRepository } from '../../repositories/admin/audit-log.repository';
 import { contentVersionRepository } from '../../repositories/admin/content-version.repository';
-import { enqueueNotification } from '../../queues/notification.queue';
-import { wsGateway } from '../../websocket/gateway';
 import { Role, Prisma } from '@prisma/client';
 
 const MANAGER_DASHBOARD_TTL = 300; // 5 minutes
@@ -873,7 +870,7 @@ export class ManagerService {
     });
     if (!problem) throw new Error('Problem not found');
     const newProblem = await prisma.$transaction(async (tx) => {
-      const { id: _id, testCases, templates, createdAt, updatedAt, hints, ...problemData } = problem as any;
+      const { id: _id, testCases, templates, createdAt: _createdAt, updatedAt: _updatedAt, hints, ...problemData } = problem as any;
       const created = await tx.codingProblem.create({
         data: {
           ...problemData,

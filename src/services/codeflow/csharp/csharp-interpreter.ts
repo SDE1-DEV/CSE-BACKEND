@@ -11,8 +11,8 @@
  */
 
 import {
-  RuntimeState, RuntimeValue, ExecutionStep, ExecutionEvent, ExecutionEventType,
-  ExecutionResult, Variable, Scope, CallFrame, ConsoleEntry, HeapObject,
+  RuntimeState, RuntimeValue, ExecutionStep,
+  ExecutionResult, Variable, Scope, CallFrame,
   LanguageEngine, SupportedLanguage,
 } from '../types';
 import { createInitialState, cloneState } from '../runtime-state.factory';
@@ -41,7 +41,6 @@ interface CSConsoleWrite extends CSNode { type: 'ConsoleWrite'; args: CSExpr[]; 
 interface CSThrowStmt extends CSNode { type: 'Throw'; expr: CSExpr }
 interface CSTryStmt extends CSNode { type: 'Try'; body: CSNode[]; catches: CSCatch[]; finally_: CSNode[] }
 interface CSCatch { exType: string | null; name: string | null; body: CSNode[]; line: number }
-interface CSObjectCreate extends CSNode { type: 'ObjectCreate'; className: string; args: CSExpr[] }
 
 type CSStmt = CSVarDecl | CSMethodDecl | CSIfStmt | CSWhileStmt | CSForStmt | CSForEachStmt
   | CSReturnStmt | CSBreakStmt | CSContinueStmt | CSExprStmt | CSConsoleWrite | CSThrowStmt | CSTryStmt;
@@ -276,7 +275,7 @@ class CSParser {
     }
 
     if (t.type === 'LBRACE') {
-      const body = this.parseBlock();
+      this.parseBlock(); // consume the block
       return { type: 'ExprStmt', expr: { type: 'Null', line: t.line } as CSExpr, line: t.line } as CSExprStmt;
     }
 
@@ -464,7 +463,8 @@ class CSParser {
   }
   private parsePostfix(): CSExpr {
     let node = this.parsePrimary();
-    while (true) {
+    let csKeepParsing = true;
+    while (csKeepParsing) {
       if (this.check('OP','++') || this.check('OP','--')) { const op = this.advance().value; node = { type: 'UnaryOp', op: `post${op}`, operand: node, line: node.line }; }
       else if (this.check('DOT')) {
         this.advance();
@@ -486,7 +486,7 @@ class CSParser {
         const idx = this.parseExpr(); this.match('RBRACKET');
         node = { type: 'Index', array: (node as any).id ?? '_', index: idx, line: node.line };
       }
-      else break;
+      else { csKeepParsing = false; }
     }
     return node;
   }
@@ -651,7 +651,7 @@ export class CSharpInterpreter implements LanguageEngine {
     }
     return undefined;
   }
-  private declareVar(name: string, cstype: string, value: RuntimeValue, scopeId: string, line: number) {
+  private declareVar(name: string, cstype: string, value: RuntimeValue, scopeId: string, _line: number) {
     const scope = this.getScope(scopeId);
     if (!scope) return;
     scope.variables = scope.variables.filter(v => v.name !== name);
@@ -709,16 +709,17 @@ export class CSharpInterpreter implements LanguageEngine {
       case 'While': {
         let iter = 0;
         this.emit('LOOP_START', line, 'while loop begins.', { loopType: 'while' });
-        while (true) {
+        let csWhileRunning = true;
+        while (csWhileRunning) {
           const cond = this.evalExpr(stmt.test, scopeId);
           const result = Boolean(cond);
           this.emit('LOOP_ITERATION', line, `while (${this.csExprText(stmt.test)}) → ${result ? 'true' : 'false — exit'}`, { iteration: iter, conditionResult: result });
-          if (!result) break;
+          if (!result) { csWhileRunning = false; break; }
           const ls = fScope();
           this.state.scopes.push({ id: ls, type: 'block', name: 'while_body', parentId: scopeId, variables: [] });
           try { this.execBlock(stmt.body as CSStmt[], ls); }
           catch (e) {
-            if (e instanceof BreakSignal) { this.emit('BREAK_STATEMENT', line, 'break', {}); break; }
+            if (e instanceof BreakSignal) { this.emit('BREAK_STATEMENT', line, 'break', {}); csWhileRunning = false; break; }
             if (e instanceof ContinueSignal) { this.emit('CONTINUE_STATEMENT', line, 'continue', {}); iter++; continue; }
             throw e;
           } finally { this.state.scopes = this.state.scopes.filter(s => s.id !== ls); }
@@ -735,18 +736,19 @@ export class CSharpInterpreter implements LanguageEngine {
           if (stmt.init) this.execStmt(stmt.init as CSStmt, forScope);
           let iter = 0;
           this.emit('LOOP_START', line, 'for loop begins.', { loopType: 'for' });
-          while (true) {
+          let csForRunning = true;
+          while (csForRunning) {
             if (stmt.test) {
               const cond = this.evalExpr(stmt.test, forScope);
               const result = Boolean(cond);
               this.emit('LOOP_ITERATION', line, `for condition: ${this.csExprText(stmt.test)} → ${result ? 'true' : 'false — exit'}`, { iteration: iter, conditionResult: result });
-              if (!result) break;
+              if (!result) { csForRunning = false; break; }
             }
             const bodyScope = fScope();
             this.state.scopes.push({ id: bodyScope, type: 'block', name: 'for_body', parentId: forScope, variables: [] });
             try { this.execBlock(stmt.body as CSStmt[], bodyScope); }
             catch (e) {
-              if (e instanceof BreakSignal) break;
+              if (e instanceof BreakSignal) { csForRunning = false; break; }
               if (e instanceof ContinueSignal) { /* continue to update */ }
               else throw e;
             } finally { this.state.scopes = this.state.scopes.filter(s => s.id !== bodyScope); }

@@ -6,7 +6,7 @@ import { AuthenticatedRequest } from '../../types';
 import { courseService } from '../../services/learning-cms/course.service';
 import { levelService } from '../../services/learning-cms/level.service';
 import { contentService } from '../../services/learning-cms/content.service';
-import { AppError } from '../../middlewares/error.middleware';
+// AppError intentionally removed — unused in this controller
 import { storageService } from '../../services/learning-cms/storage.service';
 
 export const listCourses = async (
@@ -504,7 +504,6 @@ export const bulkUpdateContentStatus = async (
   next: NextFunction,
 ): Promise<void> => {
   try {
-    const actorId = req.user!.userId;
     const { ids, status } = req.body as { ids: string[]; status: string };
 
     // Map status string to the published boolean (and future archived flag)
@@ -540,7 +539,6 @@ export const bulkDeleteContent = async (
   next: NextFunction,
 ): Promise<void> => {
   try {
-    const actorId = req.user!.userId;
     const { ids } = req.body as { ids: string[] };
 
     // Delete associated note images first to avoid orphaned storage objects

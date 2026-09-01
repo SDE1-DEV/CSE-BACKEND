@@ -5,7 +5,7 @@
 
 import { RuntimeState, Scope, CallFrame, SupportedLanguage } from './types';
 
-export function createInitialState(language: SupportedLanguage = 'javascript'): RuntimeState {
+export function createInitialState(_language: SupportedLanguage = 'javascript'): RuntimeState {
   const globalScope: Scope = {
     id: 'global',
     type: 'global',

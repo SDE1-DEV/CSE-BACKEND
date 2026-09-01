@@ -21,18 +21,17 @@
  */
 
 import { Router, Request, Response, NextFunction } from 'express';
-import { ProgrammingLanguage, SubmissionStatus } from '@prisma/client';
+import { ProgrammingLanguage } from '@prisma/client';
 import { z } from 'zod';
 
 import { authenticate } from '../middlewares/authenticate.middleware';
 import { requireStudent } from '../middlewares/role.middleware';
 import { validate } from '../middlewares/validate.middleware';
-import { sendSuccess, sendCreated, buildPaginated } from '../utils/response';
+import { sendSuccess, sendCreated } from '../utils/response';
 import { submissionService } from '../services/submission.service';
 import { codeDraftService } from '../services/code-draft.service';
 import { LANGUAGE_CONFIGS } from '../services/execution';
 import { prisma } from '../config/database';
-import { HTTP_STATUS } from '../constants';
 
 const router = Router();
 

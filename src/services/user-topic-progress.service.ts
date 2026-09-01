@@ -6,7 +6,6 @@
  */
 
 import { prisma } from '../config/database';
-import { buildPaginated } from '../utils/response';
 
 export class UserTopicProgressService {
   /**

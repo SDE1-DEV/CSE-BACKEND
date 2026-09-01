@@ -57,16 +57,17 @@ async function generateUniqueContentSlug(title: string, excludeId?: string): Pro
   const baseSlug = slugify(title);
   let slug = baseSlug;
   let counter = 1;
-
-  while (true) {
-    const existing = await prisma.learningContent.findFirst({
+  let existing = await prisma.learningContent.findFirst({
+    where: { slug, ...(excludeId ? { NOT: { id: excludeId } } : {}) },
+    select: { id: true },
+  });
+  while (existing) {
+    slug = `${baseSlug}-${counter++}`;
+    existing = await prisma.learningContent.findFirst({
       where: { slug, ...(excludeId ? { NOT: { id: excludeId } } : {}) },
       select: { id: true },
     });
-    if (!existing) break;
-    slug = `${baseSlug}-${counter++}`;
   }
-
   return slug;
 }
 

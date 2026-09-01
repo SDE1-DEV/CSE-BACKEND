@@ -9,7 +9,6 @@ import { requireStudent } from '../middlewares/role.middleware';
 import { validate } from '../middlewares/validate.middleware';
 import {
   sendInvitationSchema,
-  invitationParamsSchema,
   updateInvitationSchema,
   getInvitationsQuerySchema,
 } from '../validators/team-invitation.validator';

@@ -12,7 +12,6 @@ import {
   deleteAdminResource,
   bulkDeleteAdminResource,
   getAdminDashboard,
-  getAdminReports,
   getPlatformSettings,
   updatePlatformSettings,
 } from '../controllers/admin.controller';

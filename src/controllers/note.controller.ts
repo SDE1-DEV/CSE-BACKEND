@@ -1,7 +1,6 @@
 import { Response, NextFunction, Request } from 'express';
 import { noteService } from '../services/note.service';
 import { sendSuccess, sendCreated } from '../utils/response';
-import { LEARNING_MESSAGES } from '../constants';
 import { AuthenticatedRequest } from '../types';
 import { AppError } from '../middlewares/error.middleware';
 import { HTTP_STATUS } from '../constants';

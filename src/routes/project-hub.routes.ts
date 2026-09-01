@@ -9,7 +9,7 @@ import {
   removeProjectTechnology,
 } from '../controllers/project-hub.controller';
 import { authenticate } from '../middlewares/authenticate.middleware';
-import { requireManager, requireStudent } from '../middlewares/role.middleware';
+import { requireManager } from '../middlewares/role.middleware';
 import { validate } from '../middlewares/validate.middleware';
 import {
   createProjectSchema,

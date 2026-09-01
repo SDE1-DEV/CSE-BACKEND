@@ -26,10 +26,10 @@ export function serialize(value: unknown, depth = 0): RuntimeValue {
   }
 
   if (typeof value === 'function') {
-    const fn = value as Function;
+    const fn = value as (...args: unknown[]) => unknown;
     return {
       __type: 'function',
-      name: fn.name || '(anonymous)',
+      name: (fn as { name?: string }).name || '(anonymous)',
       params: extractParams(fn),
     } as RuntimeFunction;
   }
@@ -94,7 +94,7 @@ export function display(value: RuntimeValue, depth = 0): string {
   return String(value);
 }
 
-function extractParams(fn: Function): string[] {
+function extractParams(fn: (...args: unknown[]) => unknown): string[] {
   try {
     const src = fn.toString();
     const match = src.match(/^(?:function\s*\w*\s*)?\(([^)]*)\)/);

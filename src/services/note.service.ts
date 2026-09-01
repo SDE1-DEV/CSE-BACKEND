@@ -1,11 +1,8 @@
-// @ts-nocheck
 import { noteRepository } from '../repositories/note.repository';
 import { lessonRepository } from '../repositories/lesson.repository';
 import { AppError } from '../middlewares/error.middleware';
 import { HTTP_STATUS, LEARNING_MESSAGES } from '../constants';
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type Note = any;
+import { Note } from '@prisma/client';
 
 const MAX_NOTE_LENGTH = 100_000;
 

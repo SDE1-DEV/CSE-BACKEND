@@ -10,7 +10,7 @@
  */
 
 import { Router, Request, Response, NextFunction } from 'express';
-import { ProgrammingLanguage, SubmissionStatus } from '@prisma/client';
+import { ProgrammingLanguage } from '@prisma/client';
 
 import { getProblems } from '../controllers/coding-problem.controller';
 import { codingProblemService } from '../services/coding-problem.service';
@@ -18,7 +18,6 @@ import { getTags } from '../controllers/tag.controller';
 import { getCompanies } from '../controllers/company.controller';
 import { getToday as getDailyChallenge } from '../controllers/daily-challenge.controller';
 import {
-  createSubmission,
   getSubmissions,
   getSubmissionById,
   getSubmissionsByProblem,
@@ -32,13 +31,11 @@ import { authenticate } from '../middlewares/authenticate.middleware';
 import { requireStudent } from '../middlewares/role.middleware';
 import { validate } from '../middlewares/validate.middleware';
 import { getProblemsQuerySchema } from '../validators/coding-problem.validator';
-import { createSubmissionSchema, getSubmissionsQuerySchema } from '../validators/submission.validator';
+import { getSubmissionsQuerySchema } from '../validators/submission.validator';
 import { createDiscussionSchema, getDiscussionsQuerySchema } from '../validators/discussion.validator';
 
 import { prisma } from '../config/database';
 import { sendSuccess, sendCreated, buildPaginated } from '../utils/response';
-import { submissionRepository } from '../repositories/submission.repository';
-import { codingProblemRepository } from '../repositories/coding-problem.repository';
 
 // FPRD-16: Topics sub-router
 import codingTopicsRoutes from './coding-topics.routes';

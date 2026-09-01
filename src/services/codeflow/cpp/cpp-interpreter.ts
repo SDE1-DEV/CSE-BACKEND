@@ -11,19 +11,9 @@
  */
 
 import {
-  RuntimeState, RuntimeValue, ExecutionStep, ExecutionEvent, ExecutionEventType,
-  ExecutionResult, Variable, Scope, CallFrame, ConsoleEntry, MemoryCell, HeapObject,
-  LanguageEngine, SupportedLanguage,
+  ExecutionResult, SupportedLanguage,
 } from '../types';
-import { createInitialState, cloneState } from '../runtime-state.factory';
-import { CODEFLOW_LIMITS } from '../../../constants/codeflow.constants';
-// Re-use the C tokenizer/parser infrastructure
 import { CInterpreter } from '../c/c-interpreter';
-
-// ── Signals ────────────────────────────────────────────────────────────────────
-class ReturnSignal { constructor(public value: RuntimeValue) {} }
-class BreakSignal {}
-class ContinueSignal {}
 
 // ── CPP extends C — we re-use the C interpreter but override language + add C++ features ──
 export class CppInterpreter extends CInterpreter {
@@ -56,7 +46,7 @@ export class CppInterpreter extends CInterpreter {
 
     // cout << variable << endl
     s = s.replace(/(?:std::)?cout\s*<<\s*([\w.]+)\s*(?:<<\s*"([^"]*)"\s*)?(?:<<\s*(?:std::)?endl\s*)?;/g,
-      (_, varname, extra) => `printf("%d\\n", ${varname});`);
+      (_, varname, _extra) => `printf("%d\\n", ${varname});`);
 
     // cout << expr (generic)
     s = s.replace(/(?:std::)?cout\s*<<\s*([^;]+)\s*(?:<<\s*(?:std::)?endl\s*)?;/g,

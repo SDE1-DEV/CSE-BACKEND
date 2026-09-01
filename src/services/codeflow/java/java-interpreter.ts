@@ -14,8 +14,8 @@
  */
 
 import {
-  RuntimeState, RuntimeValue, ExecutionStep, ExecutionEvent, ExecutionEventType,
-  ExecutionResult, Variable, Scope, CallFrame, ConsoleEntry, HeapObject,
+  RuntimeState, RuntimeValue, ExecutionStep,
+  ExecutionResult, Variable, Scope, CallFrame,
   LanguageEngine, SupportedLanguage,
 } from '../types';
 import { createInitialState, cloneState } from '../runtime-state.factory';
@@ -25,7 +25,6 @@ import { CODEFLOW_LIMITS } from '../../../constants/codeflow.constants';
 class ReturnSignal { constructor(public value: RuntimeValue) {} }
 class BreakSignal {}
 class ContinueSignal {}
-class ThrowSignal { constructor(public message: string) {} }
 
 // ── Types (reuse C# AST shapes with Java field names) ─────────────────────────
 interface JNode { type: string; line: number }
@@ -221,7 +220,7 @@ class JParser {
       const typeWords = ['int','long','short','byte','char','float','double','boolean','String','Integer','Double','Boolean','var','ArrayList','LinkedList','HashMap','List','Map'];
       if (typeWords.includes(t.value)) return this.parseVarDecl();
     }
-    if (t.type === 'LBRACE') { const body = this.parseBlock(); return null; }
+    if (t.type === 'LBRACE') { this.parseBlock(); return null; }
     const expr = this.parseExpr();
     this.match('SEMI');
     return { type: 'ExprStmt', expr, line: t.line } as JExprStmt;
@@ -262,23 +261,24 @@ class JParser {
     this.advance(); this.match('LPAREN');
     // Check for enhanced for: for (Type var : collection)
     // We peek ahead to see if there's a colon
-    const saved = this.pos;
+    const savedPos = this.pos;
     let isEnhanced = false;
-    let depth = 0;
     for (let k = this.pos; k < Math.min(this.pos+15, this.tokens.length); k++) {
       if (this.tokens[k]?.type === 'RPAREN') break;
       if (this.tokens[k]?.value === ':') { isEnhanced = true; break; }
       if (this.tokens[k]?.type === 'SEMI') break;
     }
     if (isEnhanced) {
-      const jtype = this.parseTypeSpec();
+      const jvarType = this.parseTypeSpec();
       const target = this.advance().value;
       this.advance(); // :
       const iter = this.parseExpr();
       this.match('RPAREN');
       const body = this.check('LBRACE') ? this.parseBlock() : [this.parseStatement()!].filter(Boolean);
+      void jvarType; // type annotation consumed for parsing, not stored
       return { type: 'ForEach', target, iter, body, line } as JForEachStmt;
     }
+    void savedPos; // saved for potential backtrack (not needed in current impl)
     let init: JNode | null = null;
     if (!this.check('SEMI')) {
       const typeWords = ['int','long','short','double','float','boolean','char','String','var'];
@@ -375,7 +375,8 @@ class JParser {
   }
   private parsePostfix(): JExpr {
     let node = this.parsePrimary();
-    while (true) {
+    let jKeepParsing = true;
+    while (jKeepParsing) {
       if (this.check('OP','++') || this.check('OP','--')) { const op = this.advance().value; node = { type: 'UnaryOp', op: `post${op}`, operand: node, line: node.line }; }
       else if (this.check('DOT')) {
         this.advance();
@@ -391,7 +392,7 @@ class JParser {
         }
       }
       else if (this.check('LBRACKET')) { this.advance(); const idx = this.parseExpr(); this.match('RBRACKET'); node = { type: 'Index', array: (node as any).id ?? '_', index: idx, line: node.line }; }
-      else break;
+      else { jKeepParsing = false; }
     }
     return node;
   }
@@ -542,13 +543,13 @@ export class JavaInterpreter implements LanguageEngine {
     }
     return undefined;
   }
-  private declareVar(name: string, jtype: string, value: RuntimeValue, scopeId: string, line: number) {
+  private declareVar(name: string, jtype: string, value: RuntimeValue, scopeId: string, _line: number) {
     const scope = this.getScope(scopeId);
     if (!scope) return;
     scope.variables = scope.variables.filter(v => v.name !== name);
     scope.variables.push({ name, value, kind: 'local', state: 'initialized', scopeId, type: jtype, changedAtStep: this.steps.length });
   }
-  private setVar(name: string, value: RuntimeValue, scopeId: string, line: number) {
+  private setVar(name: string, value: RuntimeValue, scopeId: string, _lineCtx: number) {
     let sid: string | null = scopeId;
     while (sid) {
       const scope = this.getScope(sid);
@@ -594,15 +595,16 @@ export class JavaInterpreter implements LanguageEngine {
       case 'While': {
         let iter = 0;
         this.emit('LOOP_START', line, 'while loop begins.', { loopType: 'while' });
-        while (true) {
+        let jWhileRunning = true;
+        while (jWhileRunning) {
           const cond = this.evalExpr(stmt.test, scopeId);
           const result = Boolean(cond);
           this.emit('LOOP_ITERATION', line, `while (${this.jExprText(stmt.test)}) → ${result ? 'true' : 'false — exit'}`, { iteration: iter, conditionResult: result });
-          if (!result) break;
+          if (!result) { jWhileRunning = false; break; }
           const ls = fScope();
           this.state.scopes.push({ id: ls, type: 'block', name: 'while_body', parentId: scopeId, variables: [] });
           try { this.execBlock(stmt.body as JStmt[], ls); }
-          catch (e) { if (e instanceof BreakSignal) { this.state.scopes = this.state.scopes.filter(s => s.id !== ls); break; } if (e instanceof ContinueSignal) { this.state.scopes = this.state.scopes.filter(s => s.id !== ls); iter++; continue; } throw e; }
+          catch (e) { if (e instanceof BreakSignal) { this.state.scopes = this.state.scopes.filter(s => s.id !== ls); jWhileRunning = false; break; } if (e instanceof ContinueSignal) { this.state.scopes = this.state.scopes.filter(s => s.id !== ls); iter++; continue; } throw e; }
           finally { this.state.scopes = this.state.scopes.filter(s => s.id !== ls); }
           iter++;
         }
@@ -616,17 +618,18 @@ export class JavaInterpreter implements LanguageEngine {
           if (stmt.init) this.execStmt(stmt.init as JStmt, fs);
           let iter = 0;
           this.emit('LOOP_START', line, 'for loop begins.', { loopType: 'for' });
-          while (true) {
+          let jForRunning = true;
+          while (jForRunning) {
             if (stmt.test) {
               const cond = this.evalExpr(stmt.test, fs);
               const result = Boolean(cond);
               this.emit('LOOP_ITERATION', line, `for condition: ${this.jExprText(stmt.test)} → ${result ? 'true' : 'false — exit'}`, { iteration: iter, conditionResult: result });
-              if (!result) break;
+              if (!result) { jForRunning = false; break; }
             }
             const bs = fScope();
             this.state.scopes.push({ id: bs, type: 'block', name: 'for_body', parentId: fs, variables: [] });
             try { this.execBlock(stmt.body as JStmt[], bs); }
-            catch (e) { if (e instanceof BreakSignal) { this.state.scopes = this.state.scopes.filter(s => s.id !== bs); break; } if (e instanceof ContinueSignal) { this.state.scopes = this.state.scopes.filter(s => s.id !== bs); } else throw e; }
+            catch (e) { if (e instanceof BreakSignal) { this.state.scopes = this.state.scopes.filter(s => s.id !== bs); jForRunning = false; break; } if (e instanceof ContinueSignal) { this.state.scopes = this.state.scopes.filter(s => s.id !== bs); } else throw e; }
             finally { this.state.scopes = this.state.scopes.filter(s => s.id !== bs); }
             if (stmt.update) this.evalExpr(stmt.update, fs);
             iter++;
@@ -813,7 +816,7 @@ export class JavaInterpreter implements LanguageEngine {
         if ((v as any)?.__type === 'array') return (v as any).elements[idx as number];
         return null;
       }
-      case 'Ternary': return Boolean(this.evalExpr(expr.test, scopeId)) ? this.evalExpr(expr.then, scopeId) : this.evalExpr(expr.else_, scopeId);
+      case 'Ternary': return this.evalExpr(expr.test, scopeId) ? this.evalExpr(expr.then, scopeId) : this.evalExpr(expr.else_, scopeId);
       case 'Cast': return this.evalExpr(expr.expr, scopeId);
       default: return null;
     }

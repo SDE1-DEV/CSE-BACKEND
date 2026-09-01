@@ -7,7 +7,6 @@
 
 import { ProgrammingLanguage } from '@prisma/client';
 import { prisma } from '../config/database';
-import { logger } from '../utils/logger';
 
 export class CodeDraftService {
   /**

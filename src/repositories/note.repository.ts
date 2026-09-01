@@ -1,5 +1,4 @@
-// @ts-nocheck
-import { Note, Prisma } from '@prisma/client';
+import { Note } from '@prisma/client';
 import { prisma } from '../config/database';
 
 export class NoteRepository {

@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Category Service
  * PRD-06: Redis caching applied to frequently-accessed categories

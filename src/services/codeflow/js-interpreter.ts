@@ -218,7 +218,7 @@ export class JsInterpreter implements LanguageEngine {
     value: RuntimeValue,
     state: 'hoisted_undefined' | 'tdz' | 'initialized',
     scopeId: string,
-    line: number,
+    _line: number,
   ): void {
     const scope = this.getScope(scopeId);
     if (!scope) return;
@@ -351,7 +351,6 @@ export class JsInterpreter implements LanguageEngine {
       // ── Block ──────────────────────────────────────────────────────────────
       case 'BlockStatement': {
         const blockScopeId = freshScopeId();
-        const parentScope = this.getScope(scopeId);
         const blockScope: Scope = {
           id: blockScopeId,
           type: 'block',
@@ -414,7 +413,8 @@ export class JsInterpreter implements LanguageEngine {
       case 'WhileStatement': {
         let iter = 0;
         this.emit('LOOP_START', line, 'while loop begins.', { loopType: 'while' });
-        while (true) {
+        let jsWhileRunning = true;
+        while (jsWhileRunning) {
           const cond = this.evalExpr(n.test, scopeId);
           const result = Boolean(cond);
           const condText = this.nodeText(n.test);
@@ -422,11 +422,11 @@ export class JsInterpreter implements LanguageEngine {
             `while (${condText}) → ${result ? 'TRUE — enter loop body' : 'FALSE — exit loop'}`,
             { loopType: 'while', iteration: iter, condition: condText, conditionResult: result },
           );
-          if (!result) break;
+          if (!result) { jsWhileRunning = false; break; }
           try {
             this.runNode(n.body, scopeId);
           } catch (e) {
-            if (e instanceof BreakSignal) { this.emit('BREAK_STATEMENT', line, 'break — exit loop', {}); break; }
+            if (e instanceof BreakSignal) { this.emit('BREAK_STATEMENT', line, 'break — exit loop', {}); jsWhileRunning = false; break; }
             if (e instanceof ContinueSignal) { this.emit('CONTINUE_STATEMENT', line, 'continue — next iteration', {}); iter++; continue; }
             throw e;
           }
@@ -436,15 +436,15 @@ export class JsInterpreter implements LanguageEngine {
         return undefined;
       }
 
-      // ── Do...While ────────────────────────────────────────────────────────
       case 'DoWhileStatement': {
         let iter = 0;
         this.emit('LOOP_START', line, 'do...while loop begins.', { loopType: 'do_while' });
+        let jsDoRunning = true;
         do {
           try {
             this.runNode(n.body, scopeId);
           } catch (e) {
-            if (e instanceof BreakSignal) { break; }
+            if (e instanceof BreakSignal) { jsDoRunning = false; break; }
             if (e instanceof ContinueSignal) { iter++; }
             else throw e;
           }
@@ -456,13 +456,12 @@ export class JsInterpreter implements LanguageEngine {
             { loopType: 'do_while', iteration: iter, condition: condText, conditionResult: result },
           );
           iter++;
-          if (!result) break;
-        } while (true);
+          if (!result) { jsDoRunning = false; break; }
+        } while (jsDoRunning);
         this.emit('LOOP_END', line, 'do...while loop finished.', { loopType: 'do_while' });
         return undefined;
       }
 
-      // ── For ───────────────────────────────────────────────────────────────
       case 'ForStatement': {
         const forScopeId = freshScopeId();
         const forScope: Scope = { id: forScopeId, type: 'block', name: 'for', parentId: scopeId, variables: [] };
@@ -471,7 +470,8 @@ export class JsInterpreter implements LanguageEngine {
           if (n.init) this.runNode(n.init, forScopeId);
           let iter = 0;
           this.emit('LOOP_START', line, 'for loop begins.', { loopType: 'for' });
-          while (true) {
+          let jsForRunning = true;
+          while (jsForRunning) {
             if (n.test) {
               const cond = this.evalExpr(n.test, forScopeId);
               const result = Boolean(cond);
@@ -480,12 +480,12 @@ export class JsInterpreter implements LanguageEngine {
                 `for condition: ${condText} → ${result ? 'TRUE' : 'FALSE — exit loop'}`,
                 { loopType: 'for', iteration: iter, condition: condText, conditionResult: result },
               );
-              if (!result) break;
+              if (!result) { jsForRunning = false; break; }
             }
             try {
               this.runNode(n.body, forScopeId);
             } catch (e) {
-              if (e instanceof BreakSignal) { break; }
+              if (e instanceof BreakSignal) { jsForRunning = false; break; }
               if (e instanceof ContinueSignal) { /* fall through to update */ }
               else throw e;
             }

@@ -1,8 +1,6 @@
-// @ts-nocheck
 // RoadmapSection was removed from @prisma/client when the old learning schema was replaced.
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type RoadmapSection = any;
-import { sectionRepository } from '../repositories/section.repository';
+// The repository layer uses raw SQL and returns typed RawSection objects.
+import { sectionRepository, RawSection, RawLessonSummary } from '../repositories/section.repository';
 import { roadmapRepository } from '../repositories/roadmap.repository';
 import { AppError } from '../middlewares/error.middleware';
 import { HTTP_STATUS, LEARNING_MESSAGES } from '../constants';
@@ -10,7 +8,7 @@ import { CreateSectionInput, UpdateSectionInput } from '../validators/section.va
 import { Role } from '@prisma/client';
 
 export class SectionService {
-  async createSection(data: CreateSectionInput): Promise<RoadmapSection> {
+  async createSection(data: CreateSectionInput): Promise<RawSection> {
     const roadmap = await roadmapRepository.findById(data.roadmapId);
     if (!roadmap) {
       throw new AppError(HTTP_STATUS.NOT_FOUND, LEARNING_MESSAGES.ROADMAP_NOT_FOUND);
@@ -24,15 +22,18 @@ export class SectionService {
     });
   }
 
-  async getSectionsByRoadmap(roadmapId: string, role?: Role) {
+  async getSectionsByRoadmap(
+    roadmapId: string,
+    role?: Role,
+  ): Promise<(RawSection & { lessons: RawLessonSummary[] })[]> {
     const roadmap = await roadmapRepository.findById(roadmapId);
     if (!roadmap) {
       throw new AppError(HTTP_STATUS.NOT_FOUND, LEARNING_MESSAGES.ROADMAP_NOT_FOUND);
     }
 
-    const isAdmin = (role === Role.SUPER_ADMIN || role === Role.MANAGER);
+    const isAdmin = role === Role.SUPER_ADMIN || role === Role.MANAGER;
 
-    if (!isAdmin && !roadmap.isPublished) {
+    if (!isAdmin && !(roadmap as { isPublished: boolean }).isPublished) {
       throw new AppError(HTTP_STATUS.NOT_FOUND, LEARNING_MESSAGES.ROADMAP_NOT_FOUND);
     }
 
@@ -42,7 +43,7 @@ export class SectionService {
     return sectionRepository.findByRoadmapIdPublished(roadmapId);
   }
 
-  async updateSection(id: string, data: UpdateSectionInput): Promise<RoadmapSection> {
+  async updateSection(id: string, data: UpdateSectionInput): Promise<RawSection> {
     const section = await sectionRepository.findById(id);
     if (!section) {
       throw new AppError(HTTP_STATUS.NOT_FOUND, LEARNING_MESSAGES.SECTION_NOT_FOUND);

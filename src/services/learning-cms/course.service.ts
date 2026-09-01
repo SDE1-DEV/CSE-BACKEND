@@ -48,13 +48,16 @@ async function generateUniqueSlug(title: string, excludeId?: string): Promise<st
   let slug = baseSlug;
   let counter = 1;
 
-  while (true) {
-    const existing = await prisma.course.findFirst({
+  let existing = await prisma.course.findFirst({
+    where: { slug, ...(excludeId ? { NOT: { id: excludeId } } : {}) },
+    select: { id: true },
+  });
+  while (existing) {
+    slug = `${baseSlug}-${counter++}`;
+    existing = await prisma.course.findFirst({
       where: { slug, ...(excludeId ? { NOT: { id: excludeId } } : {}) },
       select: { id: true },
     });
-    if (!existing) break;
-    slug = `${baseSlug}-${counter++}`;
   }
 
   return slug;

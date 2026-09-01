@@ -10,7 +10,7 @@
  */
 
 import { Router, Request, Response, NextFunction } from 'express';
-import { ProblemDifficulty, ProgrammingLanguage } from '@prisma/client';
+import { ProblemDifficulty } from '@prisma/client';
 import { prisma } from '../config/database';
 import { sendSuccess, buildPaginated } from '../utils/response';
 import { authenticate } from '../middlewares/authenticate.middleware';
@@ -105,7 +105,7 @@ router.get('/', async (req: Request, res: Response, next: NextFunction) => {
       sortOrder,  // asc | desc
       page: rawPage,
       limit: rawLimit,
-      cursor,     // cursor-based pagination (Phase 23)
+      // cursor-based pagination reserved for Phase 23
     } = req.query as Record<string, string>;
 
     const page = Math.max(1, parseInt(rawPage ?? '1', 10));

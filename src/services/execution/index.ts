@@ -12,21 +12,14 @@
  * Set EXECUTION_ENGINE=piston + PISTON_API_URL for real judge execution.
  */
 
-import { env } from '../../config/env';
+import type { IExecutionService } from './execution.interface';
+import { pistonAdapter } from './piston.adapter';
+import { mockExecutor } from './mock.executor';
 
 const engine = (process.env['EXECUTION_ENGINE'] ?? 'mock').toLowerCase();
 
-let _executionService: import('./execution.interface').IExecutionService;
-
-if (engine === 'piston') {
-  const { pistonAdapter } = require('./piston.adapter');
-  _executionService = pistonAdapter;
-} else {
-  const { mockExecutor } = require('./mock.executor');
-  _executionService = mockExecutor;
-}
-
-export const executionService = _executionService;
+export const executionService: IExecutionService =
+  engine === 'piston' ? pistonAdapter : mockExecutor;
 
 export type { IExecutionService, ExecutionRequest, ExecutionResult, TestCaseResult } from './execution.interface';
 export { LANGUAGE_CONFIGS } from './language-config';

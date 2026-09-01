@@ -1,27 +1,22 @@
-// NOTE: admin.service.ts has been updated to use the new Learning CMS models.
-// prisma.roadmap is no longer in the schema — use prisma.course instead.
 import { prisma } from '../config/database';
 import { platformSettingRepository } from '../repositories/platform-setting.repository';
 
-// Map resource names to Prisma models — lazily evaluated.
-// roadmaps have been replaced by the Learning CMS (courses/levels).
-// Keep the resource map for other models that still exist.
-const getResourceModel = (name: string) => {
-  const map: Record<string, { findMany: Function; count: Function; create: Function; update: Function; delete: Function; deleteMany: Function }> = {
-    problems: prisma.codingProblem as any,
-    projects: prisma.project as any,
-    jobs: prisma.jobPosting as any,
-    events: prisma.event as any,
-  };
-  return map[name];
+// Generic Prisma model delegate shape used for resource CRUD
+type ModelDelegate = {
+  findMany: (args?: unknown) => Promise<unknown[]>;
+  count: (args?: unknown) => Promise<number>;
+  create: (args: unknown) => Promise<unknown>;
+  update: (args: unknown) => Promise<unknown>;
+  delete: (args: unknown) => Promise<unknown>;
+  deleteMany: (args: unknown) => Promise<unknown>;
 };
 
 // Used by generic CRUD methods below
-const RESOURCE_MODEL_MAP: Record<string, { findMany: Function; count: Function; create: Function; update: Function; delete: Function; deleteMany: Function }> = {
-  problems: prisma.codingProblem as any,
-  projects: prisma.project as any,
-  jobs: prisma.jobPosting as any,
-  events: prisma.event as any,
+const RESOURCE_MODEL_MAP: Record<string, ModelDelegate> = {
+  problems: prisma.codingProblem as unknown as ModelDelegate,
+  projects: prisma.project as unknown as ModelDelegate,
+  jobs: prisma.jobPosting as unknown as ModelDelegate,
+  events: prisma.event as unknown as ModelDelegate,
 };
 
 export class AdminService {

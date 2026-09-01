@@ -14,8 +14,8 @@
  */
 
 import {
-  RuntimeState, RuntimeValue, ExecutionStep, ExecutionEvent, ExecutionEventType,
-  ExecutionResult, Variable, Scope, CallFrame, ConsoleEntry, MemoryCell,
+  RuntimeState, RuntimeValue, ExecutionStep,
+  ExecutionResult, Variable, Scope, CallFrame,
   LanguageEngine, SupportedLanguage,
 } from '../types';
 import { createInitialState, cloneState } from '../runtime-state.factory';
@@ -67,7 +67,8 @@ type CTokType = 'NUM' | 'STR' | 'CHAR' | 'NAME' | 'OP' | 'SEMI' | 'LBRACE' | 'RB
 
 interface CTok { type: CTokType; value: string; line: number }
 
-const C_KEYWORDS = new Set(['int','char','float','double','long','short','unsigned','signed',
+// C keywords are used by the parser internally via identifier recognition
+const _C_KEYWORDS = new Set(['int','char','float','double','long','short','unsigned','signed',
   'void','struct','typedef','enum','union','static','extern','const','volatile','register',
   'auto','if','else','while','for','do','return','break','continue','switch','case','default',
   'sizeof','NULL','true','false','include','define','main']);
@@ -338,7 +339,7 @@ class CParser {
 
   private parsePrintf(): CPrintfStmt {
     const line = this.peek().line;
-    const name = this.advance().value;
+    this.advance(); // consume function name (printf/puts/etc)
     this.expect('LPAREN');
     const args: CExpr[] = [];
     if (this.check('STR')) {
@@ -480,7 +481,8 @@ class CParser {
 
   private parsePostfix(): CExpr {
     let node = this.parsePrimary();
-    while (true) {
+    let keepParsing = true;
+    while (keepParsing) {
       if (this.check('OP','++') || this.check('OP','--')) {
         const op = this.advance().value;
         node = { type: 'UnaryOp', op: `post${op}`, operand: node, line: node.line };
@@ -497,7 +499,7 @@ class CParser {
         this.advance();
         const field = this.advance().value;
         node = { type: 'Member', object: (node as any).id ?? '_', field, line: node.line };
-      } else break;
+      } else { keepParsing = false; }
     }
     return node;
   }
@@ -745,13 +747,14 @@ export class CInterpreter implements LanguageEngine {
       case 'While': {
         let iter = 0;
         this.emit('LOOP_START', line, 'while loop begins.', { loopType: 'while' });
-        while (true) {
+        let whileRunning = true;
+        while (whileRunning) {
           const cond = this.evalExpr(stmt.test, scopeId);
           const result = Boolean(cond);
           this.emit('LOOP_ITERATION', line,
             `while (${this.cExprText(stmt.test)}) → ${result ? 'TRUE — enter body' : 'FALSE — exit loop'}`,
             { iteration: iter, conditionResult: result });
-          if (!result) break;
+          if (!result) { whileRunning = false; break; }
           const loopScope = fScope();
           this.state.scopes.push({ id: loopScope, type: 'block', name: 'while_body', parentId: scopeId, variables: [] });
           try { this.execBlock(stmt.body as CStmt[], loopScope); }
@@ -776,14 +779,15 @@ export class CInterpreter implements LanguageEngine {
           if (stmt.init) this.execStmt(stmt.init as CStmt, forScopeId);
           let iter = 0;
           this.emit('LOOP_START', line, 'for loop begins.', { loopType: 'for' });
-          while (true) {
+          let forRunning = true;
+          while (forRunning) {
             if (stmt.test) {
               const cond = this.evalExpr(stmt.test, forScopeId);
               const result = Boolean(cond);
               this.emit('LOOP_ITERATION', line,
                 `for condition: ${this.cExprText(stmt.test)} → ${result ? 'TRUE' : 'FALSE — exit loop'}`,
                 { iteration: iter, conditionResult: result });
-              if (!result) break;
+              if (!result) { forRunning = false; break; }
             }
             const bodyScope = fScope();
             this.state.scopes.push({ id: bodyScope, type: 'block', name: 'for_body', parentId: forScopeId, variables: [] });
@@ -968,7 +972,7 @@ export class CInterpreter implements LanguageEngine {
 
       case 'Ternary': {
         const cond = this.evalExpr(expr.test, scopeId);
-        return Boolean(cond) ? this.evalExpr(expr.then, scopeId) : this.evalExpr(expr.else_, scopeId);
+        return cond ? this.evalExpr(expr.then, scopeId) : this.evalExpr(expr.else_, scopeId);
       }
 
       case 'Call': {

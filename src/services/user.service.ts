@@ -413,7 +413,6 @@ export class UserService {
       throw new AppError(HTTP_STATUS.BAD_REQUEST, 'Resume must be under 10MB.');
     }
 
-    const ext = path.extname(file.originalname).toLowerCase() || '.pdf';
     const safeOriginalName = file.originalname.replace(/[^a-zA-Z0-9._-]/g, '_');
     const storagePath = `${userId}/${Date.now()}_${safeOriginalName}`;
 
@@ -523,7 +522,6 @@ export class UserService {
       // Extract storage path from the public URL
       const urlObj = new URL(resumeUrl);
       const publicMarker = `/object/public/${RESUME_BUCKET}/`;
-      const signedMarker = `/object/sign/${RESUME_BUCKET}/`;
       let storagePath: string | null = null;
 
       const publicIdx = urlObj.pathname.indexOf(publicMarker);

@@ -24,7 +24,6 @@ import {
   updateMemberRoleSchema,
 } from '../validators/team.validator';
 import {
-  sendInvitationSchema,
   invitationParamsSchema as _invitationParamsSchema,
   updateInvitationSchema as _updateInvitationSchema,
   getInvitationsQuerySchema as _getInvitationsQuerySchema,

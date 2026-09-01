@@ -12,7 +12,7 @@
  * each submission in an isolated container with CPU/memory/time limits.
  */
 
-import { SubmissionStatus, ProgrammingLanguage } from '@prisma/client';
+import { SubmissionStatus } from '@prisma/client';
 import {
   IExecutionService,
   ExecutionRequest,

@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * FPRD-10: CMS Extras Service
  * Handles Banners, FAQ, Testimonials, Media Library, Version History, Global Search

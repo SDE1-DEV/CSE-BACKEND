@@ -19,13 +19,10 @@ import {
   RuntimeState,
   RuntimeValue,
   ExecutionStep,
-  ExecutionEvent,
-  ExecutionEventType,
   ExecutionResult,
   Variable,
   Scope,
   CallFrame,
-  ConsoleEntry,
   LanguageEngine,
   SupportedLanguage,
 } from '../types';
@@ -498,7 +495,6 @@ class Parser {
 
   private parseComparisons(): Expr {
     let left = this.parseAddSub();
-    const cmpOps = ['==', '!=', '<', '>', '<=', '>=', 'in', 'not', 'is'];
     while (this.peek().type === 'OP' && ['==','!=','<','>','<=','>='].includes(this.peek().value)
       || (this.peek().type === 'NAME' && ['in','is'].includes(this.peek().value))) {
       const op = this.advance().value;
@@ -543,12 +539,12 @@ class Parser {
 
   private parsePostfix(): Expr {
     let node = this.parsePrimary();
-    while (true) {
+    let pyKeepParsing = true;
+    while (pyKeepParsing) {
       if (this.check('DOT')) {
         this.advance();
         const attr = this.advance().value;
         node = { type: 'Attribute', value: node, attr, line: node.line };
-        // method call
         if (this.check('LPAREN')) {
           this.advance();
           const args = this.parseArgList();
@@ -565,7 +561,7 @@ class Parser {
         const slice = this.parseExpr();
         this.match('RBRACKET');
         node = { type: 'Subscript', value: node, slice, line: node.line };
-      } else break;
+      } else { pyKeepParsing = false; }
     }
     return node;
   }
@@ -622,7 +618,6 @@ class Parser {
     const args: Expr[] = [];
     while (!this.check('RPAREN') && !this.check('EOF')) {
       // skip keyword args key=value
-      const saved = this.pos;
       const maybeKw = this.parseExpr();
       if (this.check('OP', '=')) {
         this.advance();
@@ -836,16 +831,17 @@ export class PythonInterpreter implements LanguageEngine {
       case 'While': {
         let iter = 0;
         this.emit('LOOP_START', line, 'while loop begins.', { loopType: 'while' });
-        while (true) {
+        let pyWhileRunning = true;
+        while (pyWhileRunning) {
           const cond = this.evalExpr(stmt.test, scopeId);
           const result = this.pyBool(cond);
           this.emit('LOOP_ITERATION', line,
             `while ${this.exprText(stmt.test)} → ${result ? 'True — enter body' : 'False — exit loop'}`,
             { loopType: 'while', iteration: iter, conditionResult: result });
-          if (!result) break;
+          if (!result) { pyWhileRunning = false; break; }
           try { this.execBlock(stmt.body, scopeId); }
           catch (e) {
-            if (e instanceof BreakSignal) { this.emit('BREAK_STATEMENT', line, 'break — exit loop', {}); break; }
+            if (e instanceof BreakSignal) { this.emit('BREAK_STATEMENT', line, 'break — exit loop', {}); pyWhileRunning = false; break; }
             if (e instanceof ContinueSignal) { this.emit('CONTINUE_STATEMENT', line, 'continue — next iteration', {}); iter++; continue; }
             throw e;
           }
@@ -940,8 +936,7 @@ export class PythonInterpreter implements LanguageEngine {
 
   // ── Expression evaluator ──────────────────────────────────────────────────
   private evalExpr(expr: Expr, scopeId: string): RuntimeValue {
-    const line = expr.line;
-
+    // expr.line available for future error reporting
     switch (expr.type) {
       case 'Num': return expr.value;
       case 'Str': return expr.value;
